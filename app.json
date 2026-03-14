@@ -6,6 +6,11 @@
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
     "scheme": "permdiscoverymap",
+    "splash": {
+      "image": "./src/assets/images/bear-splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -38,7 +43,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

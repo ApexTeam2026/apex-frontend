@@ -5,8 +5,8 @@ export default function AppHeader() {
     <Box pt="$12" pb="$4" bg="$backgroundLight0">
       <Center>
         <Text
-          color="$lime400"
-          fontSize="$2xl"
+          color="#C8F751"
+          fontSize="$3xl"
           fontWeight="$medium"
         >
           /Пермь

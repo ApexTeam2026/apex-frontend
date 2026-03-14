@@ -1,15 +1,16 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import Feather from '@expo/vector-icons/Feather';
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs screenOptions={{ headerShown: false }}  initialRouteName="survey">
       <Tabs.Screen
         name="index"
         options={{
           title: "",
           tabBarIcon: ({ focused, size }) => (
-            <Ionicons name="compass-sharp" size={size} color={focused ? "#A3E635" : "gray"} /> //TODO: изменить икноки
+            <Feather name="compass" size={size} color={focused ? "#C8F751" : "black"} />
           ),
         }}
       />
@@ -19,7 +20,7 @@ export default function TabLayout() {
         options={{
           title: "",
           tabBarIcon: ({ focused, size }) => (
-            <Ionicons name="home-sharp" size={size} color={focused ? "#A3E635" : "gray"} /> //TODO: изменить икноки
+            <Ionicons name="home-sharp" size={size} color={focused ? "#C8F751" : "black"} /> //TODO: изменить икноки
           ),
         }}
       />
@@ -29,7 +30,7 @@ export default function TabLayout() {
         options={{
           title: "",
           tabBarIcon: ({ focused, size }) => (
-            <Ionicons name="person" size={size} color={focused ? "#A3E635" : "gray"} /> //TODO: изменить икноки
+            <Ionicons name="person-outline" size={size} color={focused ? "#C8F751" : "black"} /> //TODO: изменить икноки
           ),
         }}
       />
