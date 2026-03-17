@@ -71,6 +71,7 @@ export default function RootLayout() {
     <GluestackUIProvider config={config}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="survey" />
       </Stack>
 
       {/* Splash */}

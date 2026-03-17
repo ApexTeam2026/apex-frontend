@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {Box, Text, Button, ButtonText, VStack, Center} from "@gluestack-ui/themed"
 import AppHeader from "@/src/components/app-header";
+import { useRouter } from "expo-router";
 
 import BackgroundBear from "@/src/components/background-bear";
 
-export default function SurveyScreen() {
+export default function HomeScreen() {
     //TODO: Сделать загрузку имени пользователя и отображение для гостя
     const userName = "Иван";
+
+    const router = useRouter();
 
     return (
 
@@ -69,6 +72,7 @@ export default function SurveyScreen() {
                     borderRadius="$lg"
                     size="lg"
                     borderColor="#CECECE"
+                    onPress={() => router.push("/survey")} 
                 >
                 <ButtonText color="#000000" size="xl">
                     Пройти опрос

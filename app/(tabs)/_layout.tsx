@@ -4,9 +4,17 @@ import Feather from '@expo/vector-icons/Feather';
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}  initialRouteName="survey">
+    <Tabs 
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle:
+          route.name === "survey/index"
+            ? { display: "none" } // скрываем таббар на Survey
+            : { backgroundColor: "#fff" },
+      })}  
+      initialRouteName="home">
       <Tabs.Screen
-        name="index"
+        name="all-places"
         options={{
           title: "",
           tabBarIcon: ({ focused, size }) => (
@@ -16,7 +24,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="survey"
+        name="home"
         options={{
           title: "",
           tabBarIcon: ({ focused, size }) => (
@@ -34,6 +42,14 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {/* <Tabs.Screen
+        name="survey/index"
+        options={{
+          tabBarButton: () => null, // убираем кнопку из табов
+          headerShown: false,       // скрываем верхний хедер, если нужно
+        }}
+      /> */}
 
     </Tabs>
   );
