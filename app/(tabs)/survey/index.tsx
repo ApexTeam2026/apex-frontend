@@ -7,7 +7,10 @@ import {
   Progress,
   VStack,
   HStack,
+  ButtonIcon,
+  Icon
 } from "@gluestack-ui/themed";
+import {ArrowLeftIcon} from "@gluestack-ui/themed"
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
@@ -57,7 +60,14 @@ export default function SurveyScreen() {
         setCurrent(current + 1);
         } else {
             console.log("Опрос завершён", newAnswers);
-            router.push("/home"); //TODO: изменить переход после завершения опроса
+            router.push("/(tabs)/home"); //TODO: изменить переход после завершения опроса
+        }
+    }
+
+    function handleBack() {
+        if (current > 0) {
+            setCurrent(current - 1);
+            setSelected(answers[questions[current - 1].id] || null);
         }
     }
 
@@ -67,20 +77,29 @@ export default function SurveyScreen() {
         bg="$backgroundLight0" 
         px="$5" 
         py="$6"
+        position="relative"
+        justifyContent="space-between"
     >
       
-        {/* Прогресс-бар */}
-        <Progress value={progress} size="sm" mb="$8">
-            <Progress.FilledTrack bg="#C8F751"/>
-        </Progress>
-        
+        <Box pt="$4" pb="$4">
+            {/* Прогресс-бар */}
+            <Progress value={progress} size="sm" mb="$8">
+                <Progress.FilledTrack bg="#C8F751"/>
+            </Progress>
+        </Box>
         <VStack flex={1} justifyContent="space-between" gap="$20">
-            <Box>
-                {/* Вопросы */}
-                <Text size="xl" mb="$6">
-                    {question.text}
-                </Text>
-            </Box>
+
+            {/* TODO: кнопка назад */}
+            <HStack alignItems="center" gap="$3"> 
+                {/* {current > 0 && (
+                    <Button size="lg" borderRadius="$full" onPress={handleBack}>
+                        <ButtonIcon>
+                            <Icon as={ArrowLeftIcon} size="xs" color="#000" />
+                        </ButtonIcon>
+                    </Button>
+                )} */}
+                <Text size="xl">{question.text}</Text>
+            </HStack>
 
             {/* Выборы */}
             <HStack flexWrap="wrap" justifyContent="flex-start" mt="auto" gap="$3">

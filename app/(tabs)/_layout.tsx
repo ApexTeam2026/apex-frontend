@@ -6,11 +6,7 @@ export default function TabLayout() {
   return (
     <Tabs 
       screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarStyle:
-          route.name === "survey/index"
-            ? { display: "none" } // скрываем таббар на Survey
-            : { backgroundColor: "#fff" },
+        headerShown: false
       })}  
       initialRouteName="home">
       <Tabs.Screen
@@ -43,13 +39,12 @@ export default function TabLayout() {
         }}
       />
 
-      {/* <Tabs.Screen
+      <Tabs.Screen
         name="survey/index"
         options={{
-          tabBarButton: () => null, // убираем кнопку из табов
-          headerShown: false,       // скрываем верхний хедер, если нужно
+          href: null, // скрывает из табов
         }}
-      /> */}
+      />
 
     </Tabs>
   );

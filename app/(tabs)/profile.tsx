@@ -92,7 +92,7 @@ export default function ProfileScreen() {
                                 opacity={isLoading ? 0.5 : 1} // эффект "затемнения" при загрузке
                                 >
                                 <ButtonText color="#000000" size="xl">
-                                {isLoading ? "Загрузка..." : "Войти"}
+                                    {isLoading ? "Загрузка..." : "Войти"}
                                 </ButtonText>
                                 </Button>
 
@@ -107,7 +107,7 @@ export default function ProfileScreen() {
                                 opacity={isLoading ? 0.5 : 1} 
                                 >
                                 <ButtonText color="#000000" size="xl">
-                                {isLoading ? "Загрузка..." : "Зарегистрироваться"}
+                                    {isLoading ? "Загрузка..." : "Зарегистрироваться"}
                                 </ButtonText>
                                 </Button>
                               </VStack>
