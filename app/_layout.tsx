@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Stack } from "expo-router";
 import Bear from "@/src/assets/images/bear-splash.svg";
 import Animated, {
@@ -9,6 +9,7 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import { GluestackUIProvider } from "@gluestack-ui/themed";
+import { AuthProvider } from "@/src/context/AuthContext";
 
 import {
   useFonts,
@@ -44,16 +45,14 @@ export default function RootLayout() {
   const opacity = useSharedValue(0);
 
   useEffect(() => {
-    // Появление splash
     opacity.value = withTiming(1, { duration: 500 });
 
     const timer = setTimeout(() => {
-      // Уход splash
       opacity.value = withTiming(
         0,
         { duration: 800 },
         (isFinished) => {
-          if (isFinished) runOnJS(setHidden)(true); // скрываем после анимации
+          if (isFinished) runOnJS(setHidden)(true);
         }
       );
     }, 2500);
@@ -68,18 +67,24 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <GluestackUIProvider config={config}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
+    <AuthProvider>
+      <GluestackUIProvider config={config}>
+        
+        {/* Навигация */}
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(auth)" />
+        </Stack>
 
-      {/* Splash */}
-      {!hidden && (
-        <Animated.View style={[styles.splash, animatedStyle]}>
-          <Bear />
-        </Animated.View>
-      )}
-    </GluestackUIProvider>
+        {/* Splash */}
+        {!hidden && (
+          <Animated.View style={[styles.splash, animatedStyle]}>
+            <Bear />
+          </Animated.View>
+        )}
+
+      </GluestackUIProvider>
+    </AuthProvider>
   );
 }
 

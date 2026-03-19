@@ -72,7 +72,7 @@ export default function HomeScreen() {
                     borderRadius="$lg"
                     size="lg"
                     borderColor="#CECECE"
-                    onPress={() => router.push("/(tabs)/survey")} 
+                    onPress={() => router.push("/survey")} 
                 >
                 <ButtonText color="#000000" size="xl">
                     Пройти опрос

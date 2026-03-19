@@ -1,98 +1,226 @@
-import React, { useState } from "react";
-import { Box, Text, Button, ButtonText, VStack, Center } from "@gluestack-ui/themed";
+import React, { useState, useEffect } from "react";
+import { Box, Text, Button, ButtonText, VStack, HStack, Center } from "@gluestack-ui/themed";
+import AppHeader from "@/src/components/app-header";
+import BackgroundBear from "@/src/components/background-bear";
 import AvatarIcon from "@/src/assets/images/aavatar_icon.svg";
 
+import { useAuth } from "@/src/hooks/useAuth";
+import { useRouter } from "expo-router";
+
+import { Ionicons } from "@expo/vector-icons";
+
 export default function ProfileScreen() {
+    const { user, logout } = useAuth();
+    const router = useRouter();
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [userData, setUser] = useState<any>(null); // имитация данных с бэка
 
     const handleLogin = () => {
-        setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 1000);
+        router.push("/(tabs)/(auth)/login");
     };
 
     const handleRegister = () => {
-        setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 1000);
+        router.push("/(tabs)/(auth)/register");
     };
 
-    return (
-        <Box 
+    if (user === undefined) return null;
+
+    // Загрузка данных пользователя
+    // TODO: изменить потом с API
+    useEffect(() => {
+        if (user) {
+            setTimeout(() => {
+                setUser({
+                    name: "Иван",
+                    birthDate: "11.11.2011",
+                    email: "yep@gmail.com",
+                });
+            }, 800);
+        }
+    }, [user]);
+
+    // ЕСЛИ ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН
+    if (user) {
+
+        return (
+            <Box 
             flex={1} 
             bg="$backgroundLight0" 
-            px="$9"
-            justifyContent="space-between"
+            px="$6"
         >
-
-            {/* ВЕРХ */}
+            {/* Сдвиг вниз */}
             <Box mt="$20">
                 <Center>
-                    <VStack space="xl" alignItems="center">
+                    <VStack space="lg" alignItems="center" w="$full">
 
+                        {/* Аватар */}
                         <Box 
-                            w={140} 
-                            h={140} 
-                            borderRadius={70}
+                            w={120} 
+                            h={120} 
+                            borderRadius={60}
                             borderWidth={2}
                             borderColor="#C8F751"
                             justifyContent="center"
                             alignItems="center"
                         >
-                            <AvatarIcon width={100} height={100} />
+                            <AvatarIcon width={80} height={80} />
                         </Box>
 
-                        <Text fontSize="$4xl" color="#000000" textAlign="center">
-                            Здравствуйте!
+                        {/* Данные с бэка */}
+                        <Text fontSize="$2xl">
+                            {userData ? userData.name : "Загрузка..."}
                         </Text>
 
-                        <Text
-                            textAlign="center"
-                            color="$textLight500"
-                            fontSize="$xl"
-                        >
-                            Войдите или зарегистрируйтесь, чтобы сохранять любимые места
+                        <Text color="$textLight500">
+                            {userData ? userData.birthDate : ""}
                         </Text>
 
-                    </VStack>
+                        <Text color="$textLight500">
+                            {userData ? userData.email : ""}
+                        </Text>
+
+                        {/* Кнопки */}
+                        <VStack space="md" w="$full" mt="$8">
+
+                        {/* Избранные */}
+                            <Button
+                                w="$full"
+                                h={60}
+                                variant="outline"
+                                borderRadius="$xl"
+                                borderColor="#CECECE"
+                                px="$5"
+                                onPress={() => console.log("Избранные")}
+                            >
+                                <HStack justifyContent="space-between" alignItems="center" w="$full">
+        
+                                <ButtonText color="#000000" size="xl">
+                                Избранные
+                                </ButtonText>
+
+                                <Ionicons 
+                                name="heart-outline" 
+                                size={24} 
+                                color="#C8F751" 
+                                />
+        
+                                </HStack>
+                            </Button>
+
+                        {/* Посещенные */}
+                                <Button
+                                    w="$full"
+                                    h={60}
+                                    variant="outline"
+                                    borderRadius="$xl"
+                                    borderColor="#CECECE"
+                                    px="$5"
+                                    onPress={() => console.log("Посещенные")}
+                                >
+                                    <HStack justifyContent="space-between" alignItems="center" w="$full">
+                                        <ButtonText color="#000000" size="xl">
+                                            Посещенные
+                                        </ButtonText>
+                                        <Ionicons 
+                                        name="star-outline" 
+                                        size={24} 
+                                        color="#C8F751" 
+                                        />
+                                    </HStack>
+                                </Button>
+                            </VStack>
+                        </VStack>
+                    </Center>
+                </Box>
+            </Box>
+        );
+    }
+
+    // ГОСТЬ 
+    return (
+        <Box 
+            flex={1} 
+            bg="$backgroundLight0" 
+            px="$9"  
+            position="relative"
+            justifyContent="space-between"
+        >
+            <BackgroundBear />
+            <AppHeader />
+
+            <Box mt="$4" mb="$10">
+                <Center>
+                    <Box
+                        w="100%"
+                        maxWidth={340}
+                        borderRadius="$2xl"
+                        alignItems="center"
+                    >
+                        <VStack space="xl" alignItems="center">
+                            <Box 
+                                w={120} 
+                                h={120} 
+                                borderRadius={60}
+                                overflow="hidden"
+                                mb="$4"
+                                justifyContent="center"
+                                alignItems="center"
+                            >
+                                <AvatarIcon width={100} height={100} />
+                            </Box>
+
+                            <Text 
+                                fontSize="$4xl" 
+                                mb="$4" 
+                                color="#000000" 
+                                textAlign="center"
+                            >
+                                Здравствуйте!
+                            </Text>
+
+                            <Text
+                                textAlign="center"
+                                color="$textLight500"
+                                fontSize="$xl"
+                                mb="$8"
+                            >
+                                Войдите или зарегистрируйтесь, чтобы сохранять любимые места
+                            </Text>
+
+                            <VStack space="md" w="$full">
+                                {/* Вход */}
+                                <Button
+                                    variant="outline"
+                                    borderRadius="$lg"
+                                    size="lg"
+                                    borderColor="#CECECE"
+                                    onPress={handleLogin}
+                                >
+                                    <ButtonText color="#000000" size="xl">
+                                        Войти
+                                    </ButtonText>
+                                </Button>
+
+                                {/* Регистрация */}
+                                <Button
+                                    variant="outline"
+                                    borderRadius="$lg"
+                                    size="lg"
+                                    borderColor="#CECECE"
+                                    onPress={handleRegister}
+                                >
+                                    <ButtonText color="#000000" size="xl">
+                                        Зарегистрироваться
+                                    </ButtonText>
+                                </Button>
+                            </VStack>
+                        </VStack>
+                    </Box>
                 </Center>          
             </Box>
 
-            {/* НИЗ — КНОПКИ */}
-            <Box pb="$10">
-                <VStack space="md" w="$full">
-
-                    <Button
-                        w="$full"
-                        h={60}
-                        variant="outline"
-                        borderRadius="$xl"
-                        borderColor="#CECECE"
-                        onPress={handleLogin}
-                        isDisabled={isLoading}
-                        opacity={isLoading ? 0.5 : 1}
-                    >
-                        <ButtonText color="#000000" size="xl">
-                            {isLoading ? "Загрузка..." : "Войти"}
-                        </ButtonText>
-                    </Button>
-
-                    <Button
-                        w="$full"
-                        h={60}
-                        variant="outline"
-                        borderRadius="$xl"
-                        borderColor="#CECECE"
-                        onPress={handleRegister}
-                        isDisabled={isLoading}
-                        opacity={isLoading ? 0.5 : 1}
-                    >
-                        <ButtonText color="#000000" size="xl">
-                            {isLoading ? "Загрузка..." : "Зарегистрироваться"}
-                        </ButtonText>
-                    </Button>
-
-                </VStack>
-            </Box>
-
-        </Box>
+            <Box pb="$10" />
+        </Box>     
     );
 }

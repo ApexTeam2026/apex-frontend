@@ -42,8 +42,13 @@ export default function TabLayout() {
       <Tabs.Screen
         name="survey/index"
         options={{
-          href: null, // скрывает из табов
+          href: null,
         }}
+      />
+
+      <Tabs.Screen
+        name="(auth)"
+        options={{ href: null }}
       />
 
     </Tabs>
