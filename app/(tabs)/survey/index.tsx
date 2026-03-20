@@ -13,27 +13,7 @@ import {
 import {ArrowLeftIcon} from "@gluestack-ui/themed"
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-
-const questions = [ //TODO: Перенести отдельно список вопросов
-    {
-        id: 1,
-        text: "Вы будете одни?",
-        options: ["Да", "Нет", "Не знаю"]
-
-    },
-    {
-        id: 2,
-        text: "Какой тип отдыха?",
-        options: ["Активный", "Спокойный", "Не знаю"]
-
-    },
-    {
-        id: 3,
-        text: "Какой у вас бюджет?",
-        options: ["Нет","Низкий", "Средний", "Высокий"]
-
-    }
-];
+import { questions } from "@/src/data/questions"
 
 export default function SurveyScreen() {
     const [current, setCurrent] = useState(0);
