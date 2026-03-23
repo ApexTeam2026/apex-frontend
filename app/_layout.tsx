@@ -73,7 +73,6 @@ export default function RootLayout() {
         {/* Навигация */}
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(auth)" />
         </Stack>
 
         {/* Splash */}

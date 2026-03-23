@@ -2,7 +2,9 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 
 // тип пользователя (пока простой)
 export type User = {
-  name: string;
+    name: string;
+    email: string;      
+    birthDate?: string; 
 } | null;
 
 // тип всего контекста

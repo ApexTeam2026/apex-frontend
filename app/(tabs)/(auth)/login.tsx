@@ -1,32 +1,118 @@
-import { Button, Text, Box, Center } from "@gluestack-ui/themed";
-import { useAuth } from "@/src/hooks/useAuth";
+import React, { useState } from "react";
+import {
+    Box, Text, VStack, Input, InputField, Button, FormControl, Pressable, Spinner, HStack
+} from "@gluestack-ui/themed";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../../../src/hooks/useAuth";
 
-export default function Login() {
-  const { login, user } = useAuth();
-  const router = useRouter();
+export default function LoginScreen() {
+    const router = useRouter();
+    const { login } = useAuth();
 
-  const handleLogin = () => {
-    login({ name: "User" }); // обновляем контекст
-  };
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isError, setIsError] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-  // когда user поменялся → редиректим
-  useEffect(() => {
-    if (user) {
-      router.replace("/(tabs)/profile");
-    }
-  }, [user]);
+    const handleLogin = () => {
+        if (email.trim() === "" || password.trim() === "") {
+            setIsError(true);
+            return;
+        }
 
-  return (
-    <Box flex={1} bg="$backgroundLight0">
-      <Center flex={1}>
-        <Text>Login</Text>
-        <Button onPress={handleLogin}>
-          <Text>Войти</Text>
-        </Button>
-      </Center>
-    </Box>
-    
-  );
+        setIsLoading(true);
+        setIsError(false);
+
+        // Имитация ответа сервера (Заглушка)
+        setTimeout(() => {
+            login({
+                name: "Иван",
+                email: email,
+                birthDate: "11.11.2011"
+            });
+            router.replace("/profile");
+        }, 1200);
+    };
+
+    return (
+        <Box flex={1} bg="$backgroundLight0" px="$10" pt="$20">
+            {/* Кнопка Назад */}
+            <Pressable onPress={() => { if (!isLoading) router.back() }} mb="$10">
+                <Ionicons name="chevron-back" size={28} color={isLoading ? "#EEE" : "#D1D1D1"} />
+            </Pressable>
+
+            <VStack space="xl" alignItems="center">
+                <Text fontSize="$3xl" fontWeight="$light" mb="$8" color="#000">Вход</Text>
+
+                {/* Поле Почта */}
+                <FormControl w="$full">
+                    <Box
+                        borderWidth={1}
+                        borderColor={isError ? "#C25353" : "#CECECE"}
+                        borderRadius="$xl"
+                        px="$4" py="$1"
+                    >
+                        <Text fontSize="$xs" color="#ADADAD">почта</Text>
+                        <Input variant="underlined" borderWidth={0} h={35} isDisabled={isLoading}>
+                            <InputField
+                                value={email}
+                                onChangeText={(v) => { setEmail(v); setIsError(false); }}
+                                placeholder="yep@gmail.com"
+                                color="#000"
+                            />
+                        </Input>
+                    </Box>
+                </FormControl>
+
+                {/* Поле Пароль */}
+                <FormControl w="$full">
+                    <Box
+                        borderWidth={1}
+                        borderColor={isError ? "#C25353" : "#CECECE"}
+                        borderRadius="$xl"
+                        px="$4" py="$1"
+                    >
+                        <Text fontSize="$xs" color="#ADADAD">пароль</Text>
+                        <Input variant="underlined" borderWidth={0} h={35} isDisabled={isLoading}>
+                            <InputField
+                                type="password"
+                                value={password}
+                                onChangeText={(v) => { setPassword(v); setIsError(false); }}
+                                placeholder="......"
+                                color="#000"
+                            />
+                        </Input>
+                    </Box>
+                </FormControl>
+
+                {/* --- СООБЩЕНИЕ ОБ ОШИБКЕ --- */}
+                {/*
+                {isError && (
+                    <HStack space="xs" alignItems="center" mt="$2">
+                        <Ionicons name="close" size={20} color="#C25353" />
+                        <Text color="#000" size="sm">Неверный логин или пароль</Text>
+                    </HStack>
+                )}
+                */}
+                {/* Кнопка Далее */}
+                <Box w="$full" alignItems="flex-end" mt="$10">
+                    <Button
+                        w={140} h={60}
+                        variant="outline"
+                        borderColor="#CECECE"
+                        borderRadius="$xl"
+                        onPress={handleLogin}
+                        isDisabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <Spinner color="#C8F751" />
+                        ) : (
+                            <Ionicons name="chevron-forward" size={30} color="#D1D1D1" />
+                        )}
+                    </Button>
+                </Box>
+            </VStack>
+        </Box>
+    );
 }

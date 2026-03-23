@@ -65,3 +65,4 @@ node_modules
 dist
 dist-ssr
 *.local
+/.vs
