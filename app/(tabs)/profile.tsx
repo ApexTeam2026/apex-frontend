@@ -146,7 +146,6 @@ export default function ProfileScreen() {
             position="relative"
             justifyContent="space-between"
         >
-            <BackgroundBear />
             <AppHeader />
 
             <Box mt="$4" mb="$10">
