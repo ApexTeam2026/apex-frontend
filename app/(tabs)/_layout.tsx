@@ -50,6 +50,12 @@ export default function TabLayout() {
         name="(auth)"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="filters"
+        options={{
+          href: null, // Это скроет страницу из нижнего бара, но позволит на неё переходить
+        }}
+      />
 
     </Tabs>
   );

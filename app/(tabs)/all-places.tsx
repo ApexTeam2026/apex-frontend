@@ -5,7 +5,8 @@ import {
   HStack,
   Input,
   InputField
- } from "@gluestack-ui/themed";
+} from "@gluestack-ui/themed";
+import { useRouter } from "expo-router";
 import { Pressable } from "react-native";
 import { FlatList } from "react-native";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import AppHeader from "@/src/components/app-header"
 import FilterIcon from "@/src/assets/images/filter-icon.svg"
 
 export default function AllPlacesScreen() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -45,9 +47,9 @@ export default function AllPlacesScreen() {
             onChangeText={setSearch}
           />
         </Input>
-
+        
         <Pressable
-          onPress={() => console.log("Filter pressed")} //TODO: при нажатии переход на страницу фильтров
+          onPress={() => router.push("/(tabs)/filters")} //TODO: при нажатии переход на страницу фильтров
           style={{ padding: 8, borderRadius: 8 }}
         >
           <FilterIcon width={35} height={35} />
