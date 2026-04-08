@@ -26,8 +26,6 @@ export default function ProfileScreen() {
 
     if (user === undefined) return null;
 
-    // Загрузка данных пользователя
-    // TODO: изменить потом с API
     useEffect(() => {
         if (user) {
             setTimeout(() => {
