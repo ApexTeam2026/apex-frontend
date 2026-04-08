@@ -66,7 +66,7 @@ export default function AllPlacesScreen() {
         renderItem={({ item }) => (
           <PlaceCard
             place={item}
-            onPress={() => console.log(item.title)} //TODO: при нажатии переход на подробную страницу
+            onPress={() => router.push(`/detailed_place?id=${item.id}`)} //TODO: при нажатии переход на подробную страницу
           />
         )}
       />

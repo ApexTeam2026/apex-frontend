@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Box, Text, Button, ButtonText, VStack, HStack, Center } from "@gluestack-ui/themed";
 import AppHeader from "@/src/components/app-header";
-import BackgroundBear from "@/src/components/background-bear";
 import AvatarIcon from "@/src/assets/images/aavatar_icon.svg";
-
 import { useAuth } from "@/src/hooks/useAuth";
 import { useRouter } from "expo-router";
-
 import { Ionicons } from "@expo/vector-icons";
 
 export default function ProfileScreen() {
     const { user, logout } = useAuth();
     const router = useRouter();
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [userData, setUser] = useState<any>(null); // имитация данных с бэка
+    const [userData, setUser] = useState<any>(null);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState<boolean>(false);
 
     const handleLogin = () => {
         router.push("/(tabs)/(auth)/login");
@@ -24,8 +21,15 @@ export default function ProfileScreen() {
         router.push("/(tabs)/(auth)/register");
     };
 
-    if (user === undefined) return null;
+    const handleLogout = () => {
+        logout();
+        setShowLogoutConfirm(false);
+        router.replace("/(tabs)/profile");
+    };
 
+    if (user === undefined) return null;
+// Загрузка данных пользователя
+    // TODO: изменить потом с API
     useEffect(() => {
         if (user) {
             setTimeout(() => {
@@ -40,73 +44,80 @@ export default function ProfileScreen() {
 
     // ЕСЛИ ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН
     if (user) {
-
         return (
             <Box 
-            flex={1} 
-            bg="$backgroundLight0" 
-            px="$6"
-        >
-            {/* Сдвиг вниз */}
-            <Box mt="$20">
-                <Center>
-                    <VStack space="lg" alignItems="center" w="$full">
+                flex={1} 
+                bg="$backgroundLight0" 
+                px="$6"
+            >
+                {/* Кнопка выхода в правом верхнем углу */}
+                <Box position="absolute" top={40} right={20} zIndex={10}>
+    <Button
+        borderRadius="$full"
+        size="lg"
+        variant="outline"
+        borderColor="#C8F751"
+        bg="white"
+        onPress={() => setShowLogoutConfirm(true)}
+    >
+        <Ionicons name="log-out-outline" size={24} color="#C8F751" />
+    </Button>
+</Box>
 
-                        {/* Аватар */}
-                        <Box 
-                            w={120} 
-                            h={120} 
-                            borderRadius={60}
-                            borderWidth={2}
-                            borderColor="#C8F751"
-                            justifyContent="center"
-                            alignItems="center"
-                        >
-                            <AvatarIcon width={80} height={80} />
-                        </Box>
-
-                        {/* Данные с бэка */}
-                        <Text fontSize="$2xl">
-                            {userData ? userData.name : "Загрузка..."}
-                        </Text>
-
-                        <Text color="$textLight500">
-                            {userData ? userData.birthDate : ""}
-                        </Text>
-
-                        <Text color="$textLight500">
-                            {userData ? userData.email : ""}
-                        </Text>
-
-                        {/* Кнопки */}
-                        <VStack space="md" w="$full" mt="$8">
-
-                        {/* Избранные */}
-                            <Button
-                                w="$full"
-                                h={60}
-                                variant="outline"
-                                borderRadius="$xl"
-                                borderColor="#CECECE"
-                                px="$5"
-                                onPress={() => console.log("Избранные")}
+                <Box mt="$20">
+                    <Center>
+                        <VStack space="lg" alignItems="center" w="$full">
+                            {/* Аватар */}
+                            <Box 
+                                w={120} 
+                                h={120} 
+                                borderRadius={60}
+                                borderWidth={2}
+                                borderColor="#C8F751"
+                                justifyContent="center"
+                                alignItems="center"
                             >
-                                <HStack justifyContent="space-between" alignItems="center" w="$full">
-        
-                                <ButtonText color="#000000" size="xl">
-                                Избранные
-                                </ButtonText>
+                                <AvatarIcon width={80} height={80} />
+                            </Box>
 
-                                <Ionicons 
-                                name="heart-outline" 
-                                size={24} 
-                                color="#C8F751" 
-                                />
-        
-                                </HStack>
-                            </Button>
+                            {/* Данные пользователя */}
+                            <Text fontSize="$2xl" fontWeight="$bold">
+                                {userData ? userData.name : "Загрузка..."}
+                            </Text>
 
-                        {/* Посещенные */}
+                            <Text color="$textLight500">
+                                {userData ? userData.birthDate : ""}
+                            </Text>
+
+                            <Text color="$textLight500">
+                                {userData ? userData.email : ""}
+                            </Text>
+
+                            {/* Кнопки действий */}
+                            <VStack space="md" w="$full" mt="$8">
+                                {/* Избранные */}
+                                <Button
+                                    w="$full"
+                                    h={60}
+                                    variant="outline"
+                                    borderRadius="$xl"
+                                    borderColor="#CECECE"
+                                    px="$5"
+                                    onPress={() => console.log("Избранные")}
+                                >
+                                    <HStack justifyContent="space-between" alignItems="center" w="$full">
+                                        <ButtonText color="#000000" size="xl">
+                                            Избранные
+                                        </ButtonText>
+                                        <Ionicons 
+                                            name="heart-outline" 
+                                            size={24} 
+                                            color="#C8F751" 
+                                        />
+                                    </HStack>
+                                </Button>
+
+                                {/* Посещенные */}
                                 <Button
                                     w="$full"
                                     h={60}
@@ -121,9 +132,9 @@ export default function ProfileScreen() {
                                             Посещенные
                                         </ButtonText>
                                         <Ionicons 
-                                        name="star-outline" 
-                                        size={24} 
-                                        color="#C8F751" 
+                                            name="star-outline" 
+                                            size={24} 
+                                            color="#C8F751" 
                                         />
                                     </HStack>
                                 </Button>
@@ -131,6 +142,92 @@ export default function ProfileScreen() {
                         </VStack>
                     </Center>
                 </Box>
+
+                {/* Современное всплывающее окно подтверждения выхода */}
+                {showLogoutConfirm && (
+                    <Box
+                        position="absolute"
+                        bottom={0}
+                        left={0}
+                        right={0}
+                        bg="white"
+                        borderTopLeftRadius={30}
+                        borderTopRightRadius={30}
+                        p="$6"
+                        shadowColor="#000"
+                        shadowOffset={{ width: 0, height: -2 }}
+                        shadowOpacity={0.1}
+                        shadowRadius={10}
+                        elevation={5}
+                    >
+                        {/* Стрелка < в левом верхнем углу */}
+                        <Button
+                            position="absolute"
+                            top={12}
+                            left={12}
+                            p="$1"
+                            onPress={() => setShowLogoutConfirm(false)}
+                            bg="transparent"
+                        >
+                            <Text fontSize="$3xl" color="#666666" fontWeight="$bold">
+                                &lt;
+                            </Text>
+                        </Button>
+
+                        {/* Иконка выхода */}
+                        <Box
+                            alignSelf="center"
+                            bg="#FFF5F5"
+                            w={70}
+                            h={70}
+                            borderRadius="$full"
+                            justifyContent="center"
+                            alignItems="center"
+                            mb="$4"
+                        >
+                            <Ionicons name="log-out-outline" size={32} color="#f75151" />
+                        </Box>
+
+                        {/* Заголовок */}
+                        <Text
+                            fontSize="$2xl"
+                            fontWeight="$bold"
+                            textAlign="center"
+                            mb="$2"
+                            color="#000000"
+                        >
+                            Выход из аккаунта
+                        </Text>
+
+                        {/* Текст подтверждения */}
+                        <Text
+                            fontSize="$md"
+                            textAlign="center"
+                            color="#666666"
+                            mb="$6"
+                            px="$4"
+                        >
+                            Вы действительно хотите выйти?
+                        </Text>
+
+                        {/* Кнопки действий */}
+                        <VStack space="md" w="$full">
+                            {/* Кнопка "Выйти" с красным контуром */}
+                            <Button
+                                variant="outline"
+                                borderColor="#f75151"
+                                borderRadius="$xl"
+                                h={50}
+                                bg="white"
+                                onPress={handleLogout}
+                            >
+                                <ButtonText color="#f75151" fontSize="$lg" fontWeight="$semibold">
+                                    Выйти
+                                </ButtonText>
+                            </Button>
+                        </VStack>
+                    </Box>
+                )}
             </Box>
         );
     }
@@ -172,6 +269,7 @@ export default function ProfileScreen() {
                                 mb="$4" 
                                 color="#000000" 
                                 textAlign="center"
+                                fontWeight="$bold"
                             >
                                 Здравствуйте!
                             </Text>
