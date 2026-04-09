@@ -2,44 +2,28 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Image, TouchableOpacity, Alert } from "react-native";
 import { Box, Text, VStack, HStack } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
+import { places, Place } from "@/src/data/places"; // поправь путь
 
 export default function PlaceScreen() {
-    const [place, setPlace] = useState<any>(null);
+    const { id } = useLocalSearchParams();
+    const [place, setPlace] = useState<Place | null>(null);
     const [rating, setRating] = useState<number>(0);
     const [liked, setLiked] = useState(false);
 
-    // Заглушка бэка
     useEffect(() => {
-        setTimeout(() => {
-            setPlace({
-                name: "KARIN",
-                address: "ул. Примерная, 12",
-                workTime: "Пн-Сб 10:00–23:00",
-                site: "https://example.com",
-                type: "Ресторан",
-                category: "Семейный",
-                price: 1500,
-                rating: 4.5,
-                description:
-                    "Описание приходит с бэка.",
-                images: [
-                    "https://avatars.mds.yandex.net/get-altay/7690462/2a000001888ef96f495f3c849259e3511cc8/XXXL",
-                    "https://picsum.photos/600/401",
-                ],
-                features: [
-                    { icon: "car-outline", label: "Парковка" },
-                    { icon: "wifi-outline", label: "Wi-Fi" },
-                    { icon: "flash-outline", label: "Зарядка" },
-                    { icon: "cafe-outline", label: "Еда навынос" },
-                ],
-            });
-        }, 800);
-    }, []);
+        if (!id) return;
+
+        const foundPlace = places.find(p => p.id === Number(id));
+        if (foundPlace) {
+            setPlace(foundPlace);
+        }
+    }, [id]);
 
     if (!place) return null;
 
     const handleImagePress = () => {
-        Alert.alert("Картинка нажата!", "Здесь можно открыть галерею или полноэкранный просмотр.");
+        Alert.alert("Картинка нажата!");
     };
 
     const handleStarPress = (star: number) => {
@@ -56,10 +40,10 @@ export default function PlaceScreen() {
             <ScrollView>
 
                 {/* Картинка */}
-                <TouchableOpacity onPress={handleImagePress}>
+                <TouchableOpacity onPress={handleImagePress} activeOpacity={1}>
                     <Box h={250}>
                         <Image
-                            source={{ uri: place.images[0] }}
+                            source={{ uri: place.image }}
                             style={{ width: "100%", height: "100%" }}
                         />
                     </Box>
@@ -67,16 +51,16 @@ export default function PlaceScreen() {
 
                 <Box px="$5" py="$4">
 
-                    {/* Название + сердечко */}
+                    {/* Название + лайк */}
                     <HStack justifyContent="space-between" alignItems="center">
                         <Text fontSize="$2xl" fontWeight="$bold">
-                            {place.name}
+                            {place.title}
                         </Text>
-                        <TouchableOpacity onPress={toggleLike}>
+                        <TouchableOpacity onPress={toggleLike} activeOpacity={1}>
                             <Ionicons
                                 name={liked ? "heart" : "heart-outline"}
-                                size={32} // размер как в примере
-                                color={liked ? "#C8F751" : "#c8f751"} // закрашивается при клике
+                                size={32}
+                                color="#C8F751"
                             />
                         </TouchableOpacity>
                     </HStack>
@@ -93,66 +77,56 @@ export default function PlaceScreen() {
                     <HStack alignItems="center" mt="$1">
                         <Ionicons name="time-outline" size={16} />
                         <Text ml="$2" color="$textLight500">
-                            {place.workTime}
+                            {place.schedule}
                         </Text>
                     </HStack>
 
-                    {/* Сайт */}
+                    {/* Тип */}
                     <HStack alignItems="center" mt="$1">
-                        <Ionicons name="link-outline" size={16} />
+                        <Ionicons name="grid-outline" size={16} />
                         <Text ml="$2" color="$textLight500">
-                            {place.site}
+                            {place.type}
                         </Text>
                     </HStack>
 
-                    {/* Инфо блок */}
-                    <HStack justifyContent="space-between" mt="$4">
-                        <VStack alignItems="center">
-                            <Ionicons name="restaurant-outline" size={20} />
-                            <Text>{place.type}</Text>
-                        </VStack>
-                        <VStack alignItems="center">
-                            <Ionicons name="people-outline" size={20} />
-                            <Text>{place.category}</Text>
-                        </VStack>
-                        <VStack alignItems="center">
-                            <Ionicons name="pricetag-outline" size={20} />
-                            <Text>{place.price}</Text>
-                        </VStack>
-                        <VStack alignItems="center">
-                            <Ionicons name="star-outline" size={20} />
-                            <Text>{place.rating}</Text>
-                        </VStack>
+                    {/* Рейтинг */}
+                    <HStack alignItems="center" mt="$1">
+                        <Ionicons name="star-outline" size={16} />
+                        <Text ml="$2" color="$textLight500">
+                            {place.rating}
+                        </Text>
                     </HStack>
 
-                    {/* Фичи */}
-                    <HStack justifyContent="space-between" mt="$5">
-                        {place.features.map((item: any, index: number) => (
-                            <VStack key={index} alignItems="center">
-                                <Ionicons name={item.icon} size={20} />
-                                <Text fontSize="$xs">{item.label}</Text>
-                            </VStack>
+                    {/* Теги */}
+                    <HStack mt="$3" flexWrap="wrap">
+                        {place.tags.map((tag, index) => (
+                            <Box
+                                key={index}
+                                bg="$backgroundLight200"
+                                px="$2"
+                                py="$1"
+                                mr="$2"
+                                mb="$2"
+                                borderRadius="$sm"
+                            >
+                                <Text fontSize="$xs">{tag}</Text>
+                            </Box>
                         ))}
                     </HStack>
 
-                    {/* Описание */}
-                    <Text mt="$5" color="$textLight700">
-                        {place.description}
-                    </Text>
-
-                    {/* Рейтинг */}
+                    {/* Рейтинг пользователя */}
                     <Box mt="$6">
                         <Text mb="$2">Оцените место</Text>
-                        <HStack space="md">
+                        <HStack space="md" justifyContent="center">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <TouchableOpacity
                                     key={star}
                                     onPress={() => handleStarPress(star)}
-                                    activeOpacity={1} // звезды не светлеют при нажатии
+                                    activeOpacity={1}
                                 >
                                     <Ionicons
                                         name={star <= rating ? "star" : "star-outline"}
-                                        size={28}
+                                        size={32}
                                         color="#C8F751"
                                     />
                                 </TouchableOpacity>
