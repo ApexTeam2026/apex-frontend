@@ -21,7 +21,7 @@ export default function AllPlacesScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const filteredPlaces = places.filter((place: Place) => {
-    const matchesSearch = place.title
+    const matchesSearch = place.name
       .toLowerCase()
       .includes(search.toLowerCase());
 
@@ -62,14 +62,14 @@ export default function AllPlacesScreen() {
         <FlatList<Place> 
   showsVerticalScrollIndicator={false}
   data={filteredPlaces}
-  keyExtractor={(item) => item.id.toString()}
+  keyExtractor={(item) => item.placeId.toString()}
   renderItem={({ item }) => (
     <PlaceCard
       place={item}
       onPress={() =>
         router.push({
           pathname: "/detailed_place",
-          params: { id: item.id.toString() },
+          params: { id: item.placeId.toString() },
         })
       }
     />

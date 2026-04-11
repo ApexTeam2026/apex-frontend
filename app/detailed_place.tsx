@@ -14,7 +14,7 @@ export default function PlaceScreen() {
     useEffect(() => {
         if (!id) return;
 
-        const foundPlace = places.find(p => p.id === Number(id));
+        const foundPlace = places.find(p => p.placeId === Number(id));
         if (foundPlace) {
             setPlace(foundPlace);
         }
@@ -54,7 +54,7 @@ export default function PlaceScreen() {
                     {/* Название + лайк */}
                     <HStack justifyContent="space-between" alignItems="center">
                         <Text fontSize="$2xl" fontWeight="$bold">
-                            {place.title}
+                            {place.name}
                         </Text>
                         <TouchableOpacity onPress={toggleLike} activeOpacity={1}>
                             <Ionicons
@@ -77,7 +77,7 @@ export default function PlaceScreen() {
                     <HStack alignItems="center" mt="$1">
                         <Ionicons name="time-outline" size={16} />
                         <Text ml="$2" color="$textLight500">
-                            {place.schedule}
+                            {place.workingHours}
                         </Text>
                     </HStack>
 
@@ -85,7 +85,7 @@ export default function PlaceScreen() {
                     <HStack alignItems="center" mt="$1">
                         <Ionicons name="grid-outline" size={16} />
                         <Text ml="$2" color="$textLight500">
-                            {place.type}
+                            {place.category}
                         </Text>
                     </HStack>
 
@@ -93,7 +93,7 @@ export default function PlaceScreen() {
                     <HStack alignItems="center" mt="$1">
                         <Ionicons name="star-outline" size={16} />
                         <Text ml="$2" color="$textLight500">
-                            {place.rating}
+                            {place.rate}
                         </Text>
                     </HStack>
 

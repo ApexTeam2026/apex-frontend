@@ -76,12 +76,12 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
                     fontWeight="$bold" 
                     color = "$black"
                 >
-                {place.title}
+                {place.name}
                 </Text>
 
                 <HStack space="xs">
                     <Ionicons name="star" size={16} color="#C8F751" />              
-                    <Text>{place.rating}</Text>
+                    <Text>{place.rate}</Text>
                 </HStack>
             </HStack>
 
@@ -110,13 +110,13 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
                             ellipsizeMode="tail"
                             style={{ maxWidth: 180 }}
                         >
-                            {place.schedule}
+                            {place.workingHours}
                         </Text>
                     </HStack>
                 </VStack>
 
                 <VStack alignItems="flex-end" space="xs">
-                    <Text fontSize="$sm" color="$gray400">{place.type}</Text>
+                    <Text fontSize="$sm" color="$gray400">{place.category}</Text>
                     <Pressable onPress={toggleLike}>
                         <Ionicons
                             name={isLiked ? "heart" : "heart-outline"}
