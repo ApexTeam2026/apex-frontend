@@ -49,7 +49,7 @@ export default function HomeScreen() {
                                 {userName ? `Здравствуйте, ${userName}!` : "Загрузка..."}
                             </Text>
 
-                            <Text fontSize="$4xl" color = "#000000">
+                            <Text textAlign="center" fontSize="$4xl" color = "#000000">
                             Пройдите опрос
                             </Text>
 

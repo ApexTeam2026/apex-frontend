@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Image, TouchableOpacity, Alert } from "react-native";
 import { Box, Text, VStack, HStack } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { places, Place } from "@/src/data/places"; // поправь путь
 
 export default function PlaceScreen() {
@@ -10,7 +10,8 @@ export default function PlaceScreen() {
     const [place, setPlace] = useState<Place | null>(null);
     const [rating, setRating] = useState<number>(0);
     const [liked, setLiked] = useState(false);
-
+    const router = useRouter();
+    
     useEffect(() => {
         if (!id) return;
 
@@ -37,6 +38,24 @@ export default function PlaceScreen() {
 
     return (
         <Box flex={1} bg="$backgroundLight0">
+            <Box
+    position="absolute"
+    top={50}
+    left={20}
+    zIndex={10}
+>
+    <TouchableOpacity
+        onPress={() => router.back()}
+        style={{
+            backgroundColor: "white",
+            borderRadius: 50,
+            padding: 8,
+        }}
+        activeOpacity={0.8}
+    >
+        <Ionicons name="arrow-back" size={24} color="black" />
+    </TouchableOpacity>
+</Box>
             <ScrollView>
 
                 {/* Картинка */}

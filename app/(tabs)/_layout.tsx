@@ -57,6 +57,26 @@ export default function TabLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="visited"
+        options={{
+        href: null, // вон с пляжу
+        }}
+      />
+
+      <Tabs.Screen
+        name="detailed_place"
+        options={{
+        href: null, // вон с пляжу
+        }}
+      />
+
+      <Tabs.Screen
+        name="favorites"
+        options={{
+        href: null, // вон с пляжу
+        }}
+      />
     </Tabs>
   );
 }

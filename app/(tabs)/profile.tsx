@@ -103,7 +103,7 @@ export default function ProfileScreen() {
                                     borderRadius="$xl"
                                     borderColor="#CECECE"
                                     px="$5"
-                                    onPress={() => console.log("Избранные")}
+                                    onPress={() => router.push("/(tabs)/favorites")}
                                 >
                                     <HStack justifyContent="space-between" alignItems="center" w="$full">
                                         <ButtonText color="#000000" size="xl">
@@ -123,9 +123,9 @@ export default function ProfileScreen() {
                                     h={60}
                                     variant="outline"
                                     borderRadius="$xl"
-                                    borderColor="#CECECE"
+                                    borderColor="#cecece"
                                     px="$5"
-                                    onPress={() => console.log("Посещенные")}
+                                    onPress={() => router.push("/(tabs)/visited")}
                                 >
                                     <HStack justifyContent="space-between" alignItems="center" w="$full">
                                         <ButtonText color="#000000" size="xl">
