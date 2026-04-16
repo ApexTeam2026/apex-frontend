@@ -50,9 +50,14 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
       <Box
         bg="$white"
         mb="$4"
-        borderRadius = "$xl"
-        elevation={5}
-      >
+        borderRadius="$2xl"
+
+        shadowColor="#000"
+        shadowOffset={{ width: 0, height: 2 }}
+        shadowOpacity={0.06}
+        shadowRadius={8}
+        elevation={3}
+        >
         <Box
         borderTopLeftRadius="$xl"
         borderTopRightRadius="$xl"
@@ -60,12 +65,12 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
         borderBottomRightRadius="$xl"
         overflow="hidden"
         >
-            <Image
-                source={{ uri: place.image }}
-                alt="place"
-                w="100%"
-                h={180}
-            />
+        <Image
+            source={{ uri: place.image }}
+            alt="place"
+            w="100%"
+            h={180}
+        />
         </Box>
         
 

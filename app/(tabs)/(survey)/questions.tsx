@@ -29,26 +29,37 @@ export default function SurveyScreen() {
         if (!selected) return;
 
         const newAnswers = {
-        ...answers,
-        [question.id]: selected,
+            ...answers,
+            [question.id]: selected,
         };
 
         setAnswers(newAnswers);
-        setSelected(null);
 
         if (current < questions.length - 1) {
-        setCurrent(current + 1);
+            const nextIndex = current + 1;
+
+            setCurrent(nextIndex);
+            setSelected(newAnswers[questions[nextIndex].id] || null);
         } else {
             console.log("Опрос завершён", newAnswers);
+            resetSurvey();
             router.push("/(tabs)/home"); //TODO: изменить переход после завершения опроса
         }
     }
 
     function handleBack() {
         if (current > 0) {
-            setCurrent(current - 1);
-            setSelected(answers[questions[current - 1].id] || null);
+            const prevIndex = current - 1;
+
+            setCurrent(prevIndex);
+            setSelected(answers[questions[prevIndex].id] || null);
         }
+    }
+
+    function resetSurvey() {
+        setCurrent(0);
+        setAnswers({});
+        setSelected(null);
     }
 
     return (
@@ -61,35 +72,62 @@ export default function SurveyScreen() {
         justifyContent="space-between"
     >
       
-        <Box pt="$4" pb="$4">
-            {/* Прогресс-бар */}
-            <Progress value={progress} size="sm" mb="$8">
-                <Progress.FilledTrack bg="#C8F751"/>
-            </Progress>
+        <Box pt="$8" mb="$6">
+        <HStack space="xs">
+            {questions.map((q, index) => {
+                const isActive =
+                    index < current + 1;
+
+            return (
+                <Box
+                key={index}
+                flex={1}
+                height={6}
+                borderRadius={10}
+                bg={isActive ? "#C8F751" : "#E5E5E5"}
+                />
+            );
+            })}
+        </HStack>
         </Box>
+
         <VStack flex={1} justifyContent="space-between" gap="$20">
 
             {/* TODO: кнопка назад */}
-            <HStack alignItems="center" gap="$3"> 
-                {/* {current > 0 && (
-                    <Button size="lg" borderRadius="$full" onPress={handleBack}>
-                        <ButtonIcon>
-                            <Icon as={ArrowLeftIcon} size="xs" color="#000" />
-                        </ButtonIcon>
-                    </Button>
-                )} */}
-                <Text size="xl">{question.text}</Text>
+            <HStack alignItems="flex-start" justifyContent="flex-start"> 
+                <Box alignItems="flex-start">
+                    {current > 0 && (
+                        <Button
+                            size="sm"
+                            borderRadius="$full"
+                            onPress={handleBack}
+                            variant="link"
+                            bg = "none"
+                        >
+                            <ButtonIcon >
+                                <Ionicons name="chevron-back" size={18} color="#000" />
+                            
+                            </ButtonIcon>
+                        </Button>
+                    )}
+                </Box>
+
+                <Text size="2xl" flex={1} ml = "$3">
+                    {question.text}
+                </Text>
+
+                {/* <Box width={10} /> */}
             </HStack>
 
             {/* Выборы */}
             <HStack flexWrap="wrap" justifyContent="flex-start" mt="auto" gap="$3">
                 {question.options.map((option) => {
-                    const isActive = selected === option;
+                    const isActive = selected === option.value;
 
                     return (
                     <Button
-                        key={option}
-                        onPress={() => setSelected(option)}
+                        key={option.value}
+                        onPress={() => setSelected(option.value)}
                         variant="outline"
                         borderRadius="$xl"
                         borderColor={isActive ? "#C8F751" : "#CECECE"}
@@ -100,7 +138,7 @@ export default function SurveyScreen() {
                         mt="$3"
                     >
                         <ButtonText color="#000000" size="xl">
-                            {option}
+                            {option.label}
                         </ButtonText>
                     </Button>
                     );

@@ -60,19 +60,19 @@ export default function AllPlacesScreen() {
 
         {/*TODO: изменить скорость скролла*/}
         <FlatList<Place> 
-  showsVerticalScrollIndicator={false}
-  data={filteredPlaces}
-  keyExtractor={(item) => item.placeId.toString()}
-  renderItem={({ item }) => (
-    <PlaceCard
-      place={item}
-      onPress={() =>
-        router.push({
-          pathname: "/detailed_place",
-          params: { id: item.placeId.toString() },
-        })
-      }
-    />
+        showsVerticalScrollIndicator={false}
+        data={filteredPlaces}
+        keyExtractor={(item) => item.placeId.toString()}
+        renderItem={({ item }) => (
+          <PlaceCard
+            place={item}
+            onPress={() =>
+              router.push({
+                pathname: "/detailed_place",
+                params: { id: item.placeId.toString() },
+              })
+            }
+          />
   )}
 />
     </Box>

@@ -40,7 +40,14 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="survey/index"
+        name="(survey)/questions"
+        options={{
+          href: null,
+        }}
+      />
+      
+      <Tabs.Screen
+        name="(survey)/results"
         options={{
           href: null,
         }}
