@@ -23,7 +23,61 @@ export default function FiltersScreen() {
 
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDistrict, setSelectedDistrict] = useState("");
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectedTime, setSelectedTime] = useState<string[]>([]);
+    const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
     const districts = ["Ленинский", "Дзержинский", "Мотовилиха", "Индустриальный"];
+
+    const toggleTag = (tag: string) => {
+        setSelectedTags(prev =>
+            prev.includes(tag)
+            ? prev.filter(t => t !== tag)
+            : [...prev, tag]
+        );
+    };
+
+    const toggleCategory = (val: string) => {
+        setSelectedCategories(prev =>
+            prev.includes(val)
+            ? prev.filter(v => v !== val)
+            : [...prev, val]
+        );
+    };
+
+    const toggleTime = (val: string) => {
+        setSelectedTime(prev =>
+            prev.includes(val)
+            ? prev.filter(v => v !== val)
+            : [...prev, val]
+        );
+    };
+
+    const togglePeople = (val: string) => {
+        setSelectedPeople(prev =>
+            prev.includes(val)
+            ? prev.filter(v => v !== val)
+            : [...prev, val]
+        );
+    };
+
+    const resetFilters = () => {
+        setSelectedCategories([]);
+        setSelectedTime([]);
+        setSelectedPeople([]);
+        setSelectedTags([]);
+        setSelectedDistrict("");
+
+        router.push({
+            pathname: "/(tabs)/all-places",
+            params: {
+            tags: JSON.stringify([]),
+            categories: JSON.stringify([]),
+            time: JSON.stringify([]),
+            people: JSON.stringify([]),
+            },
+        })
+    };
 
     return (
         <Box flex={1} bg="$white" px="$6" pt="$12">
@@ -80,12 +134,22 @@ export default function FiltersScreen() {
                         <HStack>
                             <VStack space="xs" flex={1}>
                                 {["Парк", "Ресторан", "Музей", "Арт-объект", "Кинотеатр"].map((l) => (
-                                    <FilterCheckbox key={l} label={l} />
+                                    <FilterCheckbox
+                                        key={l}
+                                        label={l}
+                                        selected={selectedCategories.includes(l)}
+                                        onToggle={() => toggleCategory(l)}
+                                    />
                                 ))}
                             </VStack>
                             <VStack space="xs" flex={1}>
                                 {["Клуб", "Спортивный зал", "Торговый центр", "Аттракцион", "Коворкинг"].map((l) => (
-                                    <FilterCheckbox key={l} label={l} />
+                                    <FilterCheckbox
+                                        key={l}
+                                        label={l}
+                                        selected={selectedCategories.includes(l)}
+                                        onToggle={() => toggleCategory(l)}
+                                    />
                                 ))}
                             </VStack>
                         </HStack>
@@ -96,7 +160,12 @@ export default function FiltersScreen() {
                         <Text fontSize={18} fontWeight="$medium" color="#000" mb="$1">Время посещения</Text>
                         <VStack space="xs">
                             {["Утро", "День", "Вечер", "Ночь"].map((l) => (
-                                <FilterCheckbox key={l} label={l} />
+                                <FilterCheckbox
+                                    key={l}
+                                    label={l}
+                                    selected={selectedTime.includes(l)}
+                                    onToggle={() => toggleTime(l)}
+                                />
                             ))}
                         </VStack>
                     </VStack>
@@ -106,20 +175,46 @@ export default function FiltersScreen() {
                         <Text fontSize={18} fontWeight="$medium" color="#000" mb="$1">Количество людей</Text>
                         <VStack space="xs">
                             {["Один", "Вдвоем", "Компания", "С семьей"].map((l) => (
-                                <FilterCheckbox key={l} label={l} />
+                                <FilterCheckbox
+                                    key={l}
+                                    label={l}
+                                    selected={selectedPeople.includes(l)}
+                                    onToggle={() => togglePeople(l)}
+                                />
                             ))}
                         </VStack>
                     </VStack>
 
                     {/* Кнопка далее */}
-                    <HStack justifyContent="flex-end" mt="$0">
+                    <HStack justifyContent="space-between" mt="$4">
+                        <Button
+                            variant="outline"
+                            borderColor="#CECECE"
+                            borderRadius={18}
+                            w={160}
+                            h={55}
+                            onPress={resetFilters}
+                        >
+                            <Text color="#000">Сбросить</Text>
+                        </Button>
+
                         <Button
                             w={160}
                             h={55}
                             variant="outline"
                             borderColor="#CECECE"
                             borderRadius={18}
-                            onPress={() => router.back()}
+                            onPress={() =>
+                                router.push({
+                                    pathname: "/(tabs)/all-places",
+                                    params: {
+                                    tags: JSON.stringify(selectedTags),
+                                    categories: JSON.stringify(selectedCategories),
+                                    time: JSON.stringify(selectedTime),
+                                    people: JSON.stringify(selectedPeople),
+                                    },
+                                })
+                            }
                         >
                             <Ionicons name="chevron-forward" size={30} color="#CECECE" />
                         </Button>
@@ -131,13 +226,27 @@ export default function FiltersScreen() {
     );
 }
 
-const FilterCheckbox = ({ label }: { label: string }) => (
-    <Checkbox value={label} size="sm" aria-label={label} mb="$1">
-        <CheckboxIndicator mr="$2.5" borderColor="#CECECE" borderRadius={4} w={18} h={18}>
-            <CheckboxIcon as={CheckIcon} color="#C8F751" size="xs" />
-        </CheckboxIndicator>
-        <CheckboxLabel color="#000" fontSize={15} fontWeight="$light">
-            {label}
-        </CheckboxLabel>
-    </Checkbox>
+const FilterCheckbox = ({
+  label,
+  selected,
+  onToggle,
+}: {
+  label: string;
+  selected: boolean;
+  onToggle: () => void;
+}) => (
+  <Checkbox
+    value={label}
+    isChecked={selected}
+    onPress={onToggle}
+    size="sm"
+    mb="$1"
+  >
+    <CheckboxIndicator mr="$2.5" borderColor="#CECECE" borderRadius={4} w={18} h={18}>
+      <CheckboxIcon as={CheckIcon} color="#C8F751" size="xs" />
+    </CheckboxIndicator>
+    <CheckboxLabel color="#000" fontSize={15} fontWeight="$light">
+      {label}
+    </CheckboxLabel>
+  </Checkbox>
 );

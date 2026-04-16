@@ -49,14 +49,8 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
     <Pressable onPress={onPress}>
       <Box
         bg="$white"
-        mb="$4"
+        mt="$4"
         borderRadius="$2xl"
-
-        shadowColor="#000"
-        shadowOffset={{ width: 0, height: 2 }}
-        shadowOpacity={0.06}
-        shadowRadius={8}
-        elevation={3}
         >
         <Box
         borderTopLeftRadius="$xl"
