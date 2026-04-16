@@ -27,7 +27,7 @@ export default function VisitedScreen() {
                     borderRadius="$xl"
                     borderColor="#CECECE"
                     h={55}
-                    onPress={() => router.push("/survey")}
+                    onPress={() => router.push("/(tabs)/(survey)/questions")}
                 >
                     <ButtonText color="#000000" fontSize="$lg">
                         Пройти опрос
