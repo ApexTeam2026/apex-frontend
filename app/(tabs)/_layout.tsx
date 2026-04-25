@@ -6,7 +6,8 @@ export default function TabLayout() {
   return (
     <Tabs 
       screenOptions={({ route }) => ({
-        headerShown: false
+        headerShown: false,
+        unmountOnBlur: false
       })}  
       initialRouteName="home">
       <Tabs.Screen

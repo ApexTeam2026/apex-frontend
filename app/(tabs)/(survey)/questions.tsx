@@ -1,4 +1,4 @@
-import React, { useState } from "react";  
+import React, { useEffect } from "react";  
 import {
   Box,
   Text,
@@ -15,52 +15,66 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { questions } from "@/src/data/questions"
 
+import { useSurveyStore } from "@/src/store/surveyStore";
+
 export default function SurveyScreen() {
-    const [current, setCurrent] = useState(0);
-    const [answers, setAnswers] = useState<any>({});
-    const [selected, setSelected] = useState<string | null>(null);
-
-    const question = questions[current];
-    const progress = ((current + 1) / questions.length) * 100;
-
     const router = useRouter();
 
-    function handleNext() {
+    const {
+        current,
+        answers,
+        selected,
+        setCurrent,
+        setSelected,
+        setAnswer,
+        reset,
+        setStarted,
+        setCompleted,
+    } = useSurveyStore();
+
+    const question = questions[current];
+
+    const handleNext = () => {
         if (!selected) return;
 
-        const newAnswers = {
+        setAnswer(question.id, selected);
+
+        if (current < questions.length - 1) {
+        const next = current + 1;
+
+        setCurrent(next);
+
+        const nextQuestion = questions[next];
+        setSelected(answers[nextQuestion.id] || null);
+        } else {
+        const result = {
             ...answers,
             [question.id]: selected,
         };
 
-        setAnswers(newAnswers);
+        console.log("Опрос завершён", result);
 
-        if (current < questions.length - 1) {
-            const nextIndex = current + 1;
+        setCompleted(true);
 
-            setCurrent(nextIndex);
-            setSelected(newAnswers[questions[nextIndex].id] || null);
-        } else {
-            console.log("Опрос завершён", newAnswers);
-            resetSurvey();
-            router.push("/(tabs)/home"); //TODO: изменить переход после завершения опроса
+        router.push("/(tabs)/home");
         }
-    }
+    };
 
-    function handleBack() {
+    const handleBack = () => {
         if (current > 0) {
-            const prevIndex = current - 1;
+        const prev = current - 1;
+        setCurrent(prev);
 
-            setCurrent(prevIndex);
-            setSelected(answers[questions[prevIndex].id] || null);
+        const prevQuestion = questions[prev];
+        setSelected(answers[prevQuestion.id] || null);
         }
-    }
+    };
 
-    function resetSurvey() {
-        setCurrent(0);
-        setAnswers({});
-        setSelected(null);
-    }
+    useEffect(() => {
+        setStarted(true);
+    }, []);
+
+  const progress = ((current + 1) / questions.length) * 100;
 
     return (
     <Box 

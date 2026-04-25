@@ -4,14 +4,14 @@ export type Option = {
 };
 
 export type Question = {
-  id: number;
+  id: string;
   text: string;
   options: Option[];
 };
 
 export const questions: Question[] = [
   {
-    id: 1,
+    id: "1",
     text: "С кем вы собираетесь посетить место?",
     options: [
       { label: "Один", value: "solo" },
@@ -21,7 +21,7 @@ export const questions: Question[] = [
     ],
   },
   {
-    id: 2,
+    id: "2",
     text: "Вы уже бывали в Перми?",
     options: [
       { label: "Да", value: "visited" },
@@ -30,7 +30,7 @@ export const questions: Question[] = [
     ],
   },
   {
-    id: 3,
+    id: "3",
     text: "Какой бюджет на человека?",
     options: [
       { label: "Нет", value: "free" },
@@ -42,7 +42,7 @@ export const questions: Question[] = [
     ],
   },
   {
-    id: 4,
+    id: "4",
     text: "Какой формат отдыха вы предпочитаете?",
     options: [
       { label: "Активный", value: "active" },
@@ -51,7 +51,7 @@ export const questions: Question[] = [
     ],
   },
   {
-    id: 5,
+    id: "5",
     text: "В какое время планируете идти?",
     options: [
       { label: "Утро", value: "morning" },
@@ -62,7 +62,7 @@ export const questions: Question[] = [
     ],
   },
   {
-    id: 6,
+    id: "6",
     text: "Какое у вас сегодня настроение?",
     options: [
       { label: "Расслабленное", value: "relax" },
@@ -73,7 +73,7 @@ export const questions: Question[] = [
     ],
   },
   {
-    id: 7,
+    id: "7",
     text: "Интересуют ли вас культурные места города?",
     options: [
       { label: "Да", value: "culture" },
@@ -82,7 +82,7 @@ export const questions: Question[] = [
     ],
   },
   {
-    id: 8,
+    id: "8",
     text: "Где хотите провести время?",
     options: [
       { label: "На улице", value: "outdoor" },
