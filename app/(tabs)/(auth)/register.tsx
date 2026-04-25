@@ -6,6 +6,8 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../../src/hooks/useAuth";
+import { LegalModal } from "@/src/components/ui/legal-modal";
+import { PRIVACY_POLICY, TERMS_OF_USE } from "@/src/constants/legal";
 
 export default function RegisterScreen() {
     const router = useRouter();
@@ -17,6 +19,7 @@ export default function RegisterScreen() {
     const [password, setPassword] = useState("");
     const [isChecked, setIsChecked] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [modalType, setModalType] = useState<"privacy" | "terms" | null>(null);
 
     const handleRegister = () => {
         if (!isChecked || name === "" || email === "" || password === "") return;
@@ -77,8 +80,29 @@ export default function RegisterScreen() {
                             <CheckboxIcon as={CheckIcon} color="#C8F751" />
                         </CheckboxIndicator>
                     </Checkbox>
+
                     <Text size="xs" color="#ADADAD" lineHeight="$xs" flexShrink={1}>
-                        Мною прочитаны и приняты <Text size="xs" color="#E2F9A3">Пользовательское соглашение</Text> и <Text size="xs" color="#E2F9A3">Политику конфиденциальности</Text>
+                        Мною прочитаны и приняты{" "}
+
+                        <Text
+                            size="xs"
+                            color="#ADADAD"
+                            textDecorationLine="underline"
+                            onPress={() => !isLoading && setModalType("terms")}
+                        >
+                            Пользовательское соглашение
+                        </Text>
+
+                        {" "}и{" "}
+
+                        <Text
+                            size="xs"
+                            color="#ADADAD"
+                            textDecorationLine="underline"
+                            onPress={() => !isLoading && setModalType("privacy")}
+                        >
+                            Политику конфиденциальности
+                        </Text>
                     </Text>
                 </HStack>
 
@@ -100,6 +124,21 @@ export default function RegisterScreen() {
                     </Button>
                 </Box>
             </VStack>
+
+            <LegalModal
+                isOpen={modalType !== null}
+                onClose={() => setModalType(null)}
+                title={
+                    modalType === "privacy"
+                        ? "Политика конфиденциальности"
+                        : "Пользовательское соглашение"
+                }
+                content={
+                    modalType === "privacy"
+                        ? PRIVACY_POLICY
+                        : TERMS_OF_USE
+                }
+            />
         </Box>
     );
 }
