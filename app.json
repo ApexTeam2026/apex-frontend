@@ -49,6 +49,9 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "apiUrl": "http://153.80.245.172:8081"
     }
   }
 }
