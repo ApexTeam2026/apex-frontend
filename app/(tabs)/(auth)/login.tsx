@@ -48,8 +48,8 @@ export default function LoginScreen() {
                 {/* Поле Почта */}
                 <FormControl w="$full">
                     <Box
-                        borderWidth={1}
-                        borderColor={isError ? "#C25353" : "#CECECE"}
+                        borderWidth={2}
+                        borderColor={isError ? "#ff0000" : "#CECECE"}
                         borderRadius="$xl"
                         px="$4" py="$1"
                     >
@@ -68,8 +68,8 @@ export default function LoginScreen() {
                 {/* Поле Пароль */}
                 <FormControl w="$full">
                     <Box
-                        borderWidth={1}
-                        borderColor={isError ? "#C25353" : "#CECECE"}
+                        borderWidth={2}
+                        borderColor={isError ? "#ff0000" : "#CECECE"}
                         borderRadius="$xl"
                         px="$4" py="$1"
                     >

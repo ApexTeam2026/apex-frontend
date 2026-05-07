@@ -85,6 +85,14 @@ export default function TabLayout() {
         href: null, // вон с пляжу
         }}
       />
+      <Tabs.Screen
+        name="final_page"
+        options={{
+        href: null, // вон с пляжу
+        }}
+      />
     </Tabs>
+
+    
   );
 }

@@ -133,6 +133,27 @@ export default function PlaceScreen() {
                         ))}
                     </HStack>
 
+                    {/* Описание */}
+{place.description && (
+    <Box mt="$5">
+        <Text
+            fontSize="$lg"
+            fontWeight="$bold"
+            mb="$2"
+        >
+            Описание
+        </Text>
+
+        <Text
+            fontSize="$md"
+            lineHeight="$lg"
+            color="$textLight700"
+        >
+            {place.description}
+        </Text>
+    </Box>
+)}
+
                     {/* Рейтинг пользователя */}
                     <Box mt="$6">
                         <Text mb="$2">Оцените место</Text>

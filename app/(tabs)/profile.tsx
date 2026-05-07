@@ -161,18 +161,24 @@ export default function ProfileScreen() {
                         elevation={5}
                     >
                         {/* Стрелка < в левом верхнем углу */}
-                        <Button
-                            position="absolute"
-                            top={12}
-                            left={12}
-                            p="$1"
-                            onPress={() => setShowLogoutConfirm(false)}
-                            bg="transparent"
-                        >
-                            <Text fontSize="$3xl" color="#666666" fontWeight="$bold">
-                                &lt;
-                            </Text>
-                        </Button>
+                        {/* Стрелка назад в левом верхнем углу */}
+<Button
+    position="absolute"
+    top={12}
+    left={12}
+    p="$1"
+    onPress={() => setShowLogoutConfirm(false)}
+    bg="transparent"
+>
+    <Text
+        fontSize="$6xl"
+        color="#BDBDBD"
+        fontWeight="$300"
+        lineHeight="$2xl"
+    >
+        ‹
+    </Text>
+</Button>
 
                         {/* Иконка выхода */}
                         <Box
@@ -185,7 +191,7 @@ export default function ProfileScreen() {
                             alignItems="center"
                             mb="$4"
                         >
-                            <Ionicons name="log-out-outline" size={32} color="#f75151" />
+                            <Ionicons name="log-out-outline" size={32} color="#ff0000" />
                         </Box>
 
                         {/* Заголовок */}
@@ -215,13 +221,13 @@ export default function ProfileScreen() {
                             {/* Кнопка "Выйти" с красным контуром */}
                             <Button
                                 variant="outline"
-                                borderColor="#f75151"
+                                borderColor="#ff0000"
                                 borderRadius="$xl"
                                 h={50}
                                 bg="white"
                                 onPress={handleLogout}
                             >
-                                <ButtonText color="#f75151" fontSize="$lg" fontWeight="$semibold">
+                                <ButtonText color="#ff0000" fontSize="$lg" fontWeight="$semibold">
                                     Выйти
                                 </ButtonText>
                             </Button>
