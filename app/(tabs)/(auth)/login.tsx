@@ -5,6 +5,7 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../../src/hooks/useAuth";
+import { AuthService } from "@/src/api/services/auth-services";
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -15,25 +16,44 @@ export default function LoginScreen() {
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleLogin = () => {
-        if (email.trim() === "" || password.trim() === "") {
-            setIsError(true);
-            return;
-        }
+    const handleLogin = async () => {
+    if (email.trim() === "" || password.trim() === "") {
+        setIsError(true);
+        return;
+    }
 
+    try {
         setIsLoading(true);
         setIsError(false);
 
-        // Имитация ответа сервера (Заглушка)
-        setTimeout(() => {
-            login({
-                name: "Иван",
-                email: email,
-                birthDate: "11.11.2011"
-            });
-            router.replace("/profile");
-        }, 1200);
-    };
+        const data = await AuthService.login(email, password);
+
+        console.log("LOGIN SUCCESS:", data);
+
+        login({
+            user: {
+                email,
+                name: "User", 
+                birthDate: "",
+            },
+            accessToken: data.accessToken,
+            authKey: data.authKey,
+        });
+
+        router.replace("/profile");
+
+    } catch (error: any) {
+        console.log(
+            "LOGIN ERROR:",
+            error?.response?.data || error.message
+        );
+
+        setIsError(true);
+
+    } finally {
+        setIsLoading(false);
+    }
+};
 
     return (
         <Box flex={1} bg="$backgroundLight0" px="$10" pt="$20">
@@ -87,14 +107,14 @@ export default function LoginScreen() {
                 </FormControl>
 
                 {/* --- СООБЩЕНИЕ ОБ ОШИБКЕ --- */}
-                {/*
+                
                 {isError && (
                     <HStack space="xs" alignItems="center" mt="$2">
                         <Ionicons name="close" size={20} color="#C25353" />
                         <Text color="#000" size="sm">Неверный логин или пароль</Text>
                     </HStack>
                 )}
-                */}
+               
                 {/* Кнопка Далее */}
                 <Box w="$full" alignItems="flex-end" mt="$10">
                     <Button

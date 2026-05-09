@@ -8,33 +8,86 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../../src/hooks/useAuth";
 import { LegalModal } from "@/src/components/ui/legal-modal";
 import { PRIVACY_POLICY, TERMS_OF_USE } from "@/src/constants/legal";
+import { AuthService } from "@/src/api/services/auth-services";
 
 export default function RegisterScreen() {
     const router = useRouter();
     const { login } = useAuth();
 
-    const [name, setName] = useState("Иван");
-    const [birthDate, setBirthDate] = useState("11.11.2011");
-    const [email, setEmail] = useState("yep@gmail.com");
+    const [name, setName] = useState("");
+    const [birthDate, setBirthDate] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isChecked, setIsChecked] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [modalType, setModalType] = useState<"privacy" | "terms" | null>(null);
 
-    const handleRegister = () => {
-        if (!isChecked || name === "" || email === "" || password === "") return;
+    const formatDateInput = (value: string) => {
+        const numbers = value.replace(/\D/g, "");
 
-        setIsLoading(true);
+        if (numbers.length <= 2) return numbers;
+        if (numbers.length <= 4)
+            return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
 
-        // Имитация создания пользователя (Заглушка)
-        setTimeout(() => {
-            login({
-                name: name,
-                email: email,
-                birthDate: birthDate
+        return `${numbers.slice(0, 2)}.${numbers.slice(2, 4)}.${numbers.slice(4, 8)}`;
+    };
+
+    const convertToApiDate = (date: string) => {
+        const [day, month, year] = date.split(".");
+
+        if (!day || !month || !year) return "";
+
+        return `${year}-${month}-${day}`;
+    };
+
+    const handleRegister = async () => {
+        console.log("REGISTER CLICKED");
+
+        if (!isChecked || name.trim() === "" || email.trim() === "" || password.trim() === "") {
+            console.log("VALIDATION FAILED", {
+                isChecked,
+                name,
+                email,
+                password,
             });
+            return;
+        }
+
+        console.log("CALLING API...");
+
+        try {
+            setIsLoading(true);
+
+            const data = await AuthService.register({
+                name,
+                email,
+                password,
+                birthdayDate: convertToApiDate(birthDate),
+                privacyPolicyAccepted: true
+            });
+
+            console.log("REGISTER SUCCESS:", data);
+
+            login({
+                user: {
+                    name: data.name,
+                    email: data.email,
+                    birthDate: data.birthdayDate,
+                },
+                accessToken: data.accessToken,
+                authKey: data.authKey,
+            });
+
             router.replace("/profile");
-        }, 1500);
+
+        } catch (error: any) {
+            console.log(
+                "REGISTER ERROR:",
+                error?.response?.data || error.message
+            );
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -50,7 +103,15 @@ export default function RegisterScreen() {
                 {/* Поля регистрации */}
                 {[
                     { label: "имя", val: name, set: setName },
-                    { label: "дата рождения", val: birthDate, set: setBirthDate },
+                    {
+                        label: "дата рождения",
+                        val: birthDate,
+                        set: (text: string) =>
+                            setBirthDate(formatDateInput(text)),
+                        keyboardType: "numeric",
+                        maxLength: 10,
+                        placeholder: "ДД.ММ.ГГГГ",
+                    },
                     { label: "почта", val: email, set: setEmail },
                     { label: "пароль", val: password, set: setPassword, pass: true },
                 ].map((f) => (
@@ -114,7 +175,7 @@ export default function RegisterScreen() {
                         borderColor="#CECECE"
                         borderRadius="$xl"
                         onPress={handleRegister}
-                        isDisabled={isLoading || !isChecked}
+                        isDisabled={isLoading}
                     >
                         {isLoading ? (
                             <Spinner color="#C8F751" />

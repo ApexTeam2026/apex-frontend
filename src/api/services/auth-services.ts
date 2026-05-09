@@ -12,9 +12,11 @@ export const AuthService = {
   },
 
   register: async (data: {
+    name: string;
     email: string;
     password: string;
-    name: string;
+    birthdayDate: string;
+    privacyPolicyAccepted: boolean;
   }) => {
     const res = await apiClient.post(endpoints.auth.register, data);
     return res.data;

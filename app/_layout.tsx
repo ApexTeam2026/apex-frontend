@@ -9,7 +9,7 @@ import Animated, {
   runOnJS,
 } from "react-native-reanimated";
 import { GluestackUIProvider } from "@gluestack-ui/themed";
-import { AuthProvider } from "@/src/context/AuthContext";
+import { AuthProvider } from "@/src/providers/AuthProvider";
 
 import {
   useFonts,
