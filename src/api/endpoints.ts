@@ -4,6 +4,10 @@ export const endpoints = {
     register: "api/users/register",
   },
 
+  users: {
+    me: "/api/users/me",
+  },
+
   places: {
     list: "/places",
     byId: (id: string) => `/places/${id}`,

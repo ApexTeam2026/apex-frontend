@@ -43,6 +43,18 @@ export default function RegisterScreen() {
     const handleRegister = async () => {
         console.log("REGISTER CLICKED");
 
+        console.log("FORM VALUES:", {
+            name,
+            email,
+            password,
+            birthDate,
+            isChecked,
+        });
+
+        const apiDate = convertToApiDate(birthDate);
+
+        console.log("FORMATTED API DATE:", apiDate);
+
         if (!isChecked || name.trim() === "" || email.trim() === "" || password.trim() === "") {
             console.log("VALIDATION FAILED", {
                 isChecked,
@@ -58,15 +70,23 @@ export default function RegisterScreen() {
         try {
             setIsLoading(true);
 
-            const data = await AuthService.register({
+            const payload = {
                 name,
                 email,
                 password,
-                birthdayDate: convertToApiDate(birthDate),
-                privacyPolicyAccepted: true
-            });
+                birthdayDate: apiDate,
+                privacyPolicyAccepted: true,
+            };
 
-            console.log("REGISTER SUCCESS:", data);
+            console.log("REGISTER REQUEST PAYLOAD:");
+            console.log(JSON.stringify(payload, null, 2));
+
+            const data = await AuthService.register(payload);
+
+            console.log("REGISTER RESPONSE:");
+            console.log(JSON.stringify(data, null, 2));
+
+            console.log("CALL LOGIN()");
 
             login({
                 user: {
@@ -78,14 +98,28 @@ export default function RegisterScreen() {
                 authKey: data.authKey,
             });
 
+            console.log("REDIRECT TO PROFILE");
+
             router.replace("/profile");
 
         } catch (error: any) {
+            console.log("REGISTER ERROR");
+
+            console.log("MESSAGE:");
+            console.log(error?.message);
+
+            console.log("STATUS:");
+            console.log(error?.response?.status);
+
+            console.log("RESPONSE DATA:");
             console.log(
-                "REGISTER ERROR:",
-                error?.response?.data || error.message
+                JSON.stringify(error?.response?.data, null, 2)
             );
+
+            console.log("FULL ERROR:");
+            console.log(error);
         } finally {
+            console.log("========== REGISTER END ==========");
             setIsLoading(false);
         }
     };
@@ -172,10 +206,10 @@ export default function RegisterScreen() {
                     <Button
                         w={140} h={60}
                         variant="outline"
-                        borderColor="#CECECE"
+                        borderColor={isChecked ? "#C8F751" : "#CECECE"}
                         borderRadius="$xl"
                         onPress={handleRegister}
-                        isDisabled={isLoading}
+                        isDisabled={isLoading || !isChecked}
                     >
                         {isLoading ? (
                             <Spinner color="#C8F751" />

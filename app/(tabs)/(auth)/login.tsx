@@ -13,40 +13,63 @@ export default function LoginScreen() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async () => {
+
+    console.log("LOGIN CLICKED");
+
+    console.log("FORM VALUES:", {
+        email,
+        password,
+    });
+
     if (email.trim() === "" || password.trim() === "") {
+        console.log("VALIDATION FAILED");
         setIsError(true);
         return;
     }
 
     try {
         setIsLoading(true);
-        setIsError(false);
+
+        const payload = {
+            email,
+            password,
+        };
+
+        console.log("LOGIN REQUEST PAYLOAD:");
+        console.log(JSON.stringify(payload, null, 2));
 
         const data = await AuthService.login(email, password);
 
-        console.log("LOGIN SUCCESS:", data);
+        console.log("LOGIN RESPONSE:");
+        console.log(JSON.stringify(data, null, 2));
 
+        console.log("ACCESS TOKEN:", data.accessToken);
+        console.log("AUTH KEY:", data.authKey);
+
+        // TODO: доделать логин, после входа нет данных о пользователе
         login({
             user: {
-                email,
-                name: "User", 
-                birthDate: "",
+                name: data.name,
+                email: data.email,
+                birthDate: data.birthdayDate,
             },
             accessToken: data.accessToken,
             authKey: data.authKey,
         });
 
+        console.log("TOKEN SAVED, GO TO PROFILE");
+
         router.replace("/profile");
 
     } catch (error: any) {
-        console.log(
-            "LOGIN ERROR:",
-            error?.response?.data || error.message
-        );
+
+        console.log("LOGIN ERROR:");
+        console.log(error?.response?.data || error.message);
 
         setIsError(true);
 

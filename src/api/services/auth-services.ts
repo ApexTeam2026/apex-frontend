@@ -21,4 +21,12 @@ export const AuthService = {
     const res = await apiClient.post(endpoints.auth.register, data);
     return res.data;
   },
+
+  getMe: async () => {
+    const res = await apiClient.get(
+      endpoints.users.me
+    );
+
+    return res.data;
+  },
 };
