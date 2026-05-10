@@ -9,6 +9,7 @@ import { useAuth } from "../../../src/hooks/useAuth";
 import { LegalModal } from "@/src/components/ui/legal-modal";
 import { PRIVACY_POLICY, TERMS_OF_USE } from "@/src/constants/legal";
 import { AuthService } from "@/src/api/services/auth-services";
+import { TokenStore } from "@/src/api/tokenStore";
 
 export default function RegisterScreen() {
     const router = useRouter();
@@ -21,6 +22,8 @@ export default function RegisterScreen() {
     const [isChecked, setIsChecked] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [modalType, setModalType] = useState<"privacy" | "terms" | null>(null);
+
+    const [errorText, setErrorText] = useState("");
 
     const formatDateInput = (value: string) => {
         const numbers = value.replace(/\D/g, "");
@@ -62,6 +65,7 @@ export default function RegisterScreen() {
                 email,
                 password,
             });
+            setErrorText("Заполните все поля");
             return;
         }
 
@@ -81,21 +85,37 @@ export default function RegisterScreen() {
             console.log("REGISTER REQUEST PAYLOAD:");
             console.log(JSON.stringify(payload, null, 2));
 
-            const data = await AuthService.register(payload);
+            const registerData = await AuthService.register(payload);
 
             console.log("REGISTER RESPONSE:");
-            console.log(JSON.stringify(data, null, 2));
+            console.log(JSON.stringify(registerData, null, 2));
 
-            console.log("CALL LOGIN()");
+            console.log("LOGIN AFTER REGISTER...");
+
+            const auth = await AuthService.login(email, password);
+            console.log("LOGIN RESPONSE:");
+            console.log(JSON.stringify(auth, null, 2));
+
+            TokenStore.set(auth.accessToken);
+
+            console.log("TOKEN SAVED:");
+
+            console.log("FETCH USER...");
+
+            const user = await AuthService.getMe();
+
+            console.log("GET ME RESPONSE:");
+            console.log(JSON.stringify(user, null, 2));
 
             login({
                 user: {
-                    name: data.name,
-                    email: data.email,
-                    birthDate: data.birthdayDate,
+                    name: user.name,
+                    email: user.email,
+                    birthDate: user.birthdayDate,
+                    avatarUrl: user.avatarUrl,
                 },
-                accessToken: data.accessToken,
-                authKey: data.authKey,
+                accessToken: registerData.accessToken,
+                authKey: registerData.authKey,
             });
 
             console.log("REDIRECT TO PROFILE");
@@ -118,6 +138,14 @@ export default function RegisterScreen() {
 
             console.log("FULL ERROR:");
             console.log(error);
+
+            const backendMessage =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                error?.message ||
+                "Ошибка регистрации";
+
+            setErrorText(String(backendMessage));
         } finally {
             console.log("========== REGISTER END ==========");
             setIsLoading(false);
@@ -161,6 +189,15 @@ export default function RegisterScreen() {
                         </Input>
                     </Box>
                 ))}
+
+                {!!errorText && (
+                    <HStack w="$full" space="xs" alignItems="flex-start" mt="$2">
+                        <Ionicons name="close" size={20} color="#C25353" style={{ marginTop: 2 }} />
+                        <Text color="#000" size="sm" flexShrink={1}>
+                            {errorText}
+                        </Text>
+                    </HStack>
+                )}
 
                 {/* Чекбокс согласия */}
                 <HStack mt="$4" px="$1" alignItems="flex-start" space="sm" opacity={isLoading ? 0.5 : 1}>
@@ -218,6 +255,7 @@ export default function RegisterScreen() {
                         )}
                     </Button>
                 </Box>
+
             </VStack>
 
             <LegalModal

@@ -14,7 +14,6 @@ const apiClient = axios.create({
 // подключение токена
 apiClient.interceptors.request.use(
   async (config) => {
-    // TODO: заменить на AsyncStorage / SecureStore
     const token = TokenStore.get();
 
     console.log("CURRENT TOKEN:", token);

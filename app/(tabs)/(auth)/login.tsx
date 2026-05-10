@@ -6,6 +6,8 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../../src/hooks/useAuth";
 import { AuthService } from "@/src/api/services/auth-services";
+import { TokenStore } from "@/src/api/tokenStore";
+
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -26,7 +28,7 @@ export default function LoginScreen() {
         password,
     });
 
-    if (email.trim() === "" || password.trim() === "") {
+    if (email.trim() === "" || password.trim() === "" || !email || !password) {
         console.log("VALIDATION FAILED");
         setIsError(true);
         return;
@@ -34,6 +36,7 @@ export default function LoginScreen() {
 
     try {
         setIsLoading(true);
+        setIsError(false);
 
         const payload = {
             email,
@@ -43,26 +46,35 @@ export default function LoginScreen() {
         console.log("LOGIN REQUEST PAYLOAD:");
         console.log(JSON.stringify(payload, null, 2));
 
-        const data = await AuthService.login(email, password);
+        const auth = await AuthService.login(email, password);
 
         console.log("LOGIN RESPONSE:");
-        console.log(JSON.stringify(data, null, 2));
+        console.log(JSON.stringify(auth, null, 2));
 
-        console.log("ACCESS TOKEN:", data.accessToken);
-        console.log("AUTH KEY:", data.authKey);
+        TokenStore.set(auth.accessToken);
 
-        // TODO: доделать логин, после входа нет данных о пользователе
+        console.log("TOKEN SAVED:");
+        console.log(TokenStore.get());
+
+        console.log("FETCH USER...");
+
+        const user = await AuthService.getMe();
+
+        console.log("GET ME RESPONSE:");
+        console.log(JSON.stringify(user, null, 2));
+
         login({
             user: {
-                name: data.name,
-                email: data.email,
-                birthDate: data.birthdayDate,
+                name: user.name,
+                email: user.email,
+                birthDate: user.birthdayDate,
+                avatarUrl: user.avatarUrl,
             },
-            accessToken: data.accessToken,
-            authKey: data.authKey,
+            accessToken: auth.accessToken,
+            authKey: auth.authKey,
         });
 
-        console.log("TOKEN SAVED, GO TO PROFILE");
+        console.log("REDIRECT TO PROFILE");
 
         router.replace("/profile");
 

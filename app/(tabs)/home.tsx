@@ -6,8 +6,11 @@ import { useRouter } from "expo-router";
 import BackgroundBear from "@/src/components/background-bear";
 import { useSurveyStore } from "@/src/store/surveyStore";
 
+import { useAuth } from "@/src/hooks/useAuth";
+
 export default function HomeScreen() {
-  const userName = "Иван";
+  const { user } = useAuth();
+  const userName = user?.name;
   const router = useRouter();
 
   const { completed, started, reset } = useSurveyStore();
@@ -44,7 +47,7 @@ export default function HomeScreen() {
           <Box w="100%" maxWidth={340} borderRadius="$2xl" alignItems="center">
             <VStack space="xl" alignItems="center">
               <Text fontSize="$4xl" mb="$10" color="#000" textAlign="center">
-                {userName ? `Здравствуйте, ${userName}!` : "Загрузка..."}
+                {userName ? `Здравствуйте, ${userName}!` : "Здравствуйте!"}
               </Text>
 
               <Text textAlign="center" fontSize="$4xl" color="#000">
