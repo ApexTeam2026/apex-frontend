@@ -49,23 +49,23 @@ export default function AllPlacesScreen() {
     selectedPeople,
   });
 
-  const normalize = (str: string) => str.trim().toLowerCase();
+  const normalize = (str: string | undefined) => (str ? str.trim().toLowerCase() : "");
 
   const isNoFilters =
     selectedCategories.length === 0 &&
     selectedTime.length === 0 &&
+    selectedTags.length === 0 &&
     selectedPeople.length === 0;
 
   const filteredPlaces = places.filter((place: Place) => {
-    const matchesSearch = place.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
+      const matchesSearch = normalize(place.name).includes(normalize(search));
 
     if (isNoFilters) return matchesSearch;
 
     const matchesTags =
       selectedTags.length === 0 ||
-      selectedTags.every(tag => place.tags.includes(tag));
+        selectedTags.every(tag => place.tags.map(normalize).includes(normalize(tag))
+        );
 
     const matchesCategory =
       selectedCategories.length === 0 ||
@@ -73,18 +73,20 @@ export default function AllPlacesScreen() {
         .map(normalize)
         .includes(normalize(place.category));
 
-    // TODO: оптимизировать эти проверки
     const matchesTime =
       selectedTime.length === 0 ||
       (place.timeOfDay &&
-        selectedTime.some(t => place.timeOfDay?.includes(t)));
+        selectedTime.some(t => 
+          place.timeOfDay?.map(normalize).includes(normalize(t))
+        ));
 
-    // TODO: оптимизировать эти проверки
-    const matchesPeople =
+
+     const matchesPeople =
       selectedPeople.length === 0 ||
       (place.suitableFor &&
-        selectedPeople.some(p => place.suitableFor?.includes(p)));
-
+        selectedPeople.some(p => 
+          place.suitableFor?.map(normalize).includes(normalize(p))
+        ));
     return matchesSearch && matchesTags && matchesCategory && matchesTime && matchesPeople;
   });
 
