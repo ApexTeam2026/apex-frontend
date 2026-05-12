@@ -17,8 +17,10 @@ import {
 } from "@gluestack-ui/themed";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
+import { useWindowDimensions } from "react-native";
 export default function FiltersScreen() {
+    const { width } = useWindowDimensions();
+    const isTablet = width > 768;
     const router = useRouter();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -80,127 +82,135 @@ export default function FiltersScreen() {
     };
 
     return (
-        <Box flex={1} bg="$white" px="$6" pt="$12">
-            {/* Шапка */}
-            <HStack alignItems="center" justifyContent="center" mb="$6" position="relative">
+        <Box flex={1} bg="$white" px={isTablet ? "$20" : "$6"} pt={isTablet ? "$20" : "$12"}>
+            {/* Шапка - масштабируется на планшетах */}
+            <HStack alignItems="center" justifyContent="center" mb={isTablet ? "$10" : "$6"} position="relative">
                 <Pressable onPress={() => router.back()} position="absolute" left={0} p="$1">
-                    <Ionicons name="chevron-back" size={24} color="#CECECE" />
+                    <Ionicons name="chevron-back" size={isTablet ? 32 : 24} color="#CECECE" />
                 </Pressable>
-                <Text fontSize={24} fontWeight="$light" color="#000">Фильтры</Text>
+                <Text fontSize={isTablet ? 32 : 24} fontWeight="$light" color="#000">Фильтры</Text>
             </HStack>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-                <VStack space="lg">
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                    paddingBottom: 60,
+                    width: '100%',
+                    maxWidth: 1000, // Ограничение, чтобы на очень широких экранах не расползалось
+                    alignSelf: 'center'
+                }}
+            >
+                <VStack space="xl">
 
-                    {/* 1. Средний чек */}
-                    <VStack space="xs">
-                        <Text fontSize={18} fontWeight="$medium" color="#000" mb="$1">Средний чек</Text>
-                        <HStack alignItems="center" space="sm">
-                            <Text color="#000" fontSize={14} fontWeight="$light">от</Text>
-                            <Input variant="outline" borderRadius="$full" borderColor="#CECECE" h={30} w={80}>
-                                <InputField placeholder="" keyboardType="numeric" textAlign="center" fontSize={14} />
-                            </Input>
-                            <Text color="#000" fontSize={14} fontWeight="$light" ml="$3">до</Text>
-                            <Input variant="outline" borderRadius="$full" borderColor="#CECECE" h={30} w={130}>
-                                <InputField placeholder="" keyboardType="numeric" textAlign="center" fontSize={14} />
-                            </Input>
-                        </HStack>
-                    </VStack>
+                    {/* АДАПТИВ: Средний чек и Район встают в ряд на планшетах */}
+                    <HStack space="xl" flexDirection={isTablet ? "row" : "column"}>
 
-                    {/* 2. Район  */}
-                    <VStack space="xs">
-                        <Text fontSize={18} fontWeight="$medium" color="#000" mb="$1">Район</Text>
-                        <Pressable onPress={() => setIsOpen(!isOpen)}>
-                            <Box borderWidth={1} borderColor="#CECECE" borderRadius="$xl" px="$4" py="$2.5">
-                                <Text fontSize={15} color={selectedDistrict ? "#000" : "#E5E5E5"} fontWeight="$light">
-                                    {selectedDistrict || "Выберите район"}
-                                </Text>
-                                {isOpen && (
-                                    <VStack space="xs" mt="$3" borderTopWidth={1} borderTopColor="#F2F2F2" pt="$2">
-                                        {districts.map((item) => (
-                                            <Pressable key={item} onPress={() => { setSelectedDistrict(item); setIsOpen(false); }}>
-                                                <Text color="#666" fontSize={16} fontWeight="$light" py="$1.5">{item}</Text>
-                                            </Pressable>
-                                        ))}
-                                    </VStack>
-                                )}
-                            </Box>
-                        </Pressable>
-                    </VStack>
+                        {/* 1. Средний чек */}
+                        <VStack space="xs" flex={1}>
+                            <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Средний чек</Text>
+                            <HStack alignItems="center" space="sm">
+                                <Text color="#000" fontSize={isTablet ? 16 : 14} fontWeight="$light">от</Text>
+                                <Input variant="outline" borderRadius="$full" borderColor="#CECECE" h={isTablet ? 45 : 30} flex={1}>
+                                    <InputField placeholder="" keyboardType="numeric" textAlign="center" fontSize={isTablet ? 16 : 14} />
+                                </Input>
+                                <Text color="#000" fontSize={isTablet ? 16 : 14} fontWeight="$light">до</Text>
+                                <Input variant="outline" borderRadius="$full" borderColor="#CECECE" h={isTablet ? 45 : 30} flex={1.5}>
+                                    <InputField placeholder="" keyboardType="numeric" textAlign="center" fontSize={isTablet ? 16 : 14} />
+                                </Input>
+                            </HStack>
+                        </VStack>
 
-                    {/* 3. Тип заведения  */}
+                        {/* 2. Район */}
+                        <VStack space="xs" flex={1}>
+                            <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Район</Text>
+                            <Pressable onPress={() => setIsOpen(!isOpen)}>
+                                <Box borderWidth={1} borderColor="#CECECE" borderRadius="$xl" px="$4" py={isTablet ? "$4" : "$2.5"}>
+                                    <Text fontSize={isTablet ? 18 : 15} color={selectedDistrict ? "#000" : "#E5E5E5"} fontWeight="$light">
+                                        {selectedDistrict || "Выберите район"}
+                                    </Text>
+                                    {isOpen && (
+                                        <VStack space="xs" mt="$3" borderTopWidth={1} borderTopColor="#F2F2F2" pt="$2">
+                                            {districts.map((item) => (
+                                                <Pressable key={item} onPress={() => { setSelectedDistrict(item); setIsOpen(false); }}>
+                                                    <Text color="#666" fontSize={isTablet ? 18 : 16} fontWeight="$light" py="$1.5">{item}</Text>
+                                                </Pressable>
+                                            ))}
+                                        </VStack>
+                                    )}
+                                </Box>
+                            </Pressable>
+                        </VStack>
+                    </HStack>
+
+                    {/* 3. Тип заведения - Сетка 2 колонки на мобайле, 3 на планшете */}
                     <VStack space="xs">
-                        <Text fontSize={18} fontWeight="$medium" color="#000" mb="$1">Тип заведения</Text>
-                        <HStack>
-                            <VStack space="xs" flex={1}>
-                                {["Парк", "Ресторан", "Музей", "Арт-объект", "Кинотеатр"].map((l) => (
+                        <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Тип заведения</Text>
+                        <HStack flexWrap="wrap">
+                            {["Парк", "Ресторан", "Музей", "Арт-объект", "Кинотеатр", "Клуб", "Спортивный зал", "Торговый центр", "Аттракцион", "Коворкинг"].map((l) => (
+                                <Box key={l} w={isTablet ? "33%" : "50%"}>
                                     <FilterCheckbox
-                                        key={l}
                                         label={l}
                                         selected={selectedCategories.includes(l)}
                                         onToggle={() => toggleCategory(l)}
                                     />
-                                ))}
-                            </VStack>
-                            <VStack space="xs" flex={1}>
-                                {["Клуб", "Спортивный зал", "Торговый центр", "Аттракцион", "Коворкинг"].map((l) => (
-                                    <FilterCheckbox
-                                        key={l}
-                                        label={l}
-                                        selected={selectedCategories.includes(l)}
-                                        onToggle={() => toggleCategory(l)}
-                                    />
-                                ))}
-                            </VStack>
+                                </Box>
+                            ))}
                         </HStack>
                     </VStack>
 
-                    {/* 4. Время посещения */}
-                    <VStack space="xs">
-                        <Text fontSize={18} fontWeight="$medium" color="#000" mb="$1">Время посещения</Text>
-                        <VStack space="xs">
-                            {["Утро", "День", "Вечер", "Ночь"].map((l) => (
-                                <FilterCheckbox
-                                    key={l}
-                                    label={l}
-                                    selected={selectedTime.includes(l)}
-                                    onToggle={() => toggleTime(l)}
-                                />
-                            ))}
+                    {/* АДАПТИВ: Время и Количество людей тоже в ряд на планшетах */}
+                    <HStack space="xl" flexDirection={isTablet ? "row" : "column"}>
+                        {/* 4. Время посещения */}
+                        <VStack space="xs" flex={1}>
+                            <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Время посещения</Text>
+                            <HStack flexWrap="wrap">
+                                {["Утро", "День", "Вечер", "Ночь"].map((l) => (
+                                    <Box key={l} w={isTablet ? "50%" : "100%"}>
+                                        <FilterCheckbox
+                                            key={l}
+                                            label={l}
+                                            selected={selectedTime.includes(l)}
+                                            onToggle={() => toggleTime(l)}
+                                        />
+                                    </Box>
+                                ))}
+                            </HStack>
                         </VStack>
-                    </VStack>
 
-                    {/* 5. Количество людей */}
-                    <VStack space="xs">
-                        <Text fontSize={18} fontWeight="$medium" color="#000" mb="$1">Количество людей</Text>
-                        <VStack space="xs">
-                            {["Один", "Вдвоем", "Компания", "С семьей"].map((l) => (
-                                <FilterCheckbox
-                                    key={l}
-                                    label={l}
-                                    selected={selectedPeople.includes(l)}
-                                    onToggle={() => togglePeople(l)}
-                                />
-                            ))}
+                        {/* 5. Количество людей */}
+                        <VStack space="xs" flex={1}>
+                            <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Количество людей</Text>
+                            <HStack flexWrap="wrap">
+                                {["Один", "Вдвоем", "Компания", "С семьей"].map((l) => (
+                                    <Box key={l} w={isTablet ? "50%" : "100%"}>
+                                        <FilterCheckbox
+                                            key={l}
+                                            label={l}
+                                            selected={selectedPeople.includes(l)}
+                                            onToggle={() => togglePeople(l)}
+                                        />
+                                    </Box>
+                                ))}
+                            </HStack>
                         </VStack>
-                    </VStack>
+                    </HStack>
 
-                    {/* Кнопка далее */}
-                    <HStack justifyContent="space-between" mt="$4">
+                    {/* Блок кнопок - прижат вправо на планшете */}
+                    <HStack justifyContent={isTablet ? "flex-end" : "space-between"} mt="$10" space="md">
                         <Button
                             variant="outline"
                             borderColor="#CECECE"
                             borderRadius={18}
-                            w={160}
-                            h={55}
+                            w={isTablet ? 220 : 160}
+                            h={isTablet ? 65 : 55}
                             onPress={resetFilters}
                         >
-                            <Text color="#000">Сбросить</Text>
+                            <Text color="#000" fontSize={isTablet ? 18 : 16}>Сбросить</Text>
                         </Button>
 
                         <Button
-                            w={160}
-                            h={55}
+                            w={isTablet ? 220 : 160}
+                            h={isTablet ? 65 : 55}
                             variant="outline"
                             borderColor="#CECECE"
                             borderRadius={18}
@@ -208,15 +218,15 @@ export default function FiltersScreen() {
                                 router.push({
                                     pathname: "/(tabs)/all-places",
                                     params: {
-                                    tags: JSON.stringify(selectedTags),
-                                    categories: JSON.stringify(selectedCategories),
-                                    time: JSON.stringify(selectedTime),
-                                    people: JSON.stringify(selectedPeople),
+                                        tags: JSON.stringify(selectedTags),
+                                        categories: JSON.stringify(selectedCategories),
+                                        time: JSON.stringify(selectedTime),
+                                        people: JSON.stringify(selectedPeople),
                                     },
                                 })
                             }
                         >
-                            <Ionicons name="chevron-forward" size={30} color="#CECECE" />
+                            <Ionicons name="chevron-forward" size={isTablet ? 40 : 30} color="#CECECE" />
                         </Button>
                     </HStack>
 

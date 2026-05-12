@@ -16,12 +16,16 @@ import PlaceCard from "@/src/components/place-card";
 import AppHeader from "@/src/components/app-header"
 import FilterIcon from "@/src/assets/images/filter-icon.svg"
 import { useLocalSearchParams } from "expo-router";
+import { useWindowDimensions } from 'react-native';
 
 export default function AllPlacesScreen() {
+  const { width } = useWindowDimensions();
+  const isTablet = width > 768;
+  const numColumns = isTablet ? 2 : 1;
   const router = useRouter();
 
   const [search, setSearch] = useState("");
-
+ 
   const { categories, time, people, tags } = useLocalSearchParams();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState<string[]>([]);
@@ -90,68 +94,77 @@ export default function AllPlacesScreen() {
     return matchesSearch && matchesTags && matchesCategory && matchesTime && matchesPeople;
   });
 
-  return (
-    <Box flex={1} px="$3" bgColor="$white">
-      <AppHeader />
-      <HStack mb="$3" alignItems="center" space="xs">
-        <Input 
-          flex={1} 
-          borderRadius="$lg"
-          borderColor="#CECECE"
-        >
-          <InputField
-            placeholder="Поиск мест..."
-            value={search}
-            onChangeText={setSearch}
-          />
-        </Input>
-        
-        <Pressable
-          onPress={() => router.push("/(tabs)/filters")}
-          style={{ padding: 8, borderRadius: 8 }}
-        >
-          <FilterIcon width={35} height={35} />
-        </Pressable>
-          
-        
-      </HStack>
+    return (
+        <Box flex={1} bgColor="$white">
+            <Box
+                maxWidth={1200}
+                w="$full"
+                alignSelf="center"
+                flex={1}
+                px={isTablet ? "$10" : "$3"}
+            >
+                <AppHeader />
 
-        {/*TODO: изменить скорость скролла*/}
-        <FlatList<Place> 
-          showsVerticalScrollIndicator={false}
-          data={filteredPlaces}
-          keyExtractor={(item) => item.placeId.toString()}
-          renderItem={({ item }) => (
+                <HStack mb="$3" alignItems="center" space="xs">
+                    <Input
+                        flex={1}
+                        borderRadius="$lg"
+                        borderColor="#CECECE"
+                        h={isTablet ? 55 : 45}
+                    >
+                        <InputField
+                            placeholder="Поиск мест..."
+                            value={search}
+                            onChangeText={setSearch}
+                            fontSize={isTablet ? "$lg" : "$md"}
+                        />
+                    </Input>
 
-            <PlaceCard
-              place={item}
-              onPress={() =>
-                router.push({
-                  pathname: "/detailed_place",
-                  params: { id: item.placeId.toString() },
-                })
-              }/>
+                    <Pressable
+                        onPress={() => router.push("/(tabs)/filters")}
+                        style={{ padding: 8 }}
+                    >
+                        <FilterIcon
+                            width={isTablet ? 45 : 35}
+                            height={isTablet ? 45 : 35}
+                        />
+                    </Pressable>
+                </HStack>
 
-            
-              )}
-
-            ListEmptyComponent={() => (
-              <Box mt="$10" alignItems="center">
-                <Text fontSize={18} color="$coolGray500">
-                  Ничего не найдено 😢
-                </Text>
-              </Box>
-            )}
-
-            ItemSeparatorComponent={() => (
-                <Box>
-                  <Box h="$1" />
-                  <Box h={2} bg="$coolGray200" mx="$5" />
-                  <Box h="$1" />
-                </Box>
-              )}
-              
-            />
-    </Box>
-  );
+                <FlatList<Place>
+                    key={numColumns}
+                    numColumns={numColumns}
+                    data={filteredPlaces}
+                    keyExtractor={(item) => item.placeId.toString()}
+                    decelerationRate="fast"
+                    showsVerticalScrollIndicator={false}
+                    columnWrapperStyle={isTablet ? { gap: 20 } : null}
+                    renderItem={({ item }) => (
+                        <Box flex={1} mb="$2">
+                            <PlaceCard
+                                place={item}
+                                onPress={() =>
+                                    router.push({
+                                        pathname: "/detailed_place",
+                                        params: { id: item.placeId.toString() },
+                                    })
+                                }
+                            />
+                        </Box>
+                    )}
+                    ListEmptyComponent={() => (
+                        <Box mt="$10" alignItems="center">
+                            <Text fontSize={18} color="$coolGray500">Ничего не найдено 😢</Text>
+                        </Box>
+                    )}
+                    ItemSeparatorComponent={() => (
+                        !isTablet ? (
+                            <Box h={2} bg="$coolGray200" my="$3" mx="$5" />
+                        ) : <Box h="$4" />
+                    )}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                />
+            </Box>
+        </Box>
+    );
 }

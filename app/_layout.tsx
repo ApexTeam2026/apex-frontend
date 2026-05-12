@@ -29,7 +29,13 @@ export const config = {
       heading: "Montserrat_700Bold",
       body: "Montserrat_400Regular",
       mono: "Montserrat_400Regular",
-    },
+      },
+      breakpoints: {
+          base: 0,     
+          sm: 480,     
+          md: 768,     
+          lg: 992,    
+      },
   },
 };
 

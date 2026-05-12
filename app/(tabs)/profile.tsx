@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Text, Button, ButtonText, VStack, HStack, Center } from "@gluestack-ui/themed";
+import { ScrollView,Box, Text, Button, ButtonText, VStack, HStack, Center } from "@gluestack-ui/themed";
 import AppHeader from "@/src/components/app-header";
 import AvatarIcon from "@/src/assets/images/aavatar_icon.svg";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
+import { useWindowDimensions } from "react-native";
 export default function ProfileScreen() {
+    const { width } = useWindowDimensions();
+    const isTablet = width > 768;
     const { user, logout } = useAuth();
     const router = useRouter();
 
@@ -45,103 +47,111 @@ export default function ProfileScreen() {
     // ЕСЛИ ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН
     if (user) {
         return (
-            <Box 
-                flex={1} 
-                bg="$backgroundLight0" 
-                px="$6"
-            >
-                {/* Кнопка выхода в правом верхнем углу */}
-                <Box position="absolute" top={40} right={20} zIndex={10}>
-    <Button
-        borderRadius="$full"
-        size="lg"
-        variant="outline"
-        borderColor="#C8F751"
-        bg="white"
-        onPress={() => setShowLogoutConfirm(true)}
-    >
-        <Ionicons name="log-out-outline" size={24} color="#C8F751" />
-    </Button>
-</Box>
-
-                <Box mt="$20">
-                    <Center>
-                        <VStack space="lg" alignItems="center" w="$full">
-                            {/* Аватар */}
-                            <Box 
-                                w={120} 
-                                h={120} 
-                                borderRadius={60}
-                                borderWidth={2}
+            <Box flex={1} bg="$backgroundLight0">
+                <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
+                    <Box flex={1} px="$6" position="relative">
+                        {/* Кнопка выхода в правом верхнем углу */}
+                        <Box position="absolute" top={40} right={20} zIndex={10}>
+                            <Button
+                                borderRadius="$full"
+                                size="lg"
+                                variant="outline"
                                 borderColor="#C8F751"
-                                justifyContent="center"
-                                alignItems="center"
+                                bg="white"
+                                onPress={() => setShowLogoutConfirm(true)}
                             >
-                                <AvatarIcon width={80} height={80} />
-                            </Box>
+                                <Ionicons name="log-out-outline" size={24} color="#C8F751" />
+                            </Button>
+                        </Box>
 
-                            {/* Данные пользователя */}
-                            <Text fontSize="$2xl" fontWeight="$bold">
-                                {userData ? userData.name : "Загрузка..."}
-                            </Text>
+                        <Box mt="$20">
+                            <Center>
+                                <VStack space="lg" alignItems="center" w="$full">
+                                    {/* Аватар */}
+                                    <Box
+                                        w={120}
+                                        h={120}
+                                        borderRadius={60}
+                                        borderWidth={2}
+                                        borderColor="#C8F751"
+                                        justifyContent="center"
+                                        alignItems="center"
+                                    >
+                                        <AvatarIcon width={80} height={80} />
+                                    </Box>
 
-                            <Text color="$textLight500">
-                                {userData ? userData.birthDate : ""}
-                            </Text>
+                                    {/* Данные пользователя */}
+                                    <Text fontSize="$2xl" fontWeight="$bold">
+                                        {userData ? userData.name : "Загрузка..."}
+                                    </Text>
 
-                            <Text color="$textLight500">
-                                {userData ? userData.email : ""}
-                            </Text>
+                                    <Text color="$textLight500">
+                                        {userData ? userData.birthDate : ""}
+                                    </Text>
 
-                            {/* Кнопки действий */}
-                            <VStack space="md" w="$full" mt="$8">
-                                {/* Избранные */}
-                                <Button
-                                    w="$full"
-                                    h={60}
-                                    variant="outline"
-                                    borderRadius="$xl"
-                                    borderColor="#CECECE"
-                                    px="$5"
-                                    onPress={() => router.push("/(tabs)/favorites")}
-                                >
-                                    <HStack justifyContent="space-between" alignItems="center" w="$full">
-                                        <ButtonText color="#000000" size="xl">
-                                            Избранные
-                                        </ButtonText>
-                                        <Ionicons 
-                                            name="heart-outline" 
-                                            size={24} 
-                                            color="#C8F751" 
-                                        />
-                                    </HStack>
-                                </Button>
+                                    <Text color="$textLight500">
+                                        {userData ? userData.email : ""}
+                                    </Text>
 
-                                {/* Посещенные */}
-                                <Button
-                                    w="$full"
-                                    h={60}
-                                    variant="outline"
-                                    borderRadius="$xl"
-                                    borderColor="#cecece"
-                                    px="$5"
-                                    onPress={() => router.push("/(tabs)/visited")}
-                                >
-                                    <HStack justifyContent="space-between" alignItems="center" w="$full">
-                                        <ButtonText color="#000000" size="xl">
-                                            Посещенные
-                                        </ButtonText>
-                                        <Ionicons 
-                                            name="star-outline" 
-                                            size={24} 
-                                            color="#C8F751" 
-                                        />
-                                    </HStack>
-                                </Button>
-                            </VStack>
-                        </VStack>
-                    </Center>
-                </Box>
+                                    {/* Кнопки действий */}
+                                    <VStack space="md" w="$full" mt="$8" alignItems="center">
+                                        <Box
+                                            flexDirection={isTablet ? "row" : "column"}
+                                            w="$full"
+                                            maxWidth={isTablet ? 800 : "100%"}
+                                            style={{ gap: 15 }}
+                                            alignSelf="center"
+                                        >
+                                            {/* Кнопка: Избранные */}
+                                            <Button
+                                                flex={1}
+                                                h={isTablet ? 80 : 60}
+                                                variant="outline"
+                                                borderRadius="$xl"
+                                                borderColor="#CECECE"
+                                                px="$5"
+                                                onPress={() => router.push("/favorites")}
+                                            >
+                                                <HStack justifyContent="space-between" alignItems="center" w="$full">
+                                                    <ButtonText color="#000000" size={isTablet ? "xl" : "lg"}>
+                                                        Избранные
+                                                    </ButtonText>
+                                                    <Ionicons
+                                                        name="heart-outline"
+                                                        size={isTablet ? 30 : 24}
+                                                        color="#C8F751"
+                                                    />
+                                                </HStack>
+                                            </Button>
+
+                                            {/* Кнопка: Посещенные */}
+                                            <Button
+                                                flex={1}
+                                                h={isTablet ? 80 : 60}
+                                                variant="outline"
+                                                borderRadius="$xl"
+                                                borderColor="#CECECE"
+                                                px="$5"
+                                                onPress={() => router.push("/visited")}
+                                            >
+                                                <HStack justifyContent="space-between" alignItems="center" w="$full">
+                                                    <ButtonText color="#000000" size={isTablet ? "xl" : "lg"}>
+                                                        Посещенные
+                                                    </ButtonText>
+                                                    <Ionicons
+                                                        name="star-outline"
+                                                        size={isTablet ? 30 : 24}
+                                                        color="#C8F751"
+                                                    />
+                                                </HStack>
+                                            </Button>
+                                        </Box>
+                                    </VStack>
+                                </VStack>
+                            </Center>
+                        </Box>
+                    </Box>
+                </ScrollView>
 
                 {/* Современное всплывающее окно подтверждения выхода */}
                 {showLogoutConfirm && (
@@ -240,88 +250,92 @@ export default function ProfileScreen() {
 
     // ГОСТЬ 
     return (
-        <Box 
-            flex={1} 
-            bg="$backgroundLight0" 
-            px="$9"  
-            position="relative"
-            justifyContent="space-between"
-        >
-            <AppHeader />
+        <Box flex={1} bg="$backgroundLight0">
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <Box
+                    px="$9"
+                    position="relative"
+                    justifyContent="space-between"
+                    flex={1}
+                    py="$10"
+                >
+                    <AppHeader />
 
-            <Box mt="$4" mb="$10">
-                <Center>
-                    <Box
-                        w="100%"
-                        maxWidth={340}
-                        borderRadius="$2xl"
-                        alignItems="center"
-                    >
-                        <VStack space="xl" alignItems="center">
-                            <Box 
-                                w={120} 
-                                h={120} 
-                                borderRadius={60}
-                                overflow="hidden"
-                                mb="$4"
-                                justifyContent="center"
+                    <Box mt="$4" mb="$10">
+                        <Center>
+                            <Box
+                                w="100%"
+                                maxWidth={340}
+                                borderRadius="$2xl"
                                 alignItems="center"
                             >
-                                <AvatarIcon width={100} height={100} />
+                                <VStack space="xl" alignItems="center">
+                                    <Box
+                                        w={120}
+                                        h={120}
+                                        borderRadius={60}
+                                        overflow="hidden"
+                                        mb="$4"
+                                        justifyContent="center"
+                                        alignItems="center"
+                                    >
+                                        <AvatarIcon width={100} height={100} />
+                                    </Box>
+
+                                    <Text
+                                        fontSize="$4xl"
+                                        mb="$4"
+                                        color="#000000"
+                                        textAlign="center"
+                                        fontWeight="$bold"
+                                    >
+                                        Здравствуйте!
+                                    </Text>
+
+                                    <Text
+                                        textAlign="center"
+                                        color="$textLight500"
+                                        fontSize="$xl"
+                                        mb="$8"
+                                    >
+                                        Войдите или зарегистрируйтесь, чтобы сохранять любимые места
+                                    </Text>
+
+                                    <VStack space="md" w="$full">
+                                        {/* Вход */}
+                                        <Button
+                                            variant="outline"
+                                            borderRadius="$lg"
+                                            size="lg"
+                                            borderColor="#CECECE"
+                                            onPress={handleLogin}
+                                        >
+                                            <ButtonText color="#000000" size="xl">
+                                                Войти
+                                            </ButtonText>
+                                        </Button>
+
+                                        {/* Регистрация */}
+                                        <Button
+                                            variant="outline"
+                                            borderRadius="$lg"
+                                            size="lg"
+                                            borderColor="#CECECE"
+                                            onPress={handleRegister}
+                                        >
+                                            <ButtonText color="#000000" size="xl">
+                                                Зарегистрироваться
+                                            </ButtonText>
+                                        </Button>
+                                    </VStack>
+                                </VStack>
                             </Box>
-
-                            <Text 
-                                fontSize="$4xl" 
-                                mb="$4" 
-                                color="#000000" 
-                                textAlign="center"
-                                fontWeight="$bold"
-                            >
-                                Здравствуйте!
-                            </Text>
-
-                            <Text
-                                textAlign="center"
-                                color="$textLight500"
-                                fontSize="$xl"
-                                mb="$8"
-                            >
-                                Войдите или зарегистрируйтесь, чтобы сохранять любимые места
-                            </Text>
-
-                            <VStack space="md" w="$full">
-                                {/* Вход */}
-                                <Button
-                                    variant="outline"
-                                    borderRadius="$lg"
-                                    size="lg"
-                                    borderColor="#CECECE"
-                                    onPress={handleLogin}
-                                >
-                                    <ButtonText color="#000000" size="xl">
-                                        Войти
-                                    </ButtonText>
-                                </Button>
-
-                                {/* Регистрация */}
-                                <Button
-                                    variant="outline"
-                                    borderRadius="$lg"
-                                    size="lg"
-                                    borderColor="#CECECE"
-                                    onPress={handleRegister}
-                                >
-                                    <ButtonText color="#000000" size="xl">
-                                        Зарегистрироваться
-                                    </ButtonText>
-                                </Button>
-                            </VStack>
-                        </VStack>
+                        </Center>
                     </Box>
-                </Center>          
-            </Box>
 
-            <Box pb="$10" />
+                    <Box pb="$10" />
+                </Box>
+            </ScrollView>
         </Box>     
     );
 }
