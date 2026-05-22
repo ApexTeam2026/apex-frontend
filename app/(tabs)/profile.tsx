@@ -6,13 +6,14 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useWindowDimensions } from "react-native";
+import { AuthService } from "@/api/services/auth-services";
+
 export default function ProfileScreen() {
     const { width } = useWindowDimensions();
     const isTablet = width > 768;
     const { user, logout } = useAuth();
     const router = useRouter();
 
-    const [userData, setUser] = useState<any>(null);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState<boolean>(false);
 
     const handleLogin = () => {
@@ -30,21 +31,7 @@ export default function ProfileScreen() {
     };
 
     if (user === undefined) return null;
-// Загрузка данных пользователя
-    // TODO: изменить потом с API
-    useEffect(() => {
-        if (user) {
-            setTimeout(() => {
-                setUser({
-                    name: "Иван",
-                    birthDate: "11.11.2011",
-                    email: "yep@gmail.com",
-                });
-            }, 800);
-        }
-    }, [user]);
 
-    // ЕСЛИ ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН
     if (user) {
         return (
             <Box flex={1} bg="$backgroundLight0">
@@ -82,15 +69,15 @@ export default function ProfileScreen() {
 
                                     {/* Данные пользователя */}
                                     <Text fontSize="$2xl" fontWeight="$bold">
-                                        {userData ? userData.name : "Загрузка..."}
+                                        {user?.name || "Загрузка..."}
                                     </Text>
 
                                     <Text color="$textLight500">
-                                        {userData ? userData.birthDate : ""}
+                                        {user?.birthDate || ""}
                                     </Text>
 
                                     <Text color="$textLight500">
-                                        {userData ? userData.email : ""}
+                                        {user?.email || ""}
                                     </Text>
 
                                     {/* Кнопки действий */}

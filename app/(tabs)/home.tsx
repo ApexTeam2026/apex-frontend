@@ -6,8 +6,11 @@ import { useRouter } from "expo-router";
 import BackgroundBear from "@/src/components/background-bear";
 import { useSurveyStore } from "@/src/store/surveyStore";
 
+import { useAuth } from "@/src/hooks/useAuth";
+
 export default function HomeScreen() {
-  const userName = "Иван";
+  const { user } = useAuth();
+  const userName = user?.name;
   const router = useRouter();
 
   const { completed, started, reset } = useSurveyStore();
