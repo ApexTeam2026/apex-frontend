@@ -6,13 +6,24 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Place } from "@/src/types/place";
 import { PlacesService } from "@/src/api/services/places-service";
 
+import { useFavorites } from "@/src/providers/FavoritesProvider";
+import { useAuth } from "@/src/hooks/useAuth";
+import { AuthRequiredModal } from "@/src/components/ui/auth-required-modal";
+
 export default function PlaceScreen() {
     const { id } = useLocalSearchParams();
     const [place, setPlace] = useState<Place | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [rating, setRating] = useState<number>(0);
-    const [liked, setLiked] = useState(false);
     const router = useRouter();
+
+    const [showAuthModal, setShowAuthModal] =
+    useState(false);
+
+    const { user } = useAuth();
+
+    const { isFavorite, toggleFavorite } =
+    useFavorites();
     
     useEffect(() => {
     if (!id) return;
@@ -40,6 +51,7 @@ export default function PlaceScreen() {
     }, [id]);
 
     if (!place) return null;
+    const liked = isFavorite(place.placeId);
 
     const handleImagePress = () => {
         Alert.alert("Картинка нажата!");
@@ -50,8 +62,14 @@ export default function PlaceScreen() {
         Alert.alert("Вы оценили место", `Ваша оценка: ${star} звезд`);
     };
 
-    const toggleLike = () => {
-        setLiked(!liked);
+    const handleFavoritePress = async () => {
+
+        if (!user) {
+            setShowAuthModal(true);
+            return;
+        }
+
+        await toggleFavorite(place.placeId);
     };
 
     return (
@@ -97,7 +115,7 @@ export default function PlaceScreen() {
                         <Text fontSize="$2xl" fontWeight="$bold">
                             {place.name}
                         </Text>
-                        <TouchableOpacity onPress={toggleLike} activeOpacity={1}>
+                        <TouchableOpacity onPress={handleFavoritePress} activeOpacity={1}>
                             <Ionicons
                                 name={liked ? "heart" : "heart-outline"}
                                 size={32}
@@ -156,25 +174,25 @@ export default function PlaceScreen() {
                     </HStack>
 
                     {/* Описание */}
-{place.description && (
-    <Box mt="$5">
-        <Text
-            fontSize="$lg"
-            fontWeight="$bold"
-            mb="$2"
-        >
-            Описание
-        </Text>
+                    {place.description && (
+                        <Box mt="$5">
+                            <Text
+                                fontSize="$lg"
+                                fontWeight="$bold"
+                                mb="$2"
+                            >
+                                Описание
+                            </Text>
 
-        <Text
-            fontSize="$md"
-            lineHeight="$lg"
-            color="$textLight700"
-        >
-            {place.description}
-        </Text>
-    </Box>
-)}
+                            <Text
+                                fontSize="$md"
+                                lineHeight="$lg"
+                                color="$textLight700"
+                            >
+                                {place.description}
+                            </Text>
+                        </Box>
+                    )}
 
                     {/* Рейтинг пользователя */}
                     <Box mt="$6">
@@ -198,6 +216,15 @@ export default function PlaceScreen() {
 
                 </Box>
             </ScrollView>
+            <AuthRequiredModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                onLoginPress={() => {
+                    setShowAuthModal(false);
+
+                    router.push("/profile");
+                }}
+            />
         </Box>
     );
 }

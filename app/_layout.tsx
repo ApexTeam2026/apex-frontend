@@ -10,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { GluestackUIProvider } from "@gluestack-ui/themed";
 import { AuthProvider } from "@/src/providers/AuthProvider";
+import { FavoritesProvider } from "@/src/providers/FavoritesProvider";
 
 import {
   useFonts,
@@ -68,21 +69,23 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <GluestackUIProvider config={config}>
-        
-        {/* Навигация */}
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-        </Stack>
+      <FavoritesProvider>
+        <GluestackUIProvider config={config}>
+          
+          {/* Навигация */}
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+          </Stack>
 
-        {/* Splash */}
-        {!hidden && (
-          <Animated.View style={[styles.splash, animatedStyle]}>
-            <Bear />
-          </Animated.View>
-        )}
+          {/* Splash */}
+          {!hidden && (
+            <Animated.View style={[styles.splash, animatedStyle]}>
+              <Bear />
+            </Animated.View>
+          )}
 
-      </GluestackUIProvider>
+        </GluestackUIProvider>
+      </FavoritesProvider>
     </AuthProvider>
   );
 }

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 import { TokenStore } from "@/src/api/tokenStore";
 
 interface User {
+    id: number;
     name: string;
     email: string;
     birthDate: string;

@@ -65,6 +65,7 @@ export default function LoginScreen() {
 
         login({
             user: {
+                id: user.userID,
                 name: user.name,
                 email: user.email,
                 birthDate: user.birthdayDate,

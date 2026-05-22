@@ -6,13 +6,16 @@ import {
   Image,
   HStack,
   VStack,
-  Icon,
-  Pressable,
-  Button,
-  ButtonIcon
+  Pressable
 } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
 import { Place } from "@/src/types/place";
+
+import { useAuth } from "@/src/hooks/useAuth";
+import { useFavorites } from "@/src/providers/FavoritesProvider";
+
+import { AuthRequiredModal } from "@/src/components/ui/auth-required-modal";
+import { useRouter } from "expo-router";
 
 type PlaceCardProps = {
   place: Place;
@@ -20,31 +23,27 @@ type PlaceCardProps = {
 };
 
 const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
-    const [isLiked, setIsLiked] = useState(false);
-    const [isLiking, setIsLiking] = useState(false); // состояние загрузки
 
-    const toggleLike = async () => {
-        if (isLiking) return; // предотвращаем повторные нажатия во время запроса
+    const [showAuthModal, setShowAuthModal] =
+    useState(false);
 
-        setIsLiking(true);
-        
-        // Заглушка: имитация запроса к серверу
-        try {
-        // В будущем здесь будет реальный вызов API:
-        // const response = await api.likePlace(place.id, !isLiked);
-        
-        // Имитация задержки сети (можно убрать или оставить для теста)
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Если запрос успешен, меняем состояние
-        setIsLiked(!isLiked);
-        } catch (error) {
-        // Обработка ошибки (показать уведомление и т.п.)
-        console.error("Failed to like place:", error);
-        } finally {
-        setIsLiking(false);
+    const { user } = useAuth();
+
+    const router = useRouter();
+    
+    const { isFavorite, toggleFavorite } =
+    useFavorites();
+
+    const liked = isFavorite(place.placeId);
+    const handleFavoritePress = async () => {
+        if (!user) {
+            setShowAuthModal(true);
+            return;
         }
+
+        await toggleFavorite(place.placeId);
     };
+
     return (
     <Pressable onPress={onPress}>
       <Box
@@ -118,11 +117,20 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
 
                 <VStack alignItems="flex-end" space="xs">
                     <Text fontSize="$sm" color="$gray400">{place.category}</Text>
-                    <Pressable onPress={toggleLike}>
+                    <Pressable onPress={handleFavoritePress}>
                         <Ionicons
-                            name={isLiked ? "heart" : "heart-outline"}
+                            name={liked  ? "heart" : "heart-outline"}
                             size={16}
-                            color={isLiked ? "#C8F751" : "gray"}
+                            color={liked  ? "#C8F751" : "gray"}
+                        />
+                        <AuthRequiredModal
+                            isOpen={showAuthModal}
+                            onClose={() => setShowAuthModal(false)}
+                            onLoginPress={() => {
+                                setShowAuthModal(false);
+
+                                router.push("/profile");
+                            }}
                         />
                     </Pressable>
                 </VStack>
