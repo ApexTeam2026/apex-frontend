@@ -49,7 +49,7 @@ export default function HomeScreen() {
                           <Box w="100%" maxWidth={340} borderRadius="$2xl" alignItems="center">
                               <VStack space="xl" alignItems="center">
                                   <Text fontSize="$4xl" mb="$10" color="#000" textAlign="center">
-                                      {userName ? `Здравствуйте, ${userName}!` : "Загрузка..."}
+                                      {userName ? `Здравствуйте, ${userName}!` : "Здравствуйте!"}
                                   </Text>
 
                                   <Text textAlign="center" fontSize="$4xl" color="#000">

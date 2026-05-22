@@ -38,7 +38,7 @@ export default function RegisterScreen() {
     const [birthDate, setBirthDate] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
+    
     const [isChecked, setIsChecked] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -90,6 +90,12 @@ export default function RegisterScreen() {
             email.trim() === "" ||
             password.trim() === ""
         ) {
+            console.log("VALIDATION FAILED", {
+                isChecked,
+                name,
+                email,
+                password,
+            });
             setErrorText("Заполните все поля");
             return;
         }
@@ -137,6 +143,7 @@ export default function RegisterScreen() {
                 accessToken: auth.accessToken,
                 authKey: auth.authKey,
             });
+            console.log("REDIRECT TO PROFILE");
 
             router.replace("/profile");
 
