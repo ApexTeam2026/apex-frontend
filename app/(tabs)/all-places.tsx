@@ -11,7 +11,8 @@ import { useRouter } from "expo-router";
 import { Pressable } from "react-native";
 import { FlatList } from "react-native";
 import { useState, useEffect } from "react";
-import { places, Place } from "@/src/data/places";
+import { Place } from "@/src/types/place";
+import { PlacesService } from "@/src/api/services/places-service";
 import PlaceCard from "@/src/components/place-card";
 import AppHeader from "@/src/components/app-header"
 import FilterIcon from "@/src/assets/images/filter-icon.svg"
@@ -21,6 +22,8 @@ export default function AllPlacesScreen() {
   const router = useRouter();
 
   const [search, setSearch] = useState("");
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { categories, time, people, tags } = useLocalSearchParams();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -42,6 +45,28 @@ export default function AllPlacesScreen() {
       setSelectedTags(JSON.parse(tags as string));
     }
   }, [tags,categories, time, people]);
+
+  useEffect(() => {
+  const fetchPlaces = async () => {
+    try {
+      setIsLoading(true);
+
+      const data = await PlacesService.getAll();
+
+      console.log("PLACES RESPONSE:");
+      console.log(JSON.stringify(data, null, 2));
+
+      setPlaces(data);
+    } catch (error: any) {
+      console.log("GET PLACES ERROR:");
+      console.log(error?.response?.data || error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchPlaces();
+}, []);
 
   console.log({
     selectedCategories,
@@ -88,6 +113,13 @@ export default function AllPlacesScreen() {
     return matchesSearch && matchesTags && matchesCategory && matchesTime && matchesPeople;
   });
 
+  if (isLoading) {
+    return (
+      <Box flex={1} justifyContent="center" alignItems="center">
+        <Text>Загрузка мест...</Text>
+      </Box>
+    );
+  }
   return (
     <Box flex={1} px="$3" bgColor="$white">
       <AppHeader />

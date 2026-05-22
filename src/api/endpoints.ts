@@ -9,9 +9,9 @@ export const endpoints = {
   },
 
   places: {
-    list: "/places",
-    byId: (id: string) => `/places/${id}`,
-    create: "/places",
+    list: "/api/places",
+    byId: (id: string) => `/api/places/${id}`,
+    create: "/api/places",
   },
 
   categories: {

@@ -12,7 +12,7 @@ import {
   ButtonIcon
 } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
-import { Place } from "@/src/data/places";
+import { Place } from "@/src/types/place";
 
 type PlaceCardProps = {
   place: Place;
@@ -60,7 +60,9 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
         overflow="hidden"
         >
         <Image
-            source={{ uri: place.image }}
+            source={{ uri:
+            place.photos?.[0] ||
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCEogQyFFHE-Y8b38Lb5ggS985jv4pgT_70Q&s", }}
             alt="place"
             w="100%"
             h={180}
