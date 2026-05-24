@@ -11,7 +11,7 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { AuthRequiredModal } from "@/src/components/ui/auth-required-modal";
 
 export default function PlaceScreen() {
-    const { id } = useLocalSearchParams();
+    const { id, from } = useLocalSearchParams();
     const [place, setPlace] = useState<Place | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [rating, setRating] = useState<number>(0);
@@ -72,6 +72,16 @@ export default function PlaceScreen() {
         await toggleFavorite(place.placeId);
     };
 
+    const handleBack = () => {
+
+        if (from === "favorites") {
+            router.push("/favorites");
+            return;
+        }
+
+        router.push("/all-places");
+    };
+
     return (
         <Box flex={1} bg="$backgroundLight0">
             <Box
@@ -81,7 +91,7 @@ export default function PlaceScreen() {
                 zIndex={10}
             >
                 <TouchableOpacity
-                    onPress={() => router.back()}
+                    onPress={handleBack}
                     style={{
                         backgroundColor: "white",
                         borderRadius: 50,

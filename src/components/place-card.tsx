@@ -72,9 +72,11 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ place, onPress }) => {
         <VStack p="$2" space="xs">
             <HStack justifyContent="space-between" alignContent="center">
                 <Text 
-                    fontSize="$lg" 
-                    fontWeight="$bold" 
+                    fontSize="$lg"  
                     color = "$black"
+                    style={{
+                        fontFamily: "Montserrat_600SemiBold",
+                    }}
                 >
                 {place.name}
                 </Text>

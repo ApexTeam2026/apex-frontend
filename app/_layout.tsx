@@ -36,7 +36,13 @@ export const config = {
           sm: 480,     
           md: 768,     
           lg: 992,    
-      },
+    },
+    fontWeights: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+    },
   },
 };
 

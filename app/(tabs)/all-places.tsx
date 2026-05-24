@@ -185,7 +185,7 @@ export default function AllPlacesScreen() {
                 onPress={() =>
                   router.push({
                     pathname: "/detailed_place",
-                    params: { id: item.placeId.toString() },
+                    params: { id: item.placeId.toString(), from: "all-places"},
                   })
                 }
               />
