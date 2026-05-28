@@ -32,7 +32,7 @@ export function AuthRequiredModal({
 
       <ModalContent
         borderRadius="$3xl"
-        px="$2"
+        px="$4"
         py="$4"
         bg="$white"
       >
@@ -60,8 +60,8 @@ export function AuthRequiredModal({
               color="$coolGray600"
               lineHeight="$md"
             >
-              Войдите в аккаунт, чтобы
-              добавлять места в избранное
+              Чтобы оценивать места и добавлять их
+              в избранное, войдите в аккаунт
             </Text>
 
           </VStack>

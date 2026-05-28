@@ -176,6 +176,13 @@ export default function VisitedScreen() {
                                 />
 
                             )}
+                            ItemSeparatorComponent={() =>
+                                !isTablet ? (
+                                    <Box h={2} bg="$coolGray200" my="$3" mx="$5" />
+                                ) : (
+                                    <Box h="$4" />
+                                )
+                            }
                         />
 
                     )}

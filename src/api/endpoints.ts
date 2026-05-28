@@ -17,4 +17,17 @@ export const endpoints = {
   categories: {
     list: "/categories",
   },
+
+  userPlace: {
+  favorites: (userId: number) =>
+    `/api/user-place/favorites/${userId}`,
+
+  visited: (userId: number) =>
+    `/api/user-place/visited/${userId}`,
+
+  favorite: "/api/user-place/favorite",
+
+  rating:
+    "/api/user-place/rating",
+},
 };

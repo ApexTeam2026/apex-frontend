@@ -274,7 +274,7 @@ export default function ProfileScreen() {
                                         mb="$4"
                                         color="#000000"
                                         textAlign="center"
-                                        fontWeight="$bold"
+                                        //fontWeight="$bold"
                                     >
                                         Здравствуйте!
                                     </Text>

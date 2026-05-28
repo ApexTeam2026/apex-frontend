@@ -14,73 +14,138 @@ export default function PlaceScreen() {
     const { id, from } = useLocalSearchParams();
     const [place, setPlace] = useState<Place | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [rating, setRating] = useState<number>(0);
+    //const [rating, setRating] = useState<number>(0);
     const router = useRouter();
 
     const [showAuthModal, setShowAuthModal] =
     useState(false);
 
+    const [showRatingAuthModal, setShowRatingAuthModal] =
+    useState(false);
+
+    const { 
+        isFavorite, 
+        toggleFavorite, 
+        setPlaceRating,
+        ratings
+    } = useFavorites();
+
     const { user } = useAuth();
 
-    const { isFavorite, toggleFavorite } =
-    useFavorites();
-    
     useEffect(() => {
-    if (!id) return;
 
-    const fetchPlace = async () => {
+        if (!id) return;
+
+        const fetchPlace = async () => {
+
             try {
+
                 setIsLoading(true);
 
-                const data = await PlacesService.getById(id as string);
-
-                console.log("PLACE RESPONSE:");
-                console.log(JSON.stringify(data, null, 2));
+                const data =
+                    await PlacesService.getById(
+                        id as string
+                    );
 
                 setPlace(data);
 
             } catch (error: any) {
-                console.log("GET PLACE ERROR:");
-                console.log(error?.response?.data || error.message);
+
+                console.log(
+                    "GET PLACE ERROR:"
+                );
+
+                console.log(
+                    error?.response?.data ||
+                    error.message
+                );
+
             } finally {
+
                 setIsLoading(false);
             }
         };
 
         fetchPlace();
+
     }, [id]);
 
     if (!place) return null;
-    const liked = isFavorite(place.placeId);
 
-    const handleImagePress = () => {
-        Alert.alert("Картинка нажата!");
-    };
+    const liked =
+        isFavorite(place.placeId);
 
-    const handleStarPress = (star: number) => {
-        setRating(star);
-        Alert.alert("Вы оценили место", `Ваша оценка: ${star} звезд`);
-    };
+    const currentRating =
+        ratings[place.placeId] || 0;
 
-    const handleFavoritePress = async () => {
+    const handleImagePress = () => { Alert.alert("Картинка нажата!"); };
 
-        if (!user) {
-            setShowAuthModal(true);
-            return;
-        }
+    const handleFavoritePress =
+        async () => {
 
-        await toggleFavorite(place.placeId);
-    };
+            if (!user) {
+
+                setShowAuthModal(true);
+
+                return;
+            }
+
+            await toggleFavorite(
+                place.placeId
+            );
+        };
+
+    const handleStarPress =
+        async (star: number) => {
+
+            if (!user) {
+
+                setShowRatingAuthModal(true);
+
+                return;
+            }
+
+            try {
+
+                await setPlaceRating(
+                    place.placeId,
+                    star
+                );
+
+                Alert.alert(
+                    "Спасибо!",
+                    `Вы оценили место на ${star}`
+                );
+
+            } catch (error) {
+
+                console.log(
+                    "SET RATING ERROR:"
+                );
+
+                console.log(error);
+            }
+        };
 
     const handleBack = () => {
 
         if (from === "favorites") {
+
             router.push("/favorites");
+
+            return;
+        }
+
+        if (from === "visited") {
+
+            router.push("/visited");
+
             return;
         }
 
         router.push("/all-places");
     };
+
 
     return (
         <Box flex={1} bg="$backgroundLight0">
@@ -215,7 +280,7 @@ export default function PlaceScreen() {
                                     activeOpacity={1}
                                 >
                                     <Ionicons
-                                        name={star <= rating ? "star" : "star-outline"}
+                                        name={star <= currentRating ? "star" : "star-outline"}
                                         size={32}
                                         color="#C8F751"
                                     />
@@ -231,6 +296,18 @@ export default function PlaceScreen() {
                 onClose={() => setShowAuthModal(false)}
                 onLoginPress={() => {
                     setShowAuthModal(false);
+
+                    router.push("/profile");
+                }}
+            />
+
+            <AuthRequiredModal
+                isOpen={showRatingAuthModal}
+                onClose={() =>
+                    setShowRatingAuthModal(false)
+                }
+                onLoginPress={() => {
+                    setShowRatingAuthModal(false);
 
                     router.push("/profile");
                 }}
