@@ -27,7 +27,7 @@ export default function AllPlacesScreen() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { categories, time, people, tags } = useLocalSearchParams();
+    const { categories, time, people, tags, district, priceFrom, priceTo } = useLocalSearchParams();
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState<string[]>([]);
@@ -67,7 +67,8 @@ export default function AllPlacesScreen() {
     selectedCategories.length === 0 &&
     selectedTime.length === 0 &&
     selectedPeople.length === 0 &&
-    selectedTags.length === 0;
+      selectedTags.length === 0 &&
+      !district && !priceFrom && !priceTo;
 
   // ---------------- filtering ----------------
   const filteredPlaces = useMemo(() => {
@@ -76,48 +77,41 @@ export default function AllPlacesScreen() {
 
       if (isNoFilters) return matchesSearch;
 
-      const matchesTags =
-        selectedTags.length === 0 ||
-        selectedTags.every((tag) =>
-          place.tags?.map(normalize).includes(normalize(tag))
-        );
+        
+      const matchesDistrict = !district || 
+        normalize(place.address).includes(normalize(district as string));
 
-      const matchesCategory =
-        selectedCategories.length === 0 ||
-        selectedCategories
-          .map(normalize)
-          .includes(normalize(place.category));
+      
+      const placePrice = place.avgCheck || 0;
+      const matchesPrice = 
+        (!priceFrom || placePrice >= Number(priceFrom)) &&
+        (!priceTo || placePrice <= Number(priceTo));
 
-      const matchesTime =
-        selectedTime.length === 0 ||
-        (place.timeOfDay &&
-          selectedTime.some((t) =>
-            place.timeOfDay?.map(normalize).includes(normalize(t))
-          ));
+        const matchesTags = selectedTags.length === 0 ||
+            selectedTags.every((tag) =>
+                (place.tags || []).map(normalize).includes(normalize(tag))
+            );
 
-      const matchesPeople =
-        selectedPeople.length === 0 ||
-        (place.suitableFor &&
-          selectedPeople.some((p) =>
-            place.suitableFor?.map(normalize).includes(normalize(p))
-          ));
+       
+        const matchesCategory = selectedCategories.length === 0 ||
+            selectedCategories.map(normalize).includes(normalize(place.category));
 
-      return (
-        matchesSearch &&
-        matchesTags &&
-        matchesCategory &&
-        matchesTime &&
-        matchesPeople
-      );
+        
+        const matchesTime = selectedTime.length === 0 ||
+            (place.timeOfDay && selectedTime.some((t) =>
+                (place.timeOfDay || []).map(normalize).includes(normalize(t))
+            ));
+
+       
+        const matchesPeople = selectedPeople.length === 0 ||
+            (place.suitableFor && selectedPeople.some((p) =>
+                (place.suitableFor || []).map(normalize).includes(normalize(p))
+            ));
+
+        return matchesSearch && matchesDistrict && matchesPrice &&
+            matchesTags && matchesCategory && matchesTime && matchesPeople;
     });
-  }, [
-    places,
-    search,
-    selectedCategories,
-    selectedTime,
-    selectedPeople,
-    selectedTags,
-  ]);
+  }, [places, search, selectedCategories, selectedTime, selectedPeople, selectedTags, district, priceFrom, priceTo]);
 
   // ---------------- loading ----------------
   if (isLoading) {

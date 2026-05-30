@@ -36,4 +36,7 @@ export type Place = {
   photos?: string[];
 
   image?: string;
+
+  avgCheck?: number;     
+  
 };

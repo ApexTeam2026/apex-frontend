@@ -18,6 +18,7 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useWindowDimensions } from "react-native";
+
 export default function FiltersScreen() {
     const { width } = useWindowDimensions();
     const isTablet = width > 768;
@@ -25,65 +26,61 @@ export default function FiltersScreen() {
 
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDistrict, setSelectedDistrict] = useState("");
+
+    // 1. ДОБАВЛЕНО: Стейты для цены
+    const [priceFrom, setPriceFrom] = useState("");
+    const [priceTo, setPriceTo] = useState("");
+
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedTime, setSelectedTime] = useState<string[]>([]);
     const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
     const districts = ["Ленинский", "Дзержинский", "Мотовилиха", "Индустриальный"];
 
-    const toggleTag = (tag: string) => {
-        setSelectedTags(prev =>
-            prev.includes(tag)
-            ? prev.filter(t => t !== tag)
-            : [...prev, tag]
-        );
-    };
-
     const toggleCategory = (val: string) => {
         setSelectedCategories(prev =>
-            prev.includes(val)
-            ? prev.filter(v => v !== val)
-            : [...prev, val]
+            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
         );
     };
 
     const toggleTime = (val: string) => {
         setSelectedTime(prev =>
-            prev.includes(val)
-            ? prev.filter(v => v !== val)
-            : [...prev, val]
+            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
         );
     };
 
     const togglePeople = (val: string) => {
         setSelectedPeople(prev =>
-            prev.includes(val)
-            ? prev.filter(v => v !== val)
-            : [...prev, val]
+            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
         );
     };
 
+    // 2. ИСПРАВЛЕНО: Сброс всех полей, включая новые
     const resetFilters = () => {
         setSelectedCategories([]);
         setSelectedTime([]);
         setSelectedPeople([]);
         setSelectedTags([]);
         setSelectedDistrict("");
+        setPriceFrom("");
+        setPriceTo("");
 
         router.push({
-            pathname: "/(tabs)/all-places",
+            pathname: "/all-places",
             params: {
-            tags: JSON.stringify([]),
-            categories: JSON.stringify([]),
-            time: JSON.stringify([]),
-            people: JSON.stringify([]),
+                tags: "[]",
+                categories: "[]",
+                time: "[]",
+                people: "[]",
+                district: "",
+                priceFrom: "",
+                priceTo: ""
             },
         })
     };
 
     return (
         <Box flex={1} bg="$white" px={isTablet ? "$20" : "$6"} pt={isTablet ? "$20" : "$12"}>
-            {/* Шапка - масштабируется на планшетах */}
             <HStack alignItems="center" justifyContent="center" mb={isTablet ? "$10" : "$6"} position="relative">
                 <Pressable onPress={() => router.back()} position="absolute" left={0} p="$1">
                     <Ionicons name="chevron-back" size={isTablet ? 32 : 24} color="#CECECE" />
@@ -96,26 +93,38 @@ export default function FiltersScreen() {
                 contentContainerStyle={{
                     paddingBottom: 60,
                     width: '100%',
-                    maxWidth: 1000, // Ограничение, чтобы на очень широких экранах не расползалось
+                    maxWidth: 1000,
                     alignSelf: 'center'
                 }}
             >
                 <VStack space="xl">
-
-                    {/* АДАПТИВ: Средний чек и Район встают в ряд на планшетах */}
                     <HStack space="xl" flexDirection={isTablet ? "row" : "column"}>
-
                         {/* 1. Средний чек */}
                         <VStack space="xs" flex={1}>
                             <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Средний чек</Text>
                             <HStack alignItems="center" space="sm">
                                 <Text color="#000" fontSize={isTablet ? 16 : 14} fontWeight="$light">от</Text>
                                 <Input variant="outline" borderRadius="$full" borderColor="#CECECE" h={isTablet ? 45 : 30} flex={1}>
-                                    <InputField placeholder="" keyboardType="numeric" textAlign="center" fontSize={isTablet ? 16 : 14} />
+                                    {/* 3. ИСПРАВЛЕНО: Привязка value и onChangeText */}
+                                    <InputField
+                                        value={priceFrom}
+                                        onChangeText={setPriceFrom}
+                                        placeholder=""
+                                        keyboardType="numeric"
+                                        textAlign="center"
+                                        fontSize={isTablet ? 16 : 14}
+                                    />
                                 </Input>
                                 <Text color="#000" fontSize={isTablet ? 16 : 14} fontWeight="$light">до</Text>
                                 <Input variant="outline" borderRadius="$full" borderColor="#CECECE" h={isTablet ? 45 : 30} flex={1.5}>
-                                    <InputField placeholder="" keyboardType="numeric" textAlign="center" fontSize={isTablet ? 16 : 14} />
+                                    <InputField
+                                        value={priceTo}
+                                        onChangeText={setPriceTo}
+                                        placeholder=""
+                                        keyboardType="numeric"
+                                        textAlign="center"
+                                        fontSize={isTablet ? 16 : 14}
+                                    />
                                 </Input>
                             </HStack>
                         </VStack>
@@ -142,7 +151,7 @@ export default function FiltersScreen() {
                         </VStack>
                     </HStack>
 
-                    {/* 3. Тип заведения - Сетка 2 колонки на мобайле, 3 на планшете */}
+                    {/* Тип заведения */}
                     <VStack space="xs">
                         <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Тип заведения</Text>
                         <HStack flexWrap="wrap">
@@ -158,16 +167,14 @@ export default function FiltersScreen() {
                         </HStack>
                     </VStack>
 
-                    {/* АДАПТИВ: Время и Количество людей тоже в ряд на планшетах */}
+                    {/* АДАПТИВ: Время и Количество людей */}
                     <HStack space="xl" flexDirection={isTablet ? "row" : "column"}>
-                        {/* 4. Время посещения */}
                         <VStack space="xs" flex={1}>
                             <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Время посещения</Text>
                             <HStack flexWrap="wrap">
                                 {["Утро", "День", "Вечер", "Ночь"].map((l) => (
                                     <Box key={l} w={isTablet ? "50%" : "100%"}>
                                         <FilterCheckbox
-                                            key={l}
                                             label={l}
                                             selected={selectedTime.includes(l)}
                                             onToggle={() => toggleTime(l)}
@@ -177,14 +184,12 @@ export default function FiltersScreen() {
                             </HStack>
                         </VStack>
 
-                        {/* 5. Количество людей */}
                         <VStack space="xs" flex={1}>
                             <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Количество людей</Text>
                             <HStack flexWrap="wrap">
                                 {["Один", "Вдвоем", "Компания", "С семьей"].map((l) => (
                                     <Box key={l} w={isTablet ? "50%" : "100%"}>
                                         <FilterCheckbox
-                                            key={l}
                                             label={l}
                                             selected={selectedPeople.includes(l)}
                                             onToggle={() => togglePeople(l)}
@@ -195,7 +200,7 @@ export default function FiltersScreen() {
                         </VStack>
                     </HStack>
 
-                    {/* Блок кнопок - прижат вправо на планшете */}
+                    {/* Кнопки */}
                     <HStack justifyContent={isTablet ? "flex-end" : "space-between"} mt="$10" space="md">
                         <Button
                             variant="outline"
@@ -216,12 +221,15 @@ export default function FiltersScreen() {
                             borderRadius={18}
                             onPress={() =>
                                 router.push({
-                                    pathname: "/(tabs)/all-places",
+                                    pathname: "/all-places",
                                     params: {
                                         tags: JSON.stringify(selectedTags),
                                         categories: JSON.stringify(selectedCategories),
                                         time: JSON.stringify(selectedTime),
                                         people: JSON.stringify(selectedPeople),
+                                        district: selectedDistrict,
+                                        priceFrom: priceFrom,
+                                        priceTo: priceTo,
                                     },
                                 })
                             }
@@ -229,34 +237,34 @@ export default function FiltersScreen() {
                             <Ionicons name="chevron-forward" size={isTablet ? 40 : 30} color="#CECECE" />
                         </Button>
                     </HStack>
-
                 </VStack>
             </ScrollView>
         </Box>
     );
 }
 
+// Вспомогательный компонент чекбокса
 const FilterCheckbox = ({
-  label,
-  selected,
-  onToggle,
+    label,
+    selected,
+    onToggle,
 }: {
-  label: string;
-  selected: boolean;
-  onToggle: () => void;
+    label: string;
+    selected: boolean;
+    onToggle: () => void;
 }) => (
-  <Checkbox
-    value={label}
-    isChecked={selected}
-    onPress={onToggle}
-    size="sm"
-    mb="$1"
-  >
-    <CheckboxIndicator mr="$2.5" borderColor="#CECECE" borderRadius={4} w={18} h={18}>
-      <CheckboxIcon as={CheckIcon} color="#C8F751" size="xs" />
-    </CheckboxIndicator>
-    <CheckboxLabel color="#000" fontSize={15} fontWeight="$light">
-      {label}
-    </CheckboxLabel>
-  </Checkbox>
+    <Checkbox
+        value={label}
+        isChecked={selected}
+        onPress={onToggle}
+        size="sm"
+        mb="$1"
+    >
+        <CheckboxIndicator mr="$2.5" borderColor="#CECECE" borderRadius={4} w={18} h={18}>
+            <CheckboxIcon as={CheckIcon} color="#C8F751" size="xs" />
+        </CheckboxIndicator>
+        <CheckboxLabel color="#000" fontSize={15} fontWeight="$light">
+            {label}
+        </CheckboxLabel>
+    </Checkbox>
 );
