@@ -10,6 +10,128 @@ import { useFavorites } from "@/src/providers/FavoritesProvider";
 import { useAuth } from "@/src/hooks/useAuth";
 import { AuthRequiredModal } from "@/src/components/ui/auth-required-modal";
 
+const tagLabels: Record<string, string> = {
+    // Количество людей
+    solo: "Для одного",
+    friends: "Для компании",
+    family: "Для семьи",
+    kids: "Для детей",
+
+    // Были ли в Перми
+    newcomer: "Для новичков",
+    local: "Для местных",
+
+    // Бюджет
+    free: "Бесплатно",
+    low_budget: "Низкий чек",
+    medium_budget: "Средний чек",
+    high_budget: "Высокий чек",
+
+    // Еда
+    food: "Есть еда",
+    no_food: "Без еды",
+
+    // Активность
+    active: "Активный отдых",
+    relax: "Спокойный отдых",
+
+    // Время суток
+    morning: "Утром",
+    daytime: "Днем",
+    evening: "Вечером",
+    night: "Ночью",
+
+    // Настроение
+    relaxed: "Расслабленно",
+    fun: "Весело",
+    romantic: "Романтично",
+    curious: "Познавательно",
+    energetic: "Энергично",
+
+    // Культурность
+    culture: "Культурное место",
+    non_culture: "Некультурный отдых",
+
+    // Дополнительные
+    indoor: "В помещении",
+    outdoor: "На улице",
+    historic: "Историческое место",
+    modern: "Современное место",
+    nature: "Природа",
+    cafe: "Кафе или ресторан",
+
+    short_visit: "До 1 часа",
+    medium_visit: "1–2 часа",
+    long_visit: "Более 3 часов",
+
+    kids_play: "Игровая площадка",
+    kids_culture: "Развивающее место",
+    kids_calm: "Спокойный отдых для детей",
+
+    unique: "Необычное место",
+    classic: "Классическое место",
+};
+const tagIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
+    // Количество людей
+    solo: "person-outline",
+    friends: "people-outline",
+    family: "home-outline",
+    kids: "happy-outline",
+
+    // Были ли в Перми
+    newcomer: "compass-outline",
+    local: "location-outline",
+
+    // Бюджет
+    free: "cash-outline",
+    low_budget: "cash-outline",
+    medium_budget: "card-outline",
+    high_budget: "wallet-outline",
+
+    // Еда
+    food: "restaurant-outline",
+    no_food: "close-circle-outline",
+
+    // Активность
+    active: "bicycle-outline",
+    relax: "bed-outline",
+
+    // Время суток
+    morning: "sunny-outline",
+    daytime: "partly-sunny-outline",
+    evening: "moon-outline",
+    night: "moon-outline",
+
+    // Настроение
+    relaxed: "flower-outline",
+    fun: "happy-outline",
+    romantic: "heart-outline",
+    curious: "book-outline",
+    energetic: "flash-outline",
+
+    // Культурность
+    culture: "library-outline",
+    non_culture: "walk-outline",
+
+    // Дополнительные
+    indoor: "business-outline",
+    outdoor: "leaf-outline",
+    historic: "hourglass-outline",
+    modern: "rocket-outline",
+    nature: "flower-outline",
+    cafe: "cafe-outline",
+
+    short_visit: "time-outline",
+    medium_visit: "timer-outline",
+    long_visit: "hourglass-outline",
+
+    kids_play: "football-outline",
+    kids_culture: "school-outline",
+    kids_calm: "body-outline",
+
+    unique: "diamond-outline",
+    classic: "star-outline",
+};
 export default function PlaceScreen() {
     const { id, from } = useLocalSearchParams();
     const [place, setPlace] = useState<Place | null>(null);
@@ -233,20 +355,32 @@ export default function PlaceScreen() {
 
                     {/* Теги */}
                     <HStack mt="$3" flexWrap="wrap">
-                        {place.tags?.map((tag, index) => (
-                            <Box
-                                key={index}
-                                bg="$backgroundLight200"
-                                px="$2"
-                                py="$1"
-                                mr="$2"
-                                mb="$2"
-                                borderRadius="$sm"
-                            >
-                                <Text fontSize="$xs">{tag}</Text>
-                            </Box>
-                        ))}
-                    </HStack>
+    {place.tags?.map((tag, index) => (
+        <HStack
+            key={index}
+            alignItems="center"
+            bg="#F2F2F2"
+            px="$3"
+            py="$2"
+            mr="$2"
+            mb="$2"
+            borderRadius={10}
+        >
+            <Ionicons
+                name={tagIcons[tag] || "pricetag-outline"}
+                size={14}
+                color="#666"
+                style={{ marginRight: 6 }}
+            />
+
+            <Text
+                fontSize="$xs"
+            >
+                {tagLabels[tag] || tag}
+            </Text>
+        </HStack>
+    ))}
+</HStack>
 
                     {/* Описание */}
                     {place.description && (
