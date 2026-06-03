@@ -9,6 +9,7 @@ import { PlacesService } from "@/src/api/services/places-service";
 import { useFavorites } from "@/src/providers/FavoritesProvider";
 import { useAuth } from "@/src/hooks/useAuth";
 import { AuthRequiredModal } from "@/src/components/ui/auth-required-modal";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const tagLabels: Record<string, string> = {
     // Количество людей
@@ -309,7 +310,14 @@ export default function PlaceScreen() {
 
                     {/* Название + лайк */}
                     <HStack justifyContent="space-between" alignItems="center">
-                        <Text fontSize="$2xl" fontWeight="$bold">
+                        <Text 
+                            fontSize="$2xl" 
+                            color = "#000" 
+                            style={{
+                                fontFamily:
+                                    "Montserrat_600SemiBold",
+                            }}
+                        >
                             {place.name}
                         </Text>
                         <TouchableOpacity onPress={handleFavoritePress} activeOpacity={1}>
@@ -324,7 +332,7 @@ export default function PlaceScreen() {
                     {/* Адрес */}
                     <HStack alignItems="center" mt="$2">
                         <Ionicons name="location-outline" size={16} />
-                        <Text ml="$2" color="$textLight500">
+                        <Text ml="$2" color = "#000">
                             {place.address}
                         </Text>
                     </HStack>
@@ -332,7 +340,7 @@ export default function PlaceScreen() {
                     {/* Время */}
                     <HStack alignItems="center" mt="$1">
                         <Ionicons name="time-outline" size={16} />
-                        <Text ml="$2" color="$textLight500">
+                        <Text ml="$2" color = "#000">
                             {place.workingHours}
                         </Text>
                     </HStack>
@@ -340,7 +348,7 @@ export default function PlaceScreen() {
                     {/* Тип */}
                     <HStack alignItems="center" mt="$1">
                         <Ionicons name="grid-outline" size={16} />
-                        <Text ml="$2" color="$textLight500">
+                        <Text ml="$2" color = "#000">
                             {place.category}
                         </Text>
                     </HStack>
@@ -348,7 +356,7 @@ export default function PlaceScreen() {
                     {/* Рейтинг */}
                     <HStack alignItems="center" mt="$1">
                         <Ionicons name="star-outline" size={16} />
-                        <Text ml="$2" color="$textLight500">
+                        <Text ml="$2" color = "#000">
                             {place.rate ?? "Нет оценок"}
                         </Text>
                     </HStack>
@@ -387,8 +395,12 @@ export default function PlaceScreen() {
                         <Box mt="$5">
                             <Text
                                 fontSize="$lg"
-                                fontWeight="$bold"
                                 mb="$2"
+                                color = "#000"
+                                style={{
+                                fontFamily:
+                                    "Montserrat_600SemiBold",
+                                }}
                             >
                                 Описание
                             </Text>
@@ -396,7 +408,7 @@ export default function PlaceScreen() {
                             <Text
                                 fontSize="$md"
                                 lineHeight="$lg"
-                                color="$textLight700"
+                                color = "#000"
                             >
                                 {place.description}
                             </Text>
@@ -405,18 +417,18 @@ export default function PlaceScreen() {
 
                     {/* Рейтинг пользователя */}
                     <Box mt="$6">
-                        <Text mb="$2">Оцените место</Text>
+                        <Text mb="$2" color = "#000">Оцените место</Text>
                         <HStack space="md" justifyContent="center">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <TouchableOpacity
                                     key={star}
                                     onPress={() => handleStarPress(star)}
-                                    activeOpacity={1}
+                                    activeOpacity={0.7}
                                 >
-                                    <Ionicons
+                                    <MaterialIcons
                                         name={star <= currentRating ? "star" : "star-outline"}
                                         size={32}
-                                        color="#C8F751"
+                                        color={currentRating > 0 ? "#C8F751" : "#000"}
                                     />
                                 </TouchableOpacity>
                             ))}
