@@ -31,7 +31,22 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.log("API Error:", error?.response?.data || error.message);
+
+    console.log("INTERCEPTOR ERROR");
+    console.log("status:", error?.response?.status);
+    console.log("message:", error?.message);
+    console.log("code:", error?.code);
+
+    error.isNetworkError =
+      !error.response ||
+      error.code === "ECONNABORTED" ||
+      error.message === "Network Error";
+
+    console.log(
+      "API Error:",
+      error?.response?.data || error.message
+    );
+
     return Promise.reject(error);
   }
 );

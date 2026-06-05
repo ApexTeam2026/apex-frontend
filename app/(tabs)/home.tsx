@@ -66,7 +66,7 @@ export default function HomeScreen() {
                       </Center>
                   </Box>
 
-                  <Box mt="$10" pb="$10">
+                  <Box mt="$10" pb="$10" >
                       <Button
                           variant="outline"
                           borderRadius="$lg"

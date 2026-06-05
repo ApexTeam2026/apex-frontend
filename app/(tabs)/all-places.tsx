@@ -15,6 +15,7 @@ import { PlacesService } from "@/src/api/services/places-service";
 import PlaceCard from "@/src/components/place-card";
 import AppHeader from "@/src/components/app-header";
 import FilterIcon from "@/src/assets/images/filter-icon.svg";
+import NetworkError from "@/src/components/network-error";
 
 export default function AllPlacesScreen() {
   const router = useRouter();
@@ -26,8 +27,9 @@ export default function AllPlacesScreen() {
   const [search, setSearch] = useState("");
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [networkError, setNetworkError] = useState(false);
 
-    const { categories, time, people, tags, district, priceFrom, priceTo } = useLocalSearchParams();
+  const { categories, time, people, tags, district, priceFrom, priceTo } = useLocalSearchParams();
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState<string[]>([]);
@@ -35,23 +37,39 @@ export default function AllPlacesScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   // ---------------- API ----------------
-  useEffect(() => {
-    const fetchPlaces = async () => {
-      try {
-        setIsLoading(true);
-        const data = await PlacesService.getAll();
-        setPlaces(data);
-      } catch (e: any) {
-        console.log("GET PLACES ERROR:", e?.response?.data || e.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchPlaces = async () => {
+    try {
+      setIsLoading(true);
+      setNetworkError(false);
 
+      // throw {
+      //           isNetworkError: true
+      //       }
+
+      const data = await PlacesService.getAll();
+
+      setPlaces(data);
+
+    } catch (e: any) {
+
+      console.log(
+        "GET PLACES ERROR:",
+        e?.response?.data || e.message
+      );
+
+      if (e.isNetworkError) {
+        setNetworkError(true);
+      }
+
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchPlaces();
   }, []);
 
-  // ---------------- filters from params ----------------
   useEffect(() => {
     if (categories) setSelectedCategories(JSON.parse(categories as string));
     if (time) setSelectedTime(JSON.parse(time as string));
@@ -59,7 +77,6 @@ export default function AllPlacesScreen() {
     if (tags) setSelectedTags(JSON.parse(tags as string));
   }, [categories, time, people, tags]);
 
-  // ---------------- utils ----------------
   const normalize = (str?: string) =>
     (str ?? "").trim().toLowerCase();
 
@@ -70,7 +87,6 @@ export default function AllPlacesScreen() {
       selectedTags.length === 0 &&
       !district && !priceFrom && !priceTo;
 
-  // ---------------- filtering ----------------
   const filteredPlaces = useMemo(() => {
     return places.filter((place) => {
       const matchesSearch = normalize(place.name).includes(normalize(search));
@@ -119,6 +135,14 @@ export default function AllPlacesScreen() {
       <Box flex={1} justifyContent="center" alignItems="center">
         <Text>Загрузка мест...</Text>
       </Box>
+    );
+  }
+
+    if (networkError && places.length === 0) {
+    return (
+      <NetworkError
+        onRetry={fetchPlaces}
+      />
     );
   }
 

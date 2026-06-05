@@ -11,6 +11,7 @@ import Animated, {
 import { GluestackUIProvider } from "@gluestack-ui/themed";
 import { AuthProvider } from "@/src/providers/AuthProvider";
 import { FavoritesProvider } from "@/src/providers/FavoritesProvider";
+import { NetworkBannerProvider } from "@/src/providers/NetworkBannerProvider";
 
 import {
   useFonts,
@@ -80,25 +81,27 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <AuthProvider>
-      <FavoritesProvider>
-        <GluestackUIProvider config={config}>
-          
-          {/* Навигация */}
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-          </Stack>
+    
+    <GluestackUIProvider config={config}>
+      <AuthProvider>
+        <FavoritesProvider>
+          <NetworkBannerProvider>
+            {/* Навигация */}
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" />
+            </Stack>
 
-          {/* Splash */}
-          {!hidden && (
-            <Animated.View style={[styles.splash, animatedStyle]}>
-              <Bear />
-            </Animated.View>
-          )}
-
-        </GluestackUIProvider>
-      </FavoritesProvider>
-    </AuthProvider>
+            {/* Splash */}
+            {!hidden && (
+              <Animated.View style={[styles.splash, animatedStyle]}>
+                <Bear />
+              </Animated.View>
+            )}
+          </NetworkBannerProvider>
+        </FavoritesProvider>
+      </AuthProvider>
+    </GluestackUIProvider>
+      
   );
 }
 

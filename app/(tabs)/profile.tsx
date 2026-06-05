@@ -159,23 +159,23 @@ export default function ProfileScreen() {
                     >
                         {/* Стрелка < в левом верхнем углу */}
                         {/* Стрелка назад в левом верхнем углу */}
-<Button
-    position="absolute"
-    top={12}
-    left={12}
-    p="$1"
-    onPress={() => setShowLogoutConfirm(false)}
-    bg="transparent"
->
-    <Text
-        fontSize="$6xl"
-        color="#BDBDBD"
-        fontWeight="$300"
-        lineHeight="$2xl"
-    >
-        ‹
-    </Text>
-</Button>
+                        <Button
+                            position="absolute"
+                            top={12}
+                            left={12}
+                            p="$1"
+                            onPress={() => setShowLogoutConfirm(false)}
+                            bg="transparent"
+                        >
+                            <Text
+                                fontSize="$6xl"
+                                color="#BDBDBD"
+                                fontWeight="$300"
+                                lineHeight="$2xl"
+                            >
+                                ‹
+                            </Text>
+                        </Button>
 
                         {/* Иконка выхода */}
                         <Box

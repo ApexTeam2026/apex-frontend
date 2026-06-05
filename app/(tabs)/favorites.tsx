@@ -11,6 +11,8 @@ import { PlacesService } from "@/src/api/services/places-service";
 import { useFavorites } from "@/src/providers/FavoritesProvider";
 import { UserPlaceService } from "@/src/api/services/user-place-service";
 import { useAuth } from "@/src/hooks/useAuth";
+import NetworkError from "@/src/components/network-error";
+
 export default function VisitedScreen() {
     const router = useRouter();
     const { width } = useWindowDimensions();
@@ -20,11 +22,11 @@ export default function VisitedScreen() {
     const [places, setPlaces] = useState<Place[]>([]);
 
     const [loading, setLoading] = useState(true);
+    const [networkError, setNetworkError] = useState(false);
 
     const { favoriteIds } = useFavorites();
 
-    useEffect(() => {
-
+    
     const fetchFavoritePlaces = async () => {
 
         if (!user) {
@@ -35,7 +37,7 @@ export default function VisitedScreen() {
         try {
 
             setLoading(true);
-
+            setNetworkError(false);
             // получаем favorites
             const favorites =
                 await UserPlaceService.getFavorites(
@@ -78,6 +80,10 @@ export default function VisitedScreen() {
                 error?.response?.data ||
                 error.message
             );
+            
+            if (error.isNetworkError) {
+                setNetworkError(true);
+            }
 
         } finally {
 
@@ -85,15 +91,26 @@ export default function VisitedScreen() {
         }
     };
 
-    fetchFavoritePlaces();
-
+    useEffect(() => {
+        fetchFavoritePlaces();
     }, [user, favoriteIds]);
+
+    console.log("FAVORITE IDS IN SCREEN:", favoriteIds);
+
 
     if (loading) {
         return (
             <Center flex={1}>
                 <Text>Загрузка...</Text>
             </Center>
+        );
+    }
+
+    if (networkError) {
+        return (
+          <NetworkError
+            onRetry={fetchFavoritePlaces}
+          />
         );
     }
     return (

@@ -4,6 +4,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  withSpring,
   runOnJS,
 } from "react-native-reanimated";
 import { useEffect, useState } from "react";
@@ -23,26 +24,55 @@ export const LegalModal = ({
 }: Props) => {
   const [visible, setVisible] = useState(isOpen);
 
-  const translateY = useSharedValue(300);
+  const translateY = useSharedValue(40);
   const backdropOpacity = useSharedValue(0);
+  const modalOpacity = useSharedValue(0);
 
   useEffect(() => {
     if (isOpen) {
       setVisible(true);
 
-      translateY.value = withTiming(0, { duration: 300 });
-      backdropOpacity.value = withTiming(0.4, { duration: 300 });
-    } else {
-      translateY.value = withTiming(300, { duration: 220 }, () => {
-        runOnJS(setVisible)(false);
+      translateY.value = 40;
+      modalOpacity.value = 0;
+      backdropOpacity.value = 0;
+
+      backdropOpacity.value = withTiming(0.4, {
+        duration: 350,
       });
 
-      backdropOpacity.value = withTiming(0, { duration: 200 });
+      modalOpacity.value = withTiming(1, {
+        duration: 250,
+      });
+
+      translateY.value = withSpring(0, {
+        damping: 22,
+        stiffness: 180,
+        mass: 0.9,
+      });
+    } else {
+      backdropOpacity.value = withTiming(0, {
+        duration: 220,
+      });
+
+      modalOpacity.value = withTiming(0, {
+        duration: 180,
+      });
+
+      translateY.value = withTiming(
+        40,
+        {
+          duration: 220,
+        },
+        () => {
+          runOnJS(setVisible)(false);
+        }
+      );
     }
   }, [isOpen]);
 
   const modalStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
+    opacity: modalOpacity.value,
   }));
 
   const backdropStyle = useAnimatedStyle(() => ({
@@ -53,7 +83,6 @@ export const LegalModal = ({
 
   return (
     <Modal isOpen={visible} onClose={onClose}>
-      {/* BACKDROP + TAP CLOSE */}
       <Pressable
         onPress={onClose}
         style={{
@@ -68,46 +97,77 @@ export const LegalModal = ({
           style={[
             {
               flex: 1,
-              backgroundColor: "black",
+              backgroundColor: "#000",
             },
             backdropStyle,
           ]}
         />
       </Pressable>
 
-      {/* MODAL CARD */}
       <Animated.View
         style={[
           {
             marginTop: "auto",
-            marginHorizontal: 16,
-            marginBottom: 24,
-            backgroundColor: "white",
-            borderRadius: 20,
-            padding: 20,
+            marginHorizontal: 12,
+            marginBottom: 12,
+
+            backgroundColor: "#FFF",
+            borderRadius: 28,
+
+            paddingHorizontal: 20,
+            paddingTop: 12,
+            paddingBottom: 20,
 
             shadowColor: "#000",
-            shadowOffset: { width: 0, height: -4 },
-            shadowOpacity: 0.2,
-            shadowRadius: 12,
+            shadowOffset: {
+              width: 0,
+              height: -2,
+            },
+            shadowOpacity: 0.08,
+            shadowRadius: 20,
             elevation: 12,
           },
           modalStyle,
         ]}
       >
+
+        <Animated.View
+          style={{
+            width: 36,
+            height: 5,
+            borderRadius: 999,
+            backgroundColor: "#D1D1D6",
+            alignSelf: "center",
+            marginBottom: 14,
+          }}
+        />
+
         <Text
           style={{
-            fontWeight: "600",
             fontSize: 18,
+            fontWeight: "600",
             textAlign: "center",
-            marginBottom: 10,
+            marginBottom: 16,
           }}
         >
           {title}
         </Text>
 
-        <ScrollView style={{ maxHeight: 400 }}>
-          <Text style={{ lineHeight: 20 }}>{content}</Text>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{
+            maxHeight: 420,
+          }}
+        >
+          <Text
+            style={{
+              lineHeight: 22,
+              fontSize: 15,
+              color: "#1C1C1E",
+            }}
+          >
+            {content}
+          </Text>
         </ScrollView>
       </Animated.View>
     </Modal>

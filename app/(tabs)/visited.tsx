@@ -9,12 +9,14 @@ import { Place } from "@/src/types/place";
 import { PlacesService} from "@/src/api/services/places-service";
 import { useFavorites } from "@/src/providers/FavoritesProvider";
 import { useAuth } from "@/src/hooks/useAuth";
+import NetworkError from "@/src/components/network-error";
 
 export default function VisitedScreen() {
     const { user } = useAuth();
     const { ratings, visitedIds } = useFavorites();
     const [places, setPlaces] = useState<Place[]>([]);
     const [loading, setLoading] = useState(true);
+    const [networkError, setNetworkError] = useState(false);
 
     const { width } =
         useWindowDimensions();
@@ -22,65 +24,73 @@ export default function VisitedScreen() {
     const isTablet =
         width > 768;
 
+    
+    const fetchVisitedPlaces =
+        async () => {
+
+            if (!user) {
+
+                setPlaces([]);
+                setLoading(false);
+
+                return;
+            }
+
+            try {
+
+                setLoading(true);
+                setNetworkError(false);
+
+                console.log(
+                    "VISITED IDS:",
+                    visitedIds
+                );
+                // throw {
+                //     isNetworkError: true
+                // };
+                const placesData =
+                    await Promise.all(
+
+                        visitedIds.map(
+                            async (
+                                placeId
+                            ) => {
+
+                                return await PlacesService.getById(
+                                    placeId.toString()
+                                );
+                            }
+                        )
+                    );
+
+                setPlaces(
+                    placesData
+                );
+
+            } catch (error: any) {
+
+                console.log(
+                    "VISITED SCREEN ERROR:"
+                );
+
+                console.log(
+                    error?.response?.data ||
+                    error.message
+                );
+
+                if (error.isNetworkError) {
+                    setNetworkError(true);
+                }
+
+            } finally {
+
+                setLoading(false);
+            }
+        };
+
     useEffect(() => {
 
-        const fetchVisitedPlaces =
-            async () => {
-
-                if (!user) {
-
-                    setPlaces([]);
-                    setLoading(false);
-
-                    return;
-                }
-
-                try {
-
-                    setLoading(true);
-
-                    console.log(
-                        "VISITED IDS:",
-                        visitedIds
-                    );
-
-                    const placesData =
-                        await Promise.all(
-
-                            visitedIds.map(
-                                async (
-                                    placeId
-                                ) => {
-
-                                    return await PlacesService.getById(
-                                        placeId.toString()
-                                    );
-                                }
-                            )
-                        );
-
-                    setPlaces(
-                        placesData
-                    );
-
-                } catch (error: any) {
-
-                    console.log(
-                        "VISITED SCREEN ERROR:"
-                    );
-
-                    console.log(
-                        error?.response?.data ||
-                        error.message
-                    );
-
-                } finally {
-
-                    setLoading(false);
-                }
-            };
-
-        fetchVisitedPlaces();
+    fetchVisitedPlaces();
 
     }, [user, visitedIds]);
 
@@ -96,6 +106,14 @@ export default function VisitedScreen() {
                 </Text>
 
             </Center>
+        );
+    }
+
+    if (networkError) {
+        return (
+            <NetworkError
+            onRetry={fetchVisitedPlaces}
+            />
         );
     }
     return (
@@ -219,6 +237,13 @@ export default function VisitedScreen() {
                                 }
                             />
                         )}
+                        ItemSeparatorComponent={() =>
+                            !isTablet ? (
+                                <Box h={2} bg="$coolGray200" my="$3" mx="$5" />
+                            ) : (
+                                <Box h="$4" />
+                            )
+                        }
                     />
                 )}
 

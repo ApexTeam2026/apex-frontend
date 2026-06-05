@@ -16,7 +16,8 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../../src/hooks/useAuth";
-import { useWindowDimensions } from "react-native";
+import { Alert, useWindowDimensions } from "react-native";
+import { useNetworkBanner } from "@/src/providers/NetworkBannerProvider";
 
 import { AuthService } from "@/src/api/services/auth-services";
 import { TokenStore } from "@/src/api/tokenStore";
@@ -34,6 +35,8 @@ export default function LoginScreen() {
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const { showNetworkBanner } = useNetworkBanner();
+
     const handleLogin = async () => {
 
         console.log("LOGIN CLICKED");
@@ -50,6 +53,7 @@ export default function LoginScreen() {
         }
 
         try {
+            console.log("START LOGIN");
             setIsLoading(true);
             setIsError(false);
 
@@ -61,6 +65,10 @@ export default function LoginScreen() {
             console.log("LOGIN REQUEST PAYLOAD:");
             console.log(JSON.stringify(payload, null, 2));
 
+            console.log("BEFORE API");
+            // throw {
+            //     isNetworkError: true
+            // };
             const auth = await AuthService.login(email, password);
 
             console.log("LOGIN RESPONSE:");
@@ -72,6 +80,7 @@ export default function LoginScreen() {
             console.log(TokenStore.get());
 
             console.log("FETCH USER...");
+            console.log("AFTER API");
 
             const user = await AuthService.getMe();
 
@@ -97,9 +106,15 @@ export default function LoginScreen() {
         } catch (error: any) {
 
             console.log("LOGIN ERROR:");
-            console.log(error?.response?.data || error.message);
+            console.log("response", error.response);
+            console.log("message", error.message);
+            console.log("code", error.code);
+            console.log("network", error.isNetworkError);
 
-            setIsError(true);
+            if (error.isNetworkError) {
+                showNetworkBanner("Нет подключения к интернету");
+                return;
+            }
 
         } finally {
             setIsLoading(false);
@@ -124,7 +139,7 @@ export default function LoginScreen() {
 
                             {/* BACK */}
                             <Box w="$full" alignItems="flex-start">
-                                <Pressable onPress={() => { if (!isLoading) router.back() }}>
+                                <Pressable onPress={() => { if (!isLoading) router.replace("/profile"); }}>
                                     <Ionicons
                                         name="chevron-back"
                                         size={isTablet ? 32 : 28}

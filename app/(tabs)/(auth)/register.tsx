@@ -21,6 +21,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useWindowDimensions } from "react-native";
 
 import { useAuth } from "../../../src/hooks/useAuth";
+import { useNetworkBanner } from "@/src/providers/NetworkBannerProvider";
 import { LegalModal } from "@/src/components/ui/legal-modal";
 import { PRIVACY_POLICY, TERMS_OF_USE } from "@/src/constants/legal";
 
@@ -45,6 +46,7 @@ export default function RegisterScreen() {
     const [modalType, setModalType] = useState<"privacy" | "terms" | null>(null);
 
     const [errorText, setErrorText] = useState("");
+    const { showNetworkBanner } = useNetworkBanner();
 
     const formatDateInput = (value: string) => {
         const numbers = value.replace(/\D/g, "");
@@ -160,6 +162,11 @@ export default function RegisterScreen() {
 
             setErrorText(String(backendMessage));
 
+            if (error.isNetworkError) {
+                showNetworkBanner("Нет подключения к интернету");
+                return;
+            }
+
         } finally {
             setIsLoading(false);
         }
@@ -188,7 +195,7 @@ export default function RegisterScreen() {
                             <Box w="$full" alignItems="flex-start">
                                 <Pressable
                                     onPress={() => {
-                                        if (!isLoading) router.back();
+                                        if (!isLoading) router.replace("/profile");
                                     }}
                                     p="$1"
                                 >
