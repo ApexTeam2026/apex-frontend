@@ -1,13 +1,14 @@
+import React, { useState, useEffect, useMemo } from "react";
 import {
-  Box,
-  HStack,
-  Input,
-  InputField,
-  Text,
+    Box,
+    HStack,
+    Input,
+    InputField,
+    Text,
+    Spinner
 } from "@gluestack-ui/themed";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Pressable, FlatList, useWindowDimensions } from "react-native";
-import { useState, useEffect, useMemo } from "react";
 
 import { Place } from "@/src/types/place";
 import { PlacesService } from "@/src/api/services/places-service";
@@ -18,213 +19,189 @@ import FilterIcon from "@/src/assets/images/filter-icon.svg";
 import NetworkError from "@/src/components/network-error";
 
 export default function AllPlacesScreen() {
-  const router = useRouter();
-  const { width } = useWindowDimensions();
+    const router = useRouter();
+    const { width } = useWindowDimensions();
+    const isTablet = width > 768;
+    const numColumns = isTablet ? 2 : 1;
 
-  const isTablet = width > 768;
-  const numColumns = isTablet ? 2 : 1;
+    const [search, setSearch] = useState("");
+    const [placesData, setPlacesData] = useState<Place[]>([]); // Переименовал, чтобы не было конфликта с импортом
+    const [isLoading, setIsLoading] = useState(true);
+    const [networkError, setNetworkError] = useState(false);
 
-  const [search, setSearch] = useState("");
-  const [places, setPlaces] = useState<Place[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [networkError, setNetworkError] = useState(false);
+    const { categories, time, people, tags, district, priceFrom, priceTo } = useLocalSearchParams();
 
-  const { categories, time, people, tags, district, priceFrom, priceTo } = useLocalSearchParams();
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectedTime, setSelectedTime] = useState<string[]>([]);
+    const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedTime, setSelectedTime] = useState<string[]>([]);
-  const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    // ---------------- API ----------------
+    const fetchPlaces = async () => {
+        try {
+            setIsLoading(true);
+            setNetworkError(false);
 
-  // ---------------- API ----------------
-  const fetchPlaces = async () => {
-    try {
-      setIsLoading(true);
-      setNetworkError(false);
+            const data = await PlacesService.getAll();
+            setPlacesData(data || []);
 
-      // throw {
-      //           isNetworkError: true
-      //       }
+        } catch (e: any) {
+            console.log("GET PLACES ERROR:", e?.message);
+            setNetworkError(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-      const data = await PlacesService.getAll();
+    useEffect(() => {
+        fetchPlaces();
+    }, []);
 
-      setPlaces(data);
+    // ---------------- filters from params ----------------
+    useEffect(() => {
+        const parseSafe = (val: any) => {
+            if (!val) return [];
+            try { return JSON.parse(val as string); }
+            catch (e) { return []; }
+        };
+        setSelectedCategories(parseSafe(categories));
+        setSelectedTime(parseSafe(time));
+        setSelectedPeople(parseSafe(people));
+        setSelectedTags(parseSafe(tags));
+    }, [categories, time, people, tags]);
 
-    } catch (e: any) {
+    const normalize = (str?: string) => (str ?? "").trim().toLowerCase();
 
-      console.log(
-        "GET PLACES ERROR:",
-        e?.response?.data || e.message
-      );
+    const isNoFilters =
+        selectedCategories.length === 0 &&
+        selectedTime.length === 0 &&
+        selectedPeople.length === 0 &&
+        selectedTags.length === 0 &&
+        !district && !priceFrom && !priceTo;
 
-      if (e.isNetworkError) {
-        setNetworkError(true);
-      }
+    // ---------------- filtering ----------------
+    const filteredPlaces = useMemo(() => {
+        const norm = (str?: string) => (str ?? "").trim().toLowerCase();
 
-    } finally {
-      setIsLoading(false);
+        return placesData.filter((place) => {
+            // 1. Поиск по имени
+            const matchesSearch = norm(place.name).includes(norm(search));
+            if (isNoFilters && !search) return matchesSearch;
+
+            // 2. Район
+            const matchesDistrict = !district ||
+                norm(place.district).includes(norm(district as string));
+
+            // 3. Цена
+            const placePrice = place.averageCheck || 0;
+            const matchesPrice =
+                (!priceFrom || placePrice >= Number(priceFrom)) &&
+                (!priceTo || placePrice <= Number(priceTo));
+
+            // 4. Категории
+            const matchesCategory = selectedCategories.length === 0 ||
+                selectedCategories.some(cat => norm(cat) === norm(place.category));
+
+            // 5. Теги
+            const matchesTags = selectedTags.length === 0 ||
+                selectedTags.every((tag) =>
+                    (place.tags || []).map(norm).includes(norm(tag))
+                );
+
+            // --- ИСПРАВЛЕННАЯ ЛОГИКА ДЛЯ ВРЕМЕНИ ---
+            const matchesTime = selectedTime.length === 0 ||
+                selectedTime.some((st) => {
+                    // Делаем проверку: есть ли выбранное пользователем время в данных объекта
+                    const placeTimes = Array.isArray(place.timeOfDay)
+                        ? place.timeOfDay
+                        : [place.timeOfDay]; // на случай если пришла строка
+                    return placeTimes.map(norm).includes(norm(st));
+                });
+
+            // --- ИСПРАВЛЕННАЯ ЛОГИКА ДЛЯ ЛЮДЕЙ ---
+            const matchesPeople = selectedPeople.length === 0 ||
+                selectedPeople.some((sp) => {
+                    // Проверяем: подходит ли место для выбранного количества людей
+                    const placeSuitable = Array.isArray(place.suitableFor)
+                        ? place.suitableFor
+                        : [place.suitableFor];
+                    return placeSuitable.map(norm).includes(norm(sp));
+                });
+
+            // Место отобразится, только если прошли ВСЕ фильтры
+            return matchesSearch && matchesDistrict && matchesPrice &&
+                matchesTags && matchesCategory && matchesTime && matchesPeople;
+        });
+    }, [placesData, search, selectedCategories, selectedTime, selectedPeople, selectedTags, district, priceFrom, priceTo]);
+
+    // ---------------- RENDER ----------------
+    if (isLoading) {
+        return (
+            <Box flex={1} justifyContent="center" alignItems="center" bg="$white">
+                <Spinner size="large" color="#C8F751" />
+                <Text mt="$4">Загрузка мест...</Text>
+            </Box>
+        );
     }
-  };
 
-  useEffect(() => {
-    fetchPlaces();
-  }, []);
+    if (networkError && placesData.length === 0) {
+        return <NetworkError onRetry={fetchPlaces} />;
+    }
 
-  useEffect(() => {
-    if (categories) setSelectedCategories(JSON.parse(categories as string));
-    if (time) setSelectedTime(JSON.parse(time as string));
-    if (people) setSelectedPeople(JSON.parse(people as string));
-    if (tags) setSelectedTags(JSON.parse(tags as string));
-  }, [categories, time, people, tags]);
-
-  const normalize = (str?: string) =>
-    (str ?? "").trim().toLowerCase();
-
-  const isNoFilters =
-    selectedCategories.length === 0 &&
-    selectedTime.length === 0 &&
-    selectedPeople.length === 0 &&
-      selectedTags.length === 0 &&
-      !district && !priceFrom && !priceTo;
-
-  const filteredPlaces = useMemo(() => {
-    return places.filter((place) => {
-      const matchesSearch = normalize(place.name).includes(normalize(search));
-
-      if (isNoFilters) return matchesSearch;
-
-        
-      const matchesDistrict = !district || 
-        normalize(place.address).includes(normalize(district as string));
-
-      
-      const placePrice = place.avgCheck || 0;
-      const matchesPrice = 
-        (!priceFrom || placePrice >= Number(priceFrom)) &&
-        (!priceTo || placePrice <= Number(priceTo));
-
-        const matchesTags = selectedTags.length === 0 ||
-            selectedTags.every((tag) =>
-                (place.tags || []).map(normalize).includes(normalize(tag))
-            );
-
-       
-        const matchesCategory = selectedCategories.length === 0 ||
-            selectedCategories.map(normalize).includes(normalize(place.category));
-
-        
-        const matchesTime = selectedTime.length === 0 ||
-            (place.timeOfDay && selectedTime.some((t) =>
-                (place.timeOfDay || []).map(normalize).includes(normalize(t))
-            ));
-
-       
-        const matchesPeople = selectedPeople.length === 0 ||
-            (place.suitableFor && selectedPeople.some((p) =>
-                (place.suitableFor || []).map(normalize).includes(normalize(p))
-            ));
-
-        return matchesSearch && matchesDistrict && matchesPrice &&
-            matchesTags && matchesCategory && matchesTime && matchesPeople;
-    });
-  }, [places, search, selectedCategories, selectedTime, selectedPeople, selectedTags, district, priceFrom, priceTo]);
-
-  // ---------------- loading ----------------
-  if (isLoading) {
     return (
-      <Box flex={1} justifyContent="center" alignItems="center">
-        <Text>Загрузка мест...</Text>
-      </Box>
-    );
-  }
+        <Box flex={1} bg="$white">
+            <Box maxWidth={1200} w="$full" alignSelf="center" flex={1} px={isTablet ? "$10" : "$3"}>
+                <AppHeader />
 
-    if (networkError && places.length === 0) {
-    return (
-      <NetworkError
-        onRetry={fetchPlaces}
-      />
-    );
-  }
+                {/* SEARCH + FILTER */}
+                <HStack mb="$3" alignItems="center" space="xs">
+                    <Input flex={1} borderRadius="$lg" borderColor="#CECECE" h={isTablet ? 55 : 45}>
+                        <InputField
+                            placeholder="Поиск мест..."
+                            value={search}
+                            onChangeText={setSearch}
+                            fontSize={isTablet ? 18 : 16}
+                        />
+                    </Input>
 
-  return (
-    <Box flex={1} bg="$white">
-      <Box
-        maxWidth={1200}
-        w="$full"
-        alignSelf="center"
-        flex={1}
-        px={isTablet ? "$10" : "$3"}
-      >
-        <AppHeader />
+                    <Pressable onPress={() => router.push("/filters")} style={{ padding: 8 }}>
+                        <FilterIcon width={isTablet ? 45 : 35} height={isTablet ? 45 : 35} />
+                    </Pressable>
+                </HStack>
 
-        {/* SEARCH + FILTER */}
-        <HStack mb="$3" alignItems="center" space="xs">
-          <Input
-            flex={1}
-            borderRadius="$lg"
-            borderColor="#CECECE"
-            h={isTablet ? 55 : 45}
-          >
-            <InputField
-              placeholder="Поиск мест..."
-              value={search}
-              onChangeText={setSearch}
-              fontSize={isTablet ? "$lg" : "$md"}
-            />
-          </Input>
-
-          <Pressable
-            onPress={() => router.push("/(tabs)/filters")}
-            style={{ padding: 8 }}
-          >
-            <FilterIcon
-              width={isTablet ? 45 : 35}
-              height={isTablet ? 45 : 35}
-            />
-          </Pressable>
-        </HStack>
-
-        {/* LIST */}
-        <FlatList<Place>
-          key={numColumns}
-          data={filteredPlaces}
-          numColumns={numColumns}
-          keyExtractor={(item) => item.placeId.toString()}
-          showsVerticalScrollIndicator={false}
-          decelerationRate="fast"
-          columnWrapperStyle={
-            isTablet ? { gap: 20 } : undefined
-          }
-          contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <Box flex={1} mb="$2">
-              <PlaceCard
-                place={item}
-                onPress={() =>
-                  router.push({
-                    pathname: "/detailed_place",
-                    params: { id: item.placeId.toString(), from: "all-places"},
-                  })
-                }
-              />
+                {/* LIST */}
+                <FlatList<Place>
+                    key={numColumns}
+                    data={filteredPlaces}
+                    numColumns={numColumns}
+                    keyExtractor={(item) => item.placeId.toString()}
+                    showsVerticalScrollIndicator={false}
+                    decelerationRate="fast"
+                    columnWrapperStyle={isTablet ? { gap: 20 } : undefined}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    renderItem={({ item }) => (
+                        <Box flex={1} mb="$2">
+                            <PlaceCard
+                                place={item}
+                                onPress={() =>
+                                    router.push({
+                                        pathname: "/detailed_place",
+                                        params: { id: item.placeId.toString(), from: "all-places" },
+                                    })
+                                }
+                            />
+                        </Box>
+                    )}
+                    ListEmptyComponent={() => (
+                        <Box mt="$10" alignItems="center">
+                            <Text fontSize={18} color="$coolGray500">Ничего не найдено 😢</Text>
+                        </Box>
+                    )}
+                    ItemSeparatorComponent={() =>
+                        !isTablet ? <Box h={2} bg="$coolGray200" my="$3" mx="$5" /> : <Box h="$4" />
+                    }
+                />
             </Box>
-          )}
-          ListEmptyComponent={() => (
-            <Box mt="$10" alignItems="center">
-              <Text fontSize={18} color="$coolGray500">
-                Ничего не найдено 😢
-              </Text>
-            </Box>
-          )}
-          ItemSeparatorComponent={() =>
-            !isTablet ? (
-              <Box h={2} bg="$coolGray200" my="$3" mx="$5" />
-            ) : (
-              <Box h="$4" />
-            )
-          }
-        />
-      </Box>
-    </Box>
-  );
+        </Box>
+    );
 }

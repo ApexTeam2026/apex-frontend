@@ -35,7 +35,13 @@ export default function FiltersScreen() {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedTime, setSelectedTime] = useState<string[]>([]);
     const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
-    const districts = ["Ленинский", "Дзержинский", "Мотовилиха", "Индустриальный"];
+    const districts = [
+        "Ленинский район",
+        "Дзержинский район",
+        "Мотовилихинский район",
+        "Индустриальный район",
+        "Свердловский район",
+    ];
 
     const toggleCategory = (val: string) => {
         setSelectedCategories(prev =>
@@ -78,6 +84,16 @@ export default function FiltersScreen() {
             },
         })
     };
+
+    const ALL_CATEGORIES = [
+        "фитнес-центр", "Стадион", "Прокат велосипедов", "Бассейны", "Яхт-клуб",
+        "Картинг", "Квесты", "spa-салон", "термы", "кофейни", "фаст-фуд",
+        "рестораны национальной кухни", "рестораны/кафе", "винотеки",
+        "музеи, галереи, выставочные залы", "филармонии, концертные залы",
+        "театры", "кино", "мастерские,мастер классы", "достопримечательности",
+        "танцевальные клубы", "бары,рюмочные", "эко-тропы", "парки, скверы, сады",
+        "зоопарк", "локальные бренды", "сувенирная лавка"
+    ];
 
     return (
         <Box flex={1} bg="$white" px={isTablet ? "$20" : "$6"} pt={isTablet ? "$20" : "$12"}>
@@ -139,11 +155,41 @@ export default function FiltersScreen() {
                                     </Text>
                                     {isOpen && (
                                         <VStack space="xs" mt="$3" borderTopWidth={1} borderTopColor="#F2F2F2" pt="$2">
-                                            {districts.map((item) => (
-                                                <Pressable key={item} onPress={() => { setSelectedDistrict(item); setIsOpen(false); }}>
-                                                    <Text color="#666" fontSize={isTablet ? 18 : 16} fontWeight="$light" py="$1.5">{item}</Text>
-                                                </Pressable>
-                                            ))}
+                                            {districts.map((item) => {
+                                               
+                                                const isSelected = selectedDistrict === item;
+
+                                                return (
+                                                    <Pressable
+                                                        key={item}
+                                                        onPress={() => {
+                                                            
+                                                            setSelectedDistrict(isSelected ? "" : item);
+                                                            setIsOpen(false);
+                                                        }}
+                                                        style={({ pressed }) => ({
+                                                            backgroundColor: isSelected ? "#F9F9F9" : (pressed ? "#F2F2F2" : "transparent"),
+                                                            borderRadius: 8,
+                                                            paddingHorizontal: 8
+                                                        })}
+                                                    >
+                                                        <HStack justifyContent="space-between" alignItems="center" py="$2">
+                                                            <Text
+                                                                color={isSelected ? "#C8F751" : "#666"} 
+                                                                fontSize={16}
+                                                                fontWeight={isSelected ? "$medium" : "$light"}
+                                                            >
+                                                                {item}
+                                                            </Text>
+
+                                                           
+                                                            {isSelected && (
+                                                                <Ionicons name="checkmark" size={18} color="#C8F751" />
+                                                            )}
+                                                        </HStack>
+                                                    </Pressable>
+                                                );
+                                            })}
                                         </VStack>
                                     )}
                                 </Box>
@@ -153,14 +199,19 @@ export default function FiltersScreen() {
 
                     {/* Тип заведения */}
                     <VStack space="xs">
-                        <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Тип заведения</Text>
-                        <HStack flexWrap="wrap">
-                            {["Парк", "Ресторан", "Музей", "Арт-объект", "Кинотеатр", "Клуб", "Спортивный зал", "Торговый центр", "Аттракцион", "Коворкинг"].map((l) => (
-                                <Box key={l} w={isTablet ? "33%" : "50%"}>
+                        <Text fontSize={18} fontWeight="$medium" color="#000" mb="$1">Тип заведения</Text>
+                        <HStack flexWrap="wrap" justifyContent="space-between">
+                            {ALL_CATEGORIES.map((cat) => (
+                                <Box
+                                    key={cat}
+                                    w={isTablet ? "31%" : "48%"}
+                                    minHeight={45} 
+                                    mb="$2"
+                                >
                                     <FilterCheckbox
-                                        label={l}
-                                        selected={selectedCategories.includes(l)}
-                                        onToggle={() => toggleCategory(l)}
+                                        label={cat}
+                                        selected={selectedCategories.includes(cat)}
+                                        onToggle={() => toggleCategory(cat)}
                                     />
                                 </Box>
                             ))}
@@ -252,19 +303,31 @@ const FilterCheckbox = ({
     label: string;
     selected: boolean;
     onToggle: () => void;
-}) => (
-    <Checkbox
-        value={label}
-        isChecked={selected}
-        onPress={onToggle}
-        size="sm"
-        mb="$1"
-    >
-        <CheckboxIndicator mr="$2.5" borderColor="#CECECE" borderRadius={4} w={18} h={18}>
-            <CheckboxIcon as={CheckIcon} color="#C8F751" size="xs" />
-        </CheckboxIndicator>
-        <CheckboxLabel color="#000" fontSize={15} fontWeight="$light">
-            {label}
-        </CheckboxLabel>
-    </Checkbox>
-);
+}) => {
+    const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+
+    return (
+        <Checkbox
+            value={label}
+            isChecked={selected}
+            onPress={onToggle}
+            size="md" 
+        >
+            <HStack alignItems="flex-start" w="$full">
+                <CheckboxIndicator mr="$2" borderColor="#CECECE" borderRadius={4} w={20} h={20} mt="$0.5">
+                    <CheckboxIcon as={CheckIcon} color="#C8F751" size="xs" />
+                </CheckboxIndicator>
+
+                <CheckboxLabel
+                    color="#000"
+                    fontSize={15} 
+                    fontWeight="$normal" 
+                    lineHeight="$sm"
+                    flexShrink={1}
+                >
+                    {formattedLabel}
+                </CheckboxLabel>
+            </HStack>
+        </Checkbox>
+    );
+};
