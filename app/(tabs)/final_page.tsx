@@ -9,7 +9,7 @@ import { FlatList, Image, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-
+import PlaceCard from "@/src/components/place-card";
 import { PlacesService } from "@/src/api/services/places-service";
 import { Place } from "@/src/types/place";
 
@@ -94,73 +94,16 @@ export default function RecommendationsScreen() {
             String(item.placeId ?? item.placeId)
           }
           renderItem={({ item }) => (
-            <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: "/detailed_place",
-                  params: { id: item.placeId.toString() },
-                })
-              }
-            >
-              <Box mb="$5">
-
-                <Image
-                  source={{ uri: item.image }}
-                  style={{
-                    width: "100%",
-                    height: 180,
-                    borderRadius: 20,
-                  }}
-                />
-
-                <HStack
-                  justifyContent="space-between"
-                  alignItems="flex-start"
-                  mt="$3"
-                >
-                  <VStack flex={1}>
-                    <Text fontSize="$2xl" fontWeight="$medium">
-                      {item.name}
-                    </Text>
-
-                    <HStack mt="$2" alignItems="center">
-                      <Ionicons name="location-outline" size={15} color="#A0A0A0" />
-                      <Text ml="$1" color="$coolGray500">
-                        {item.address}
-                      </Text>
-                    </HStack>
-
-                    <HStack mt="$1" alignItems="center">
-                      <Ionicons name="time-outline" size={15} color="#A0A0A0" />
-                      <Text ml="$1" color="$coolGray500">
-                        {item.workingHours}
-                      </Text>
-                    </HStack>
-                  </VStack>
-
-                  <VStack alignItems="flex-end" ml="$3">
-                    <HStack alignItems="center">
-                      <Ionicons name="star-outline" size={18} color="#C8F751" />
-                      <Text ml="$1">{item.rate}</Text>
-                    </HStack>
-
-                    <Text mt="$1" color="$coolGray500">
-                      {item.category?.toLowerCase?.() ?? ""}
-                    </Text>
-
-                    <Ionicons
-                      name="heart-outline"
-                      size={22}
-                      color="#C8F751"
-                      style={{ marginTop: 10 }}
-                    />
-                  </VStack>
-                </HStack>
-
-                <Box h={1} bg="#EAEAEA" mt="$5" />
-              </Box>
-            </Pressable>
-          )}
+  <PlaceCard
+    place={item}
+    onPress={() =>
+      router.push({
+        pathname: "/detailed_place",
+        params: { id: item.placeId.toString() },
+      })
+    }
+  />
+)}
         />
       )}
     </Box>
