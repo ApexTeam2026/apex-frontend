@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
     Box,
     HStack,
@@ -9,6 +9,7 @@ import {
 } from "@gluestack-ui/themed";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Pressable, FlatList, useWindowDimensions } from "react-native";
+import { useFavorites } from "@/src/providers/FavoritesProvider";
 
 import { Place } from "@/src/types/place";
 import { PlacesService } from "@/src/api/services/places-service";
@@ -135,6 +136,26 @@ export default function AllPlacesScreen() {
     }, [placesData, search, selectedCategories, selectedTime, selectedPeople, selectedTags, district, priceFrom, priceTo]);
 
     // ---------------- RENDER ----------------
+    // const renderItem = React.useCallback(
+    //     ({ item }: { item: Place }) => (
+    //         <Box flex={1} mb="$2">
+    //         <PlaceCard
+    //             place={item}
+    //             onPress={() =>
+    //             router.push({
+    //                 pathname: "/detailed_place",
+    //                 params: {
+    //                 id: item.placeId.toString(),
+    //                 from: "all-places",
+    //                 },
+    //             })
+    //             }
+    //         />
+    //         </Box>
+    //     ),
+    //     [router]
+    // );
+
     if (isLoading) {
         return (
             <Box flex={1} justifyContent="center" alignItems="center" bg="$white">
@@ -173,25 +194,35 @@ export default function AllPlacesScreen() {
                 <FlatList<Place>
                     key={numColumns}
                     data={filteredPlaces}
+
+                    removeClippedSubviews
+                    initialNumToRender={8}
+                    maxToRenderPerBatch={8}
+                    updateCellsBatchingPeriod={50}
+                    windowSize={5}
+                    
                     numColumns={numColumns}
                     keyExtractor={(item) => item.placeId.toString()}
                     showsVerticalScrollIndicator={false}
-                    decelerationRate="fast"
+                    decelerationRate="fast" 
                     columnWrapperStyle={isTablet ? { gap: 20 } : undefined}
                     contentContainerStyle={{ paddingBottom: 20 }}
                     renderItem={({ item }) => (
-                        <Box flex={1} mb="$2">
-                            <PlaceCard
-                                place={item}
-                                onPress={() =>
-                                    router.push({
-                                        pathname: "/detailed_place",
-                                        params: { id: item.placeId.toString(), from: "all-places" },
-                                    })
-                                }
-                            />
-                        </Box>
-                    )}
+  <Box flex={1} mb="$2">
+    <PlaceCard
+      place={item}
+      onPress={() =>
+        router.push({
+          pathname: "/detailed_place",
+          params: {
+            id: item.placeId.toString(),
+            from: "all-places",
+          },
+        })
+      }
+    />
+  </Box>
+)}
                     ListEmptyComponent={() => (
                         <Box mt="$10" alignItems="center">
                             <Text fontSize={18} color="$coolGray500">Ничего не найдено 😢</Text>

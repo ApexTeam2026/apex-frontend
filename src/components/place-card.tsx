@@ -30,6 +30,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   onPress,
 }) => {
 
+  console.log("PLACE CARD RENDER", place.placeId);
   const [showAuthModal, setShowAuthModal] =
     useState(false);
 
@@ -56,6 +57,16 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
         await toggleFavorite(place.placeId);
     };
+
+  const placeName = place.name || "Без названия";
+  const placeAddress = place.address || "Адрес не указан";
+  const placeHours = place.workingHours || "Время работы неизвестно";
+  const placeCategory = place.category || "Без категории";
+
+  const placeRating =
+  place.rate && Number(place.rate) > 0
+    ? place.rate
+    : "Нет оценки";
 
   return (
 
@@ -94,40 +105,44 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
           {/* title */}
           <HStack
             justifyContent="space-between"
-            alignContent="center"
+            alignItems="flex-start"
+            space="sm"
           >
-
             <Text
+              flexWrap="wrap"
               fontSize="$lg"
               color="$black"
               style={{
-                fontFamily:
-                  "Montserrat_600SemiBold",
+                fontFamily: "Montserrat_600SemiBold",
               }}
             >
-              {place.name}
+              {placeName}
             </Text>
 
-            <HStack space="xs">
-
+            <HStack
+              space="xs"
+              alignItems="center"
+              flexShrink={0}
+            >
               <Ionicons
                 name="star"
                 size={16}
                 color="#C8F751"
               />
 
-              <Text>
-                {place.rate}
+              <Text
+                fontSize="$sm"
+                color="$gray700"
+              >
+                {placeRating}
               </Text>
-
             </HStack>
-
           </HStack>
 
           {/* content */}
           <HStack
             justifyContent="space-between"
-            alignContent="center"
+            alignItems="flex-start"          
           >
 
             {/* left */}
@@ -135,7 +150,6 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
               {/* address */}
               <HStack gap={5}>
-
                 <Ionicons
                   name="location-outline"
                   size={16}
@@ -144,24 +158,15 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
                 <Text
                   fontSize="$sm"
-                  fontWeight="$semi-bold"
                   color="$gray500"
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                  style={{
-                    maxWidth: 180,
-                  }}
+                  flexWrap="wrap"
                 >
-
-                  {place.address}
-
+                  {placeAddress}
                 </Text>
-
               </HStack>
 
               {/* hours */}
               <HStack gap={5}>
-
                 <Ionicons
                   name="time-outline"
                   size={16}
@@ -169,20 +174,13 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
                 />
 
                 <Text
+                  flex={1}
                   fontSize="$sm"
-                  fontWeight="$semi-bold"
                   color="$gray500"
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                  style={{
-                    maxWidth: 180,
-                  }}
+                  flexWrap="wrap"
                 >
-
-                  {place.workingHours}
-
+                  {placeHours}
                 </Text>
-
               </HStack>
 
             </VStack>
@@ -196,8 +194,10 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
               <Text
                 fontSize="$sm"
                 color="$gray400"
+                textAlign="right"
+                maxWidth={100}
               >
-                {place.category}
+                {placeCategory}
               </Text>
 
               {/* favorite */}
@@ -222,27 +222,28 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
               </Pressable>
 
               {/* USER RATING */}
-              {userRating > 0 && (
-
+              {userRating > 0 ? (
                 <HStack space="xs">
-
-                  {[1,2,3,4,5].map(
-                    (star) => (
-
-                      <Ionicons
-                        key={star}
-                        name={
-                          star <= userRating
-                            ? "star"
-                            : "star-outline"
-                        }
-                        size={18}
-                        color="#C8F751"
-                      />
-                    )
-                  )}
-
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Ionicons
+                      key={star}
+                      name={
+                        star <= userRating
+                          ? "star"
+                          : "star-outline"
+                      }
+                      size={18}
+                      color="#C8F751"
+                    />
+                  ))}
                 </HStack>
+              ) : (
+                <Text
+                  fontSize="$xs"
+                  color="$gray400"
+                >
+                  Не оценено
+                </Text>
               )}
 
             </VStack>
@@ -270,4 +271,4 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   );
 };
 
-export default PlaceCard;
+export default React.memo(PlaceCard);

@@ -367,19 +367,28 @@ export function FavoritesProvider({
     }
   };
 
+  const value = React.useMemo(
+  () => ({
+      favoriteIds,
+      visitedIds,
+      ratings,
+      toggleFavorite,
+      setPlaceRating,
+      isFavorite,
+      loading,
+    }),
+    [
+      favoriteIds,
+      visitedIds,
+      ratings,
+      loading,
+    ]
+  );
+
   return (
 
     <FavoritesContext.Provider
-      value={{
-
-        favoriteIds,
-        visitedIds,
-        ratings,
-        toggleFavorite,
-        setPlaceRating,
-        isFavorite,
-        loading,
-      }}
+      value={value}
     >
 
       {children}

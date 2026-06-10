@@ -33,7 +33,7 @@ export type Place = {
 
   timeOfDay?: string[];
 
-  photos?: string[];
+  photos?: string;
 
   image?: string;
 
