@@ -9,10 +9,10 @@ export const endpoints = {
   },
 
   places: {
-    list: "/api/places",
-    quiz: ("/api/place/quiz"),
+    list: "api/places",
+    quiz: ("api/places/quiz"),
     byId: (id: string | number) => `/api/places/${id}`,
-    create: "/api/places",
+    create: "api/places",
   },
 
   categories: {

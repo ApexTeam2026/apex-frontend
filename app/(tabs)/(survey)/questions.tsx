@@ -29,9 +29,24 @@ export default function SurveyScreen() {
     setCompleted,
   } = useSurveyStore();
 
+const buildQuizPayload = (answers: Record<string, string>) => {
+  return {
+    suitableFor: answers.suitableFor ? [answers.suitableFor] : [],
+    timeOfDay: answers.timeOfDay ? [answers.timeOfDay] : [],
+    priceCategory: answers.priceCategory ? [answers.priceCategory] : [],
+    tags: [
+      answers.mood,
+      answers.culture,
+      answers.locationType,
+      answers.visited,
+    ].filter(Boolean),
+  };
+};
+
+  
   const question = questions[current];
 
-  // текущее выбранное значение (БЕЗ selected state)
+  // текущее значение берём только из store
   const selected = answers[question.id] || null;
 
   const handleNext = async () => {
@@ -39,28 +54,36 @@ export default function SurveyScreen() {
 
     if (!currentAnswer) return;
 
-    // если НЕ последний вопрос → следующий
+    // если не последний вопрос → следующий
     if (current < questions.length - 1) {
       setCurrent(current + 1);
       return;
     }
 
-    // если последний вопрос → отправка
+    // последний вопрос → отправка
     try {
       setLoading(true);
 
-      const res = await QuizService.submit(answers);
+        const payload = buildQuizPayload(answers);
+
+console.log("ANSWERS RAW:", answers);
+console.log("PAYLOAD SENT:", payload);
+
+      const res = await QuizService.submit(buildQuizPayload(answers));
+
+      const ids = res?.ids || [];
 
       setCompleted(true);
 
       router.replace({
         pathname: "/final_page",
         params: {
-          ids: JSON.stringify(res.ids),
+          ids: JSON.stringify(ids),
         },
       });
+
     } catch (error) {
-      console.log(error);
+      console.log("QUIZ ERROR:", error);
     } finally {
       setLoading(false);
     }
@@ -76,8 +99,6 @@ export default function SurveyScreen() {
     reset();
     setStarted(true);
   }, []);
-
-  const progress = ((current + 1) / questions.length) * 100;
 
   return (
     <Box flex={1} bg="$backgroundLight0" px="$5" py="$6" justifyContent="space-between">
