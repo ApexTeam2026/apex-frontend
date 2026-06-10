@@ -31,15 +31,19 @@ export default function SurveyScreen() {
 
 const buildQuizPayload = (answers: Record<string, string>) => {
   return {
-    suitableFor: answers.suitableFor ? [answers.suitableFor] : [],
-    timeOfDay: answers.timeOfDay ? [answers.timeOfDay] : [],
-    priceCategory: answers.priceCategory ? [answers.priceCategory] : [],
-    tags: [
-      answers.mood,
-      answers.culture,
-      answers.locationType,
-      answers.visited,
-    ].filter(Boolean),
+    tags: Object.values(answers).filter(v => v && v !== "any"),
+
+    suitableFor: answers.suitableFor && answers.suitableFor !== "any"
+      ? [answers.suitableFor]
+      : [],
+
+    timeOfDay: answers.timeOfDay && answers.timeOfDay !== "any"
+      ? [answers.timeOfDay]
+      : [],
+
+    priceCategory: answers.priceCategory && answers.priceCategory !== "any"
+      ? [answers.priceCategory]
+      : [],
   };
 };
 
@@ -61,28 +65,33 @@ const buildQuizPayload = (answers: Record<string, string>) => {
     }
 
     // последний вопрос → отправка
-    try {
-      setLoading(true);
+  try {
+  setLoading(true);
 
-        const payload = buildQuizPayload(answers);
+  const payload = buildQuizPayload(answers);
 
-console.log("ANSWERS RAW:", answers);
-console.log("PAYLOAD SENT:", payload);
+  console.log("ANSWERS RAW:", answers);
+  console.log("PAYLOAD SENT:", payload);
 
-      const res = await QuizService.submit(buildQuizPayload(answers));
+  const res = await QuizService.submit(payload);
 
-      const ids = res?.ids || [];
+  console.log("QUIZ RESPONSE:", res);
 
-      setCompleted(true);
+  const ids = Array.isArray(res?.ids) ? res.ids : [];
 
-      router.replace({
-        pathname: "/final_page",
-        params: {
-          ids: JSON.stringify(ids),
-        },
-      });
+  if (ids.length === 0) {
+    console.log("NO MATCHING PLACES FOUND");;
+  }
+    setCompleted(true);
+    console.log("NAVIGATING NOW");
+  router.replace({
+  pathname: "/final_page",
+  params: {
+    ids: JSON.stringify(res),
+  },
+});
 
-    } catch (error) {
+} catch (error) {
       console.log("QUIZ ERROR:", error);
     } finally {
       setLoading(false);

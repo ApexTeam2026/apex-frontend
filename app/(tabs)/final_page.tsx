@@ -1,14 +1,12 @@
 import {
   Box,
-  HStack,
   Text,
-  VStack,
 } from "@gluestack-ui/themed";
 
-import { FlatList, Image, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { FlatList } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import PlaceCard from "@/src/components/place-card";
 import { PlacesService } from "@/src/api/services/places-service";
 import { Place } from "@/src/types/place";
@@ -19,21 +17,23 @@ export default function RecommendationsScreen() {
 
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
+console.log("RAW PARAMS IDS:", params.ids);
+  // ✔️ НОРМАЛЬНЫЙ PARSING IDS
+  const selectedIds = useMemo(() => {
+  if (!params.ids || typeof params.ids !== "string") return [];
 
-  // ✔️ безопасный парсинг ids (ТОЛЬКО ОДИН РАЗ)
-  let selectedIds: number[] = [];
-
-  try {
-    selectedIds = params.ids
-      ? JSON.parse(params.ids as string)
-      : [];
-  } catch {
-    selectedIds = [];
-  }
+  return params.ids
+    .split(",")
+    .map(Number)
+    .filter(Boolean);
+}, [params.ids]);
 
   useEffect(() => {
     const loadPlaces = async () => {
+      setLoading(true);
+
       if (!selectedIds.length) {
+        setPlaces([]);
         setLoading(false);
         return;
       }
@@ -41,31 +41,22 @@ export default function RecommendationsScreen() {
       try {
         const result = await Promise.all(
           selectedIds.map((id) =>
-            PlacesService.getById(id.toString())
+            PlacesService.getById(String(id))
           )
         );
 
-        setPlaces(result);
+        setPlaces(result.filter(Boolean));
       } catch (error) {
         console.log("LOAD PLACES ERROR:", error);
+        setPlaces([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadPlaces();
-  }, [params.ids]);
+  }, [selectedIds]);
 
-  // поиск
-  const filteredPlaces = loading
-    ? []
-    : places.filter((place) =>
-        place.name
-          .toLowerCase()
-          .includes("")
-      );
-
-  // loading
   if (loading) {
     return (
       <Box flex={1} justifyContent="center" alignItems="center">
@@ -81,7 +72,7 @@ export default function RecommendationsScreen() {
         Подобрали специально для вас
       </Text>
 
-      {filteredPlaces.length === 0 ? (
+      {places.length === 0 ? (
         <Box flex={1} justifyContent="center" alignItems="center" px="$6">
           <Text textAlign="center" fontSize="$2xl" fontWeight="$medium">
             К сожалению, мы ничего не смогли для вас найти
@@ -89,21 +80,19 @@ export default function RecommendationsScreen() {
         </Box>
       ) : (
         <FlatList
-          data={filteredPlaces}
-          keyExtractor={(item) =>
-            String(item.placeId ?? item.placeId)
-          }
+          data={places}
+          keyExtractor={(item) => String(item.placeId)}
           renderItem={({ item }) => (
-  <PlaceCard
-    place={item}
-    onPress={() =>
-      router.push({
-        pathname: "/detailed_place",
-        params: { id: item.placeId.toString() },
-      })
-    }
-  />
-)}
+            <PlaceCard
+              place={item}
+              onPress={() =>
+                router.push({
+                  pathname: "/detailed_place",
+                  params: { id: String(item.placeId) },
+                })
+              }
+            />
+          )}
         />
       )}
     </Box>

@@ -278,6 +278,11 @@ export default function PlaceScreen() {
 
             return;
         }
+        if (from == "final_page") {
+            router.push ("/final_page");
+
+            return;
+        }
 
         router.push("/all-places");
     };

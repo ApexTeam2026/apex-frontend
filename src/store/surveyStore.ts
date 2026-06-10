@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type SurveyState = {
   current: number;
+
   answers: Record<string, string>;
 
   started: boolean;
@@ -53,10 +54,12 @@ export const useSurveyStore = create<SurveyState>()(
       name: "survey-storage",
       storage: createJSONStorage(() => AsyncStorage),
 
-      // 🔥 ВАЖНО: чтобы не было "залипания" старого квиза
+      // ✔️ теперь сохраняем ВСЁ консистентно
       partialize: (state) => ({
         answers: state.answers,
         current: state.current,
+        started: state.started,
+        completed: state.completed,
       }),
     }
   )
