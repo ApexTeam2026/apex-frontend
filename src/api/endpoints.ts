@@ -10,7 +10,8 @@ export const endpoints = {
 
   places: {
     list: "/api/places",
-    byId: (id: string) => `/api/places/${id}`,
+    quiz: ("/api/place/quiz"),
+    byId: (id: string | number) => `/api/places/${id}`,
     create: "/api/places",
   },
 

@@ -11,6 +11,19 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { AuthRequiredModal } from "@/src/components/ui/auth-required-modal";
 import { MaterialIcons } from "@expo/vector-icons";
 
+const normalizeTag = (tag: string) => {
+  return tag
+    .trim()
+    .toLowerCase()
+    // фиксим кириллицу, которая выглядит как латиница
+    .replace(/а/g, "a")
+    .replace(/с/g, "c")
+    .replace(/е/g, "e")
+    .replace(/о/g, "o")
+    .replace(/р/g, "p")
+    .replace(/х/g, "x");
+};
+
 const tagLabels: Record<string, string> = {
     // Количество людей
     solo: "Для одного",
@@ -46,7 +59,7 @@ const tagLabels: Record<string, string> = {
     relaxed: "Расслабленно",
     fun: "Весело",
     romantic: "Романтично",
-    curious: "Познавательно",
+    curios: "Познавательно",
     energetic: "Энергично",
 
     // Культурность
@@ -107,7 +120,7 @@ const tagIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
     relaxed: "flower-outline",
     fun: "happy-outline",
     romantic: "heart-outline",
-    curious: "book-outline",
+    curios: "book-outline",
     energetic: "flash-outline",
 
     // Культурность

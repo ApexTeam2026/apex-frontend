@@ -1,8 +1,6 @@
 import {
   Box,
   HStack,
-  Input,
-  InputField,
   Text,
   VStack,
 } from "@gluestack-ui/themed";
@@ -10,78 +8,91 @@ import {
 import { FlatList, Image, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { places } from "@/src/data/places";
+import { PlacesService } from "@/src/api/services/places-service";
+import { Place } from "@/src/types/place";
 
 export default function RecommendationsScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
 
-  const [search, setSearch] = useState("");
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  /* ID мест из params */
-  const { ids } = useLocalSearchParams();
+  // ✔️ безопасный парсинг ids (ТОЛЬКО ОДИН РАЗ)
+  let selectedIds: number[] = [];
 
-  /*
-    Пример передачи:
-    ids: JSON.stringify([1, 2, 3])
-  */
+  try {
+    selectedIds = params.ids
+      ? JSON.parse(params.ids as string)
+      : [];
+  } catch {
+    selectedIds = [];
+  }
 
-  const selectedIds: number[] = useMemo(() => {
-    if (!ids) return [];
+  useEffect(() => {
+    const loadPlaces = async () => {
+      if (!selectedIds.length) {
+        setLoading(false);
+        return;
+      }
 
-    try {
-      return JSON.parse(ids as string);
-    } catch {
-      return [];
-    }
-  }, [ids]);
+      try {
+        const result = await Promise.all(
+          selectedIds.map((id) =>
+            PlacesService.getById(id.toString())
+          )
+        );
 
-  /* Места только по ID */
-  const recommendedPlaces = places.filter((place) =>
-    selectedIds.includes(place.placeId)
-  );
+        setPlaces(result);
+      } catch (error) {
+        console.log("LOAD PLACES ERROR:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  /* Поиск */
-  const filteredPlaces = recommendedPlaces.filter((place) =>
-    place.name.toLowerCase().includes(search.toLowerCase())
-  );
+    loadPlaces();
+  }, [params.ids]);
+
+  // поиск
+  const filteredPlaces = loading
+    ? []
+    : places.filter((place) =>
+        place.name
+          .toLowerCase()
+          .includes("")
+      );
+
+  // loading
+  if (loading) {
+    return (
+      <Box flex={1} justifyContent="center" alignItems="center">
+        <Text>Загрузка...</Text>
+      </Box>
+    );
+  }
 
   return (
     <Box flex={1} bg="$white" px="$4" pt="$12">
 
-      {/* Заголовок */}
-      <Text
-        fontSize="$2xl"
-        fontWeight="$medium"
-        mb="$2"
-        textAlign="center"
-      >
+      <Text fontSize="$2xl" fontWeight="$medium" mb="$4" textAlign="center">
         Подобрали специально для вас
       </Text>
 
-      {/* Если ничего не найдено */}
       {filteredPlaces.length === 0 ? (
-        <Box
-          flex={1}
-          justifyContent="center"
-          alignItems="center"
-          px="$6"
-        >
-          <Text
-            textAlign="center"
-            fontSize="$2xl"
-            fontWeight="$medium"
-            color="$coolGray600"
-          >
+        <Box flex={1} justifyContent="center" alignItems="center" px="$6">
+          <Text textAlign="center" fontSize="$2xl" fontWeight="$medium">
             К сожалению, мы ничего не смогли для вас найти
           </Text>
         </Box>
       ) : (
         <FlatList
           data={filteredPlaces}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item) => item.placeId.toString()}
+          keyExtractor={(item) =>
+            String(item.placeId ?? item.placeId)
+          }
           renderItem={({ item }) => (
             <Pressable
               onPress={() =>
@@ -93,7 +104,6 @@ export default function RecommendationsScreen() {
             >
               <Box mb="$5">
 
-                {/* Картинка */}
                 <Image
                   source={{ uri: item.image }}
                   style={{
@@ -103,109 +113,51 @@ export default function RecommendationsScreen() {
                   }}
                 />
 
-                {/* Контент */}
                 <HStack
                   justifyContent="space-between"
                   alignItems="flex-start"
                   mt="$3"
                 >
-
-                  {/* Левая часть */}
                   <VStack flex={1}>
-
-                    <Text
-                      fontSize="$2xl"
-                      fontWeight="$medium"
-                    >
+                    <Text fontSize="$2xl" fontWeight="$medium">
                       {item.name}
                     </Text>
 
-                    {/* Адрес */}
                     <HStack mt="$2" alignItems="center">
-                      <Ionicons
-                        name="location-outline"
-                        size={15}
-                        color="#A0A0A0"
-                      />
-
-                      <Text
-                        ml="$1"
-                        color="$coolGray500"
-                        fontSize="$md"
-                      >
+                      <Ionicons name="location-outline" size={15} color="#A0A0A0" />
+                      <Text ml="$1" color="$coolGray500">
                         {item.address}
                       </Text>
                     </HStack>
 
-                    {/* Время */}
                     <HStack mt="$1" alignItems="center">
-                      <Ionicons
-                        name="time-outline"
-                        size={15}
-                        color="#A0A0A0"
-                      />
-
-                      <Text
-                        ml="$1"
-                        color="$coolGray500"
-                        fontSize="$md"
-                      >
+                      <Ionicons name="time-outline" size={15} color="#A0A0A0" />
+                      <Text ml="$1" color="$coolGray500">
                         {item.workingHours}
                       </Text>
                     </HStack>
-
                   </VStack>
 
-                  {/* Правая часть */}
-                  <VStack
-                    alignItems="flex-end"
-                    ml="$3"
-                  >
-
-                    {/* Рейтинг */}
+                  <VStack alignItems="flex-end" ml="$3">
                     <HStack alignItems="center">
-                      <Ionicons
-                        name="star-outline"
-                        size={18}
-                        color="#C8F751"
-                      />
-
-                      <Text
-                        ml="$1"
-                        fontSize="$lg"
-                        color="$coolGray700"
-                      >
-                        {item.rate}
-                      </Text>
+                      <Ionicons name="star-outline" size={18} color="#C8F751" />
+                      <Text ml="$1">{item.rate}</Text>
                     </HStack>
 
-                    {/* Категория */}
-                    <Text
-                      mt="$1"
-                      fontSize="$md"
-                      color="$coolGray500"
-                    >
-                      {item.category.toLowerCase()}
+                    <Text mt="$1" color="$coolGray500">
+                      {item.category?.toLowerCase?.() ?? ""}
                     </Text>
 
-                    {/* Лайк */}
                     <Ionicons
                       name="heart-outline"
                       size={22}
                       color="#C8F751"
                       style={{ marginTop: 10 }}
                     />
-
                   </VStack>
                 </HStack>
 
-                {/* Разделитель */}
-                <Box
-                  h={1}
-                  bg="#EAEAEA"
-                  mt="$5"
-                />
-
+                <Box h={1} bg="#EAEAEA" mt="$5" />
               </Box>
             </Pressable>
           )}

@@ -1,183 +1,165 @@
-import React, { useEffect } from "react";  
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Text,
   Button,
   ButtonText,
-  Progress,
   VStack,
   HStack,
   ButtonIcon,
-  Icon
 } from "@gluestack-ui/themed";
-import {ArrowLeftIcon} from "@gluestack-ui/themed"
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { questions } from "@/src/data/questions"
 
+import { questions } from "@/src/data/questions";
+import { QuizService } from "@/src/api/services/quiz-service";
 import { useSurveyStore } from "@/src/store/surveyStore";
 
 export default function SurveyScreen() {
-    const router = useRouter();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-    const {
-        current,
-        answers,
-        selected,
-        setCurrent,
-        setSelected,
-        setAnswer,
-        reset,
-        setStarted,
-        setCompleted,
-    } = useSurveyStore();
+  const {
+    current,
+    answers,
+    setCurrent,
+    setAnswer,
+    reset,
+    setStarted,
+    setCompleted,
+  } = useSurveyStore();
 
-    const question = questions[current];
+  const question = questions[current];
 
-    const handleNext = () => {
-        if (!selected) return;
+  // текущее выбранное значение (БЕЗ selected state)
+  const selected = answers[question.id] || null;
 
-        setAnswer(question.id, selected);
+  const handleNext = async () => {
+    const currentAnswer = answers[question.id];
 
-        if (current < questions.length - 1) {
-        const next = current + 1;
+    if (!currentAnswer) return;
 
-        setCurrent(next);
+    // если НЕ последний вопрос → следующий
+    if (current < questions.length - 1) {
+      setCurrent(current + 1);
+      return;
+    }
 
-        const nextQuestion = questions[next];
-        setSelected(answers[nextQuestion.id] || null);
-        } else {
-        const result = {
-            ...answers,
-            [question.id]: selected,
-        };
+    // если последний вопрос → отправка
+    try {
+      setLoading(true);
 
-        console.log("Опрос завершён", result);
+      const res = await QuizService.submit(answers);
 
-        setCompleted(true);
+      setCompleted(true);
 
-        router.push("/(tabs)/home");
-        }
-    };
+      router.replace({
+        pathname: "/final_page",
+        params: {
+          ids: JSON.stringify(res.ids),
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleBack = () => {
-        if (current > 0) {
-        const prev = current - 1;
-        setCurrent(prev);
+  const handleBack = () => {
+    if (current > 0) {
+      setCurrent(current - 1);
+    }
+  };
 
-        const prevQuestion = questions[prev];
-        setSelected(answers[prevQuestion.id] || null);
-        }
-    };
-
-    useEffect(() => {
-        setStarted(true);
-    }, []);
+  useEffect(() => {
+    reset();
+    setStarted(true);
+  }, []);
 
   const progress = ((current + 1) / questions.length) * 100;
 
-    return (
-    <Box 
-        flex={1} 
-        bg="$backgroundLight0" 
-        px="$5" 
-        py="$6"
-        position="relative"
-        justifyContent="space-between"
-    >
-      
-        <Box pt="$8" mb="$6">
+  return (
+    <Box flex={1} bg="$backgroundLight0" px="$5" py="$6" justifyContent="space-between">
+
+      {/* progress */}
+      <Box pt="$8" mb="$6">
         <HStack space="xs">
-            {questions.map((q, index) => {
-                const isActive =
-                    index < current + 1;
+          {questions.map((_, index) => {
+            const isActive = index <= current;
 
             return (
-                <Box
+              <Box
                 key={index}
                 flex={1}
                 height={6}
                 borderRadius={10}
                 bg={isActive ? "#C8F751" : "#E5E5E5"}
-                />
+              />
             );
-            })}
+          })}
         </HStack>
-        </Box>
+      </Box>
 
-        <VStack flex={1} justifyContent="space-between" gap="$20">
+      <VStack flex={1} justifyContent="space-between" gap="$20">
 
-            {/* TODO: кнопка назад */}
-            <HStack alignItems="flex-start" justifyContent="flex-start"> 
-                <Box alignItems="flex-start">
-                    {current > 0 && (
-                        <Button
-                            size="sm"
-                            borderRadius="$full"
-                            onPress={handleBack}
-                            variant="link"
-                            bg = "none"
-                        >
-                            <ButtonIcon >
-                                <Ionicons name="chevron-back" size={18} color="#000" />
-                            
-                            </ButtonIcon>
-                        </Button>
-                    )}
-                </Box>
+        {/* header */}
+        <HStack alignItems="flex-start">
+          {current > 0 && (
+            <Button size="sm" variant="link" onPress={handleBack}>
+              <ButtonIcon>
+                <Ionicons name="chevron-back" size={18} color="#000" />
+              </ButtonIcon>
+            </Button>
+          )}
 
-                <Text size="2xl" flex={1} ml = "$3">
-                    {question.text}
-                </Text>
+          <Text size="2xl" flex={1} ml="$3">
+            {question.text}
+          </Text>
+        </HStack>
 
-                {/* <Box width={10} /> */}
-            </HStack>
+        {/* options */}
+        <HStack flexWrap="wrap" gap="$3" mt="auto">
+          {question.options.map((option) => {
+            const isActive = selected === option.value;
 
-            {/* Выборы */}
-            <HStack flexWrap="wrap" justifyContent="flex-start" mt="auto" gap="$3">
-                {question.options.map((option) => {
-                    const isActive = selected === option.value;
+            return (
+              <Button
+                key={option.value}
+                onPress={() => setAnswer(question.id, option.value)}
+                variant="outline"
+                borderRadius="$xl"
+                borderColor={isActive ? "#C8F751" : "#CECECE"}
+                flexGrow={1}
+                minWidth={120}
+                height={46}
+                mt="$3"
+              >
+                <ButtonText color="#000">
+                  {option.label}
+                </ButtonText>
+              </Button>
+            );
+          })}
+        </HStack>
 
-                    return (
-                    <Button
-                        key={option.value}
-                        onPress={() => setSelected(option.value)}
-                        variant="outline"
-                        borderRadius="$xl"
-                        borderColor={isActive ? "#C8F751" : "#CECECE"}
+        {/* next */}
+        <HStack justifyContent="flex-end">
+          <Box width="50%">
+            <Button
+              onPress={handleNext}
+              isDisabled={!selected || loading}
+              borderRadius="$xl"
+              variant="outline"
+              width="100%"
+              height={46}
+            >
+              <Ionicons name="chevron-forward-outline" size={24} color="#000" />
+            </Button>
+          </Box>
+        </HStack>
 
-                        flexGrow={1}
-                        minWidth={120}
-                        height={46}
-                        mt="$3"
-                    >
-                        <ButtonText color="#000000" size="xl">
-                            {option.label}
-                        </ButtonText>
-                    </Button>
-                    );
-                })}
-            </HStack>
-      
-            <HStack justifyContent="flex-end" mt="$6">
-                <Box width="50%">
-                    <Button
-                        onPress={handleNext}
-                        isDisabled={!selected}
-                        variant="outline"
-                        borderRadius="$xl"
-                        borderColor = "#CECECE"
-                        bg="transparent"
-                        width="100%"
-                        height={46}
-                        
-                    >
-                        <Ionicons name="chevron-forward-outline" size={24} color="#000"/>
-                    </Button>
-                </Box>
-            </HStack>
-      
       </VStack>
     </Box>
-    );
+  );
 }
