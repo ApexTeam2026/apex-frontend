@@ -25,9 +25,8 @@ export default function FiltersScreen() {
     const router = useRouter();
 
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedDistrict, setSelectedDistrict] = useState("");
+    const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
 
-    // 1. ДОБАВЛЕНО: Стейты для цены
     const [priceFrom, setPriceFrom] = useState("");
     const [priceTo, setPriceTo] = useState("");
 
@@ -49,6 +48,14 @@ export default function FiltersScreen() {
         );
     };
 
+    const toggleDistrict = (district: string) => {
+        setSelectedDistricts((prev) =>
+            prev.includes(district)
+            ? prev.filter((d) => d !== district)
+            : [...prev, district]
+        );
+    };
+
     const toggleTime = (val: string) => {
         setSelectedTime(prev =>
             prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
@@ -67,7 +74,7 @@ export default function FiltersScreen() {
         setSelectedTime([]);
         setSelectedPeople([]);
         setSelectedTags([]);
-        setSelectedDistrict("");
+        setSelectedDistricts([]);
         setPriceFrom("");
         setPriceTo("");
 
@@ -86,13 +93,128 @@ export default function FiltersScreen() {
     };
 
     const ALL_CATEGORIES = [
-        "фитнес-центр", "Стадион", "Прокат велосипедов", "Бассейны", "Яхт-клуб",
-        "Картинг", "Квесты", "spa-салон", "термы", "кофейни", "фаст-фуд",
-        "рестораны национальной кухни", "рестораны/кафе", "винотеки",
-        "музеи, галереи, выставочные залы", "филармонии, концертные залы",
-        "театры", "кино", "мастерские,мастер классы", "достопримечательности",
-        "танцевальные клубы", "бары,рюмочные", "эко-тропы", "парки, скверы, сады",
-        "зоопарк", "локальные бренды", "сувенирная лавка"
+        {
+            value: "Фитнес-центр",
+            label: "Фитнес-центр",
+        },
+        {
+            value: "Стадион",
+            label: "Стадион",
+        },
+        {
+            value: "Прокат велосипедов",
+            label: "Прокат велосипедов",
+        },
+        {
+            value: "Бассейны",
+            label: "Бассейны",
+        },
+        {
+            value: "Яхт-клуб",
+            label: "Яхт-клуб",
+        },
+        {
+            value: "Картинг",
+            label: "Картинг",
+        },
+        {
+            value: "Квесты",
+            label: "Квесты",
+        },
+        {
+            value: "SPA-салон",
+            label: "SPA-салон",
+        },
+        {
+            value: "Термы",
+            label: "Термы",
+        },
+        {
+            value: "Кофейни",
+            label: "Кофейни",
+        },
+        {
+            value: "Фаст-фуд",
+            label: "Фаст-фуд",
+        },
+        {
+            value: "Рестораны национальной кухни",
+            label: "Рестораны национальной кухни",
+        },
+        {
+            value: "Рестораны/Кафе",
+            label: "Рестораны, кафе",
+        },
+        {
+            value: "Винотеки",
+            label: "Винотеки",
+        },
+        {
+            value: "Музеи/Галереи/Выставочные залы",
+            label: "Музеи, галереи, выставочные залы",
+        },
+        {
+            value: "Филармонии/Концертные залы",
+            label: "Филармонии, концертные залы",
+        },
+        {
+            value: "Театры",
+            label: "Театры",
+        },
+        {
+            value: "Кино",
+            label: "Кино",
+        },
+        {
+            value: "Мастерские/Мастер классы",
+            label: "Мастерские, мастер-классы",
+        },
+        {
+            value: "Достопримечательности",
+            label: "Достопримечательности",
+        },
+        {
+            value: "Танцевальные клубы",
+            label: "Танцевальные клубы",
+        },
+        {
+            value: "Бары/Рюмочные",
+            label: "Бары, рюмочные",
+        },
+        {
+            value: "Эко-тропы",
+            label: "Эко-тропы",
+        },
+        {
+            value: "Парки/Скверы/Сады",
+            label: "Парки, скверы, сады",
+        },
+        {
+            value: "Зоопарк",
+            label: "Зоопарк",
+        },
+        {
+            value: "Локальные бренды",
+            label: "Локальные бренды",
+        },
+        {
+            value: "Сувенирная лавка",
+            label: "Сувенирная лавка",
+        },
+    ];
+
+    const TIME_OPTIONS = [
+        { label: "Утро", value: "morning" },
+        { label: "День", value: "daytime" },
+        { label: "Вечер", value: "evening" },
+        { label: "Ночь", value: "night" },
+    ];
+
+    const PEOPLE_OPTIONS = [
+        { label: "Один", value: "solo" },
+        { label: "Компания друзей", value: "friends" },
+        { label: "С семьей", value: "family" },
+        { label: "С детьми", value: "kids" },
     ];
 
     return (
@@ -150,22 +272,35 @@ export default function FiltersScreen() {
                             <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Район</Text>
                             <Pressable onPress={() => setIsOpen(!isOpen)}>
                                 <Box borderWidth={1} borderColor="#CECECE" borderRadius="$xl" px="$4" py={isTablet ? "$4" : "$2.5"}>
-                                    <Text fontSize={isTablet ? 18 : 15} color={selectedDistrict ? "#000" : "#E5E5E5"} fontWeight="$light">
-                                        {selectedDistrict || "Выберите район"}
+                                    <Text fontSize={isTablet ? 18 : 15} color={selectedDistricts.length > 0 ? "#000" : "#E5E5E5"} fontWeight="$light">
+                                        {selectedDistricts.length > 0
+                                        ? selectedDistricts.join(", ")
+                                        : "Выберите район"}
                                     </Text>
                                     {isOpen && (
                                         <VStack space="xs" mt="$3" borderTopWidth={1} borderTopColor="#F2F2F2" pt="$2">
+                                            <Pressable
+                                            onPress={() => setSelectedDistricts([])}
+                                            >
+                                            <Text
+                                                color="#FF6B6B"
+                                                fontSize={15}
+                                                py="$2"
+                                            >
+                                                Снять выбор районов
+                                            </Text>
+                                            </Pressable>
+                                            
                                             {districts.map((item) => {
                                                
-                                                const isSelected = selectedDistrict === item;
+                                                const isSelected = selectedDistricts.includes(item);
 
                                                 return (
                                                     <Pressable
                                                         key={item}
                                                         onPress={() => {
-                                                            
-                                                            setSelectedDistrict(isSelected ? "" : item);
-                                                            setIsOpen(false);
+                                                            toggleDistrict(item);
+                                                            //setIsOpen(false);
                                                         }}
                                                         style={({ pressed }) => ({
                                                             backgroundColor: isSelected ? "#F9F9F9" : (pressed ? "#F2F2F2" : "transparent"),
@@ -173,19 +308,39 @@ export default function FiltersScreen() {
                                                             paddingHorizontal: 8
                                                         })}
                                                     >
-                                                        <HStack justifyContent="space-between" alignItems="center" py="$2">
-                                                            <Text
-                                                                color={isSelected ? "#C8F751" : "#666"} 
-                                                                fontSize={16}
-                                                                fontWeight={isSelected ? "$medium" : "$light"}
-                                                            >
-                                                                {item}
-                                                            </Text>
+                                                        <HStack
+                                                            justifyContent="space-between"
+                                                            alignItems="center"
+                                                            py="$2"
+                                                        >
+                                                            <HStack alignItems="center" space="sm">
+                                                                <Box
+                                                                    w={20}
+                                                                    h={20}
+                                                                    borderWidth={1}
+                                                                    borderRadius={4}
+                                                                    borderColor={isSelected ? "#C8F751" : "#CECECE"}
+                                                                    bg={isSelected ? "#C8F751" : "transparent"}
+                                                                    justifyContent="center"
+                                                                    alignItems="center"
+                                                                >
+                                                                    {isSelected && (
+                                                                        <Ionicons
+                                                                            name="checkmark"
+                                                                            size={14}
+                                                                            color="#000"
+                                                                        />
+                                                                    )}
+                                                                </Box>
 
-                                                           
-                                                            {isSelected && (
-                                                                <Ionicons name="checkmark" size={18} color="#C8F751" />
-                                                            )}
+                                                                <Text
+                                                                    color="#000"
+                                                                    fontSize={16}
+                                                                    fontWeight="$light"
+                                                                >
+                                                                    {item}
+                                                                </Text>
+                                                            </HStack>
                                                         </HStack>
                                                     </Pressable>
                                                 );
@@ -203,15 +358,15 @@ export default function FiltersScreen() {
                         <HStack flexWrap="wrap" justifyContent="space-between">
                             {ALL_CATEGORIES.map((cat) => (
                                 <Box
-                                    key={cat}
+                                    key={cat.value}
                                     w={isTablet ? "31%" : "48%"}
                                     minHeight={45} 
                                     mb="$2"
                                 >
                                     <FilterCheckbox
-                                        label={cat}
-                                        selected={selectedCategories.includes(cat)}
-                                        onToggle={() => toggleCategory(cat)}
+                                        label={cat.label}
+                                        selected={selectedCategories.includes(cat.value)}
+                                        onToggle={() => toggleCategory(cat.value)}
                                     />
                                 </Box>
                             ))}
@@ -223,12 +378,12 @@ export default function FiltersScreen() {
                         <VStack space="xs" flex={1}>
                             <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Время посещения</Text>
                             <HStack flexWrap="wrap">
-                                {["Утро", "День", "Вечер", "Ночь"].map((l) => (
-                                    <Box key={l} w={isTablet ? "50%" : "100%"}>
+                                {TIME_OPTIONS.map((item) => (
+                                    <Box key={item.value} w={isTablet ? "50%" : "100%"}>
                                         <FilterCheckbox
-                                            label={l}
-                                            selected={selectedTime.includes(l)}
-                                            onToggle={() => toggleTime(l)}
+                                        label={item.label}
+                                        selected={selectedTime.includes(item.value)}
+                                        onToggle={() => toggleTime(item.value)}
                                         />
                                     </Box>
                                 ))}
@@ -238,14 +393,14 @@ export default function FiltersScreen() {
                         <VStack space="xs" flex={1}>
                             <Text fontSize={isTablet ? 22 : 18} fontWeight="$medium" color="#000" mb="$1">Количество людей</Text>
                             <HStack flexWrap="wrap">
-                                {["Один", "Вдвоем", "Компания", "С семьей"].map((l) => (
-                                    <Box key={l} w={isTablet ? "50%" : "100%"}>
-                                        <FilterCheckbox
-                                            label={l}
-                                            selected={selectedPeople.includes(l)}
-                                            onToggle={() => togglePeople(l)}
-                                        />
-                                    </Box>
+                                {PEOPLE_OPTIONS.map((item) => (
+                                <Box key={item.value} w={isTablet ? "50%" : "100%"}>
+                                    <FilterCheckbox
+                                    label={item.label}
+                                    selected={selectedPeople.includes(item.value)}
+                                    onToggle={() => togglePeople(item.value)}
+                                    />
+                                </Box>
                                 ))}
                             </HStack>
                         </VStack>
@@ -278,7 +433,7 @@ export default function FiltersScreen() {
                                         categories: JSON.stringify(selectedCategories),
                                         time: JSON.stringify(selectedTime),
                                         people: JSON.stringify(selectedPeople),
-                                        district: selectedDistrict,
+                                        district: JSON.stringify(selectedDistricts),
                                         priceFrom: priceFrom,
                                         priceTo: priceTo,
                                     },
@@ -314,8 +469,15 @@ const FilterCheckbox = ({
             size="md" 
         >
             <HStack alignItems="flex-start" w="$full">
-                <CheckboxIndicator mr="$2" borderColor="#CECECE" borderRadius={4} w={20} h={20} mt="$0.5">
-                    <CheckboxIcon as={CheckIcon} color="#C8F751" size="xs" />
+                <CheckboxIndicator 
+                    mr="$2" 
+                    borderColor={selected ? "#C8F751" : "#CECECE"}
+                    bg={selected ? "#C8F751" : "transparent"} 
+                    borderRadius={4} 
+                    w={20} 
+                    h={20} 
+                    mt="$0.5">
+                    <CheckboxIcon as={CheckIcon} color={selected ? "#000" : "transparent"} size="xs" />
                 </CheckboxIndicator>
 
                 <CheckboxLabel

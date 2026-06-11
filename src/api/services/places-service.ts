@@ -1,5 +1,15 @@
 import apiClient from "../client";
 import { endpoints } from "../endpoints";
+interface PlacesFilters {
+  categories?: string[];
+  districts?: string[];
+  avgCheckMin?: number;
+  avgCheckMax?: number;
+  timeOfDay?: string[];
+  suitableFor?: string[];
+  sortBy?: string;
+  sortDir?: "asc" | "desc";
+}
 
 const normalizePlace = (place: any) => {
   let photos: string[] = [];
@@ -25,10 +35,37 @@ const normalizePlace = (place: any) => {
 };
 
 export const PlacesService = {
-  getAll: async () => {
-    const res = await apiClient.get(endpoints.places.list);
+  getAll: async (filters?: PlacesFilters) => {
+    const res = await apiClient.get(endpoints.places.list, {
+      params: filters,
 
-    return res.data.map(normalizePlace);
+      paramsSerializer: (params) => {
+        const searchParams = new URLSearchParams();
+
+        Object.entries(params).forEach(([key, value]) => {
+          if (value === undefined || value === null) {
+            return;
+          }
+
+          if (Array.isArray(value)) {
+            value.forEach((item) => {
+              searchParams.append(key, String(item));
+            });
+          } else {
+            searchParams.append(key, String(value));
+          }
+        });
+
+        const query = searchParams.toString();
+        console.log("QUERY:", query);
+
+        return query;
+      },
+    });
+
+    return Array.isArray(res.data)
+      ? res.data.map(normalizePlace)
+      : [];
   },
 
   getById: async (id: string) => {

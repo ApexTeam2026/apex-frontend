@@ -30,24 +30,110 @@ export default function AllPlacesScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [networkError, setNetworkError] = useState(false);
 
-    const { categories, time, people, tags, district, priceFrom, priceTo } = useLocalSearchParams();
+    const {
+        categories,
+        time,
+        people,
+        district,
+        priceFrom,
+        priceTo,
+    } = useLocalSearchParams();
 
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [selectedTime, setSelectedTime] = useState<string[]>([]);
-    const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const districtValue =
+        typeof district === "string"
+            ? district
+            : undefined;
+
+    const priceFromValue =
+    typeof priceFrom === "string" && priceFrom.trim() !== ""
+        ? Number(priceFrom)
+        : undefined;
+
+    const priceToValue =
+    typeof priceTo === "string" && priceTo.trim() !== ""
+        ? Number(priceTo)
+        : undefined;
 
     // ---------------- API ----------------
+    console.log("PARAMS", {
+        categories,
+        time,
+        people,
+        district,
+        priceFrom,
+        priceTo,
+    });
     const fetchPlaces = async () => {
         try {
             setIsLoading(true);
             setNetworkError(false);
 
-            const data = await PlacesService.getAll();
-            setPlacesData(data || []);
+            const parseSafe = (val: unknown): string[] => {
+                if (!val || typeof val !== "string") {
+                    return [];
+                }
 
+                try {
+                    const parsed = JSON.parse(val);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch {
+                    return [];
+                }
+            };
+
+            const categoriesFilter = parseSafe(categories);
+            const timeFilter = parseSafe(time);
+            const peopleFilter = parseSafe(people);
+            const districtsFilter = parseSafe(district);
+
+            const filters = {
+                categories:
+                    categoriesFilter.length > 0
+                        ? categoriesFilter
+                        : undefined,
+
+                districts:
+                    districtsFilter.length > 0
+                        ? districtsFilter
+                        : undefined,
+
+                avgCheckMin: priceFromValue,
+
+                avgCheckMax: priceToValue,
+
+                timeOfDay:
+                    timeFilter.length > 0
+                        ? timeFilter
+                        : undefined,
+
+                suitableFor:
+                    peopleFilter.length > 0
+                        ? peopleFilter
+                        : undefined,
+
+                sortBy: "name",
+                sortDir: "asc" as const,
+            };
+
+            console.log("FILTERS:", filters);
+            console.log("FILTERS", JSON.stringify(filters, null, 2));
+
+            console.log(
+                "CATEGORY TYPE:",
+                typeof filters.categories,
+                filters.categories
+            );
+
+            const data = await PlacesService.getAll(filters);
+            //console.log("DATA", data);
+
+            setPlacesData(data || []);
         } catch (e: any) {
-            console.log("GET PLACES ERROR:", e?.message);
+            console.log(
+                "GET PLACES ERROR:",
+                e?.response?.data || e?.message
+            );
+
             setNetworkError(true);
         } finally {
             setIsLoading(false);
@@ -56,105 +142,29 @@ export default function AllPlacesScreen() {
 
     useEffect(() => {
         fetchPlaces();
-    }, []);
+    }, [
+        categories,
+        time,
+        people,
+        district,
+        priceFrom,
+        priceTo,
+    ]);
 
-    // ---------------- filters from params ----------------
-    useEffect(() => {
-        const parseSafe = (val: any) => {
-            if (!val) return [];
-            try { return JSON.parse(val as string); }
-            catch (e) { return []; }
-        };
-        setSelectedCategories(parseSafe(categories));
-        setSelectedTime(parseSafe(time));
-        setSelectedPeople(parseSafe(people));
-        setSelectedTags(parseSafe(tags));
-    }, [categories, time, people, tags]);
+    const filteredPlaces = useMemo(() => {
+        const query = search.trim().toLowerCase();
+
+        if (!query) return placesData;
+
+        return placesData.filter((place) =>
+            place.name?.toLowerCase().includes(query) ||
+            place.category?.toLowerCase().includes(query) ||
+            place.district?.toLowerCase().includes(query) ||
+            place.address?.toLowerCase().includes(query)
+        );
+    }, [placesData, search]);
 
     const normalize = (str?: string) => (str ?? "").trim().toLowerCase();
-
-    const isNoFilters =
-        selectedCategories.length === 0 &&
-        selectedTime.length === 0 &&
-        selectedPeople.length === 0 &&
-        selectedTags.length === 0 &&
-        !district && !priceFrom && !priceTo;
-
-    // ---------------- filtering ----------------
-    const filteredPlaces = useMemo(() => {
-        const norm = (str?: string) => (str ?? "").trim().toLowerCase();
-
-        return placesData.filter((place) => {
-            // 1. Поиск по имени
-            const matchesSearch = norm(place.name).includes(norm(search));
-            if (isNoFilters && !search) return matchesSearch;
-
-            // 2. Район
-            const matchesDistrict = !district ||
-                norm(place.district).includes(norm(district as string));
-
-            // 3. Цена
-            const placePrice = place.averageCheck || 0;
-            const matchesPrice =
-                (!priceFrom || placePrice >= Number(priceFrom)) &&
-                (!priceTo || placePrice <= Number(priceTo));
-
-            // 4. Категории
-            const matchesCategory = selectedCategories.length === 0 ||
-                selectedCategories.some(cat => norm(cat) === norm(place.category));
-
-            // 5. Теги
-            const matchesTags = selectedTags.length === 0 ||
-                selectedTags.every((tag) =>
-                    (place.tags || []).map(norm).includes(norm(tag))
-                );
-
-            // --- ИСПРАВЛЕННАЯ ЛОГИКА ДЛЯ ВРЕМЕНИ ---
-            const matchesTime = selectedTime.length === 0 ||
-                selectedTime.some((st) => {
-                    // Делаем проверку: есть ли выбранное пользователем время в данных объекта
-                    const placeTimes = Array.isArray(place.timeOfDay)
-                        ? place.timeOfDay
-                        : [place.timeOfDay]; // на случай если пришла строка
-                    return placeTimes.map(norm).includes(norm(st));
-                });
-
-            // --- ИСПРАВЛЕННАЯ ЛОГИКА ДЛЯ ЛЮДЕЙ ---
-            const matchesPeople = selectedPeople.length === 0 ||
-                selectedPeople.some((sp) => {
-                    // Проверяем: подходит ли место для выбранного количества людей
-                    const placeSuitable = Array.isArray(place.suitableFor)
-                        ? place.suitableFor
-                        : [place.suitableFor];
-                    return placeSuitable.map(norm).includes(norm(sp));
-                });
-
-            // Место отобразится, только если прошли ВСЕ фильтры
-            return matchesSearch && matchesDistrict && matchesPrice &&
-                matchesTags && matchesCategory && matchesTime && matchesPeople;
-        });
-    }, [placesData, search, selectedCategories, selectedTime, selectedPeople, selectedTags, district, priceFrom, priceTo]);
-
-    // ---------------- RENDER ----------------
-    // const renderItem = React.useCallback(
-    //     ({ item }: { item: Place }) => (
-    //         <Box flex={1} mb="$2">
-    //         <PlaceCard
-    //             place={item}
-    //             onPress={() =>
-    //             router.push({
-    //                 pathname: "/detailed_place",
-    //                 params: {
-    //                 id: item.placeId.toString(),
-    //                 from: "all-places",
-    //                 },
-    //             })
-    //             }
-    //         />
-    //         </Box>
-    //     ),
-    //     [router]
-    // );
 
     if (isLoading) {
         return (
@@ -208,21 +218,21 @@ export default function AllPlacesScreen() {
                     columnWrapperStyle={isTablet ? { gap: 20 } : undefined}
                     contentContainerStyle={{ paddingBottom: 20 }}
                     renderItem={({ item }) => (
-  <Box flex={1} mb="$2">
-    <PlaceCard
-      place={item}
-      onPress={() =>
-        router.push({
-          pathname: "/detailed_place",
-          params: {
-            id: item.placeId.toString(),
-            from: "all-places",
-          },
-        })
-      }
-    />
-  </Box>
-)}
+                    <Box flex={1} mb="$2">
+                        <PlaceCard
+                        place={item}
+                        onPress={() =>
+                            router.push({
+                            pathname: "/detailed_place",
+                            params: {
+                                id: item.placeId.toString(),
+                                from: "all-places",
+                            },
+                            })
+                        }
+                        />
+                    </Box>
+                    )}
                     ListEmptyComponent={() => (
                         <Box mt="$10" alignItems="center">
                             <Text fontSize={18} color="$coolGray500">Ничего не найдено 😢</Text>
