@@ -18,6 +18,7 @@ export default function RecommendationsScreen() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
 console.log("RAW PARAMS IDS:", params.ids);
+
   // ✔️ НОРМАЛЬНЫЙ PARSING IDS
   const selectedIds = useMemo(() => {
   if (!params.ids || typeof params.ids !== "string") return [];
@@ -27,7 +28,7 @@ console.log("RAW PARAMS IDS:", params.ids);
     .map(Number)
     .filter(Boolean);
 }, [params.ids]);
-
+console.log("SELECTED IDS:", selectedIds);
   useEffect(() => {
     const loadPlaces = async () => {
       setLoading(true);
@@ -87,9 +88,13 @@ console.log("RAW PARAMS IDS:", params.ids);
               place={item}
               onPress={() =>
                 router.push({
-                  pathname: "/detailed_place",
-                  params: { id: String(item.placeId) },
-                })
+  pathname: "/detailed_place",
+  params: {
+  id: String(item.placeId),
+  from: "final_page",
+  ids: String(params.ids),
+},
+})
               }
             />
           )}

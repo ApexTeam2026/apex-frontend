@@ -77,17 +77,17 @@ const buildQuizPayload = (answers: Record<string, string>) => {
 
   console.log("QUIZ RESPONSE:", res);
 
-  const ids = Array.isArray(res?.ids) ? res.ids : [];
+  const ids = Array.isArray(res) ? res : [];
 
   if (ids.length === 0) {
     console.log("NO MATCHING PLACES FOUND");;
   }
     setCompleted(true);
     console.log("NAVIGATING NOW");
-  router.replace({
+  router.push({
   pathname: "/final_page",
   params: {
-    ids: JSON.stringify(res),
+    ids: ids.join(","),
   },
 });
 

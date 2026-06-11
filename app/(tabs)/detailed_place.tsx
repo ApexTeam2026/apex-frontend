@@ -147,7 +147,7 @@ const tagIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
     classic: "star-outline",
 };
 export default function PlaceScreen() {
-    const { id, from } = useLocalSearchParams();
+    const { id, from, ids } = useLocalSearchParams();
     const [place, setPlace] = useState<Place | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     //const [rating, setRating] = useState<number>(0);
@@ -155,7 +155,7 @@ export default function PlaceScreen() {
 
     const [showAuthModal, setShowAuthModal] =
     useState(false);
-
+    
     const [showRatingAuthModal, setShowRatingAuthModal] =
     useState(false);
 
@@ -263,30 +263,31 @@ export default function PlaceScreen() {
             }
         };
 
-    const handleBack = () => {
 
-        if (from === "favorites") {
 
-            router.push("/favorites");
+const handleBack = () => {
+  if (from === "final_page") {
+    router.push({
+      pathname: "/final_page",
+      params: {
+        ids: String(ids),
+      },
+    });
 
-            return;
-        }
+    return;
+  }
+  if(from === "visited") {
+    router.push("/visited")
+    return;
 
-        if (from === "visited") {
+  }
+  if(from === "favorites") {
+    router.push("/favorites")
+    return;
 
-            router.push("/visited");
-
-            return;
-        }
-        if (from == "final_page") {
-            router.push ("/final_page");
-
-            return;
-        }
-
-        router.push("/all-places");
-    };
-
+  }
+  router.push("/all-places");
+};
 
     return (
         <Box flex={1} bg="$backgroundLight0">
@@ -327,10 +328,13 @@ export default function PlaceScreen() {
                 <Box px="$5" py="$4">
 
                     {/* Название + лайк */}
-                    <HStack justifyContent="space-between" alignItems="center">
+                    <HStack justifyContent="space-between" alignItems="flex-start" space="sm">
                         <Text 
+                            flex = {1}
+                            flexWrap="wrap"
                             fontSize="$2xl" 
                             color = "#000" 
+                            mr="$2"
                             style={{
                                 fontFamily:
                                     "Montserrat_600SemiBold",
