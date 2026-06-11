@@ -274,20 +274,19 @@ const handleBack = () => {
       },
     });
 
-    return;
-  }
-  if(from === "visited") {
-    router.push("/visited")
-    return;
+            return;
+        }
 
-  }
-  if(from === "favorites") {
-    router.push("/favorites")
-    return;
+        if (from === "visited") {
 
-  }
-  router.push("/all-places");
-};
+            router.push("/visited");
+
+            return;
+        }
+
+        router.push("/all-places");
+    };
+
 
     return (
         <Box flex={1} bg="$backgroundLight0">

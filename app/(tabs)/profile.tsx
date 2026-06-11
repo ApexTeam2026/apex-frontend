@@ -30,6 +30,14 @@ export default function ProfileScreen() {
         router.replace("/(tabs)/profile");
     };
 
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return "Дата не указана";
+
+        const date = new Date(dateString);
+
+        return date.toLocaleDateString("ru-RU");
+    };
+
     if (user === undefined) return null;
 
     if (user) {
@@ -73,7 +81,7 @@ export default function ProfileScreen() {
                                     </Text>
 
                                     <Text color="$textLight500">
-                                        {user?.birthDate || ""}
+                                        {formatDate(user?.birthDate)}
                                     </Text>
 
                                     <Text color="$textLight500">

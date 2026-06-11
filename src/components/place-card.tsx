@@ -58,8 +58,17 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         await toggleFavorite(place.placeId);
     };
 
+  const formatAddress = (address?: string) => {
+  if (!address) return "Адрес не указан";
+
+  return address
+    .replace(/^г\.?\s*Пермь,?\s*/i, "")
+    .replace(/^Пермь,\s*/i, "")
+    .trim();
+  };
+
   const placeName = place.name || "Без названия";
-  const placeAddress = place.address || "Адрес не указан";
+  const placeAddress = formatAddress(place.address);
   const placeHours = place.workingHours || "Время работы неизвестно";
   const placeCategory = place.category || "Без категории";
 
@@ -67,6 +76,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   place.rate && Number(place.rate) > 0
     ? place.rate
     : "Нет оценки";
+
 
   return (
 
@@ -146,7 +156,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
           >
 
             {/* left */}
-            <VStack space="xs">
+            <VStack space="xs" flex={1} maxWidth="75%">
 
               {/* address */}
               <HStack gap={5}>
@@ -177,7 +187,8 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
                   flex={1}
                   fontSize="$sm"
                   color="$gray500"
-                  flexWrap="wrap"
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
                 >
                   {placeHours}
                 </Text>
@@ -189,13 +200,14 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
             <VStack
               alignItems="flex-end"
               space="xs"
+              width={120}
             >
 
               <Text
                 fontSize="$sm"
                 color="$gray400"
                 textAlign="right"
-                maxWidth={100}
+                numberOfLines={2}
               >
                 {placeCategory}
               </Text>
