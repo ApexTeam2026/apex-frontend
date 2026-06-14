@@ -41,6 +41,15 @@ export const questions: Question[] = [
     ],
   },
   {
+  id: "activity",
+  text: "Какой отдых вы предпочитаете?",
+  options: [
+    { label: "Активный", value: "active" },
+    { label: "Спокойный", value: "chill" },
+    { label: "Неважно", value: "any" },
+  ],
+},
+  {
     id: "timeOfDay",
     text: "В какое время планируете идти?",
     options: [
