@@ -12,6 +12,7 @@ import { useFavorites } from "@/src/providers/FavoritesProvider";
 import { UserPlaceService } from "@/src/api/services/user-place-service";
 import { useAuth } from "@/src/hooks/useAuth";
 import NetworkError from "@/src/components/network-error";
+import { LoadingOverlay } from "@/src/components/ui/loading-overlay";
 
 export default function VisitedScreen() {
     const router = useRouter();
@@ -26,11 +27,12 @@ export default function VisitedScreen() {
 
     const { favoriteIds } = useFavorites();
 
-    
+
     const fetchFavoritePlaces = async () => {
 
         if (!user) {
             setPlaces([]);
+            setLoading(false);
             return;
         }
 
@@ -80,7 +82,7 @@ export default function VisitedScreen() {
                 error?.response?.data ||
                 error.message
             );
-            
+
             if (error.isNetworkError) {
                 setNetworkError(true);
             }
@@ -98,44 +100,42 @@ export default function VisitedScreen() {
     console.log("FAVORITE IDS IN SCREEN:", favoriteIds);
 
 
-    if (loading) {
-        return (
-            <Center flex={1}>
-                <Text>Загрузка...</Text>
-            </Center>
-        );
-    }
-
     if (networkError) {
         return (
-          <NetworkError
-            onRetry={fetchFavoritePlaces}
-          />
+            <NetworkError
+                onRetry={fetchFavoritePlaces}
+            />
         );
     }
     return (
         <Box flex={1} bg="$backgroundLight0">
-                <VStack
-                    flex={1}
-                    px={isTablet ? "$20" : "$6"}
-                    py={isTablet ? "$10" : "$6"}
-                    justifyContent="space-between"
-                    minHeight={isTablet ? 400 : 350} 
+            {loading && <LoadingOverlay />}
+
+            <VStack
+                flex={1}
+                px={isTablet ? "$20" : "$6"}
+                py={isTablet ? "$10" : "$6"}
+                justifyContent="space-between"
+                minHeight={isTablet ? 400 : 350}
+            >
+
+                {/* 1. Заголовок */}
+                <Text
+                    mt={isTablet ? "$20" : "$12"}
+                    fontSize={
+                        isTablet
+                            ? "$4xl"
+                            : "$2xl"
+                    }
+                    //fontWeight="$bold"
+                    color="#000"
                 >
+                    Избранные
+                </Text>
 
-                    {/* 1. Заголовок */}
-                    <Text
-                        mt={isTablet ? "$20" : "$12"}
-                        fontSize={isTablet ? "$4xl" : "$2xl"}
-                        //fontWeight="$bold"
-                        color="#000"
-                    >
-                        Избранные
-                    </Text>
-
-                    {/* 2. Пустое состояние */}
-                    {places.length === 0 ? (
-                        <>
+                {/* 2. Пустое состояние */}
+                {places.length === 0 && !loading ? (
+                    <>
                         <Center flex={1} py="$10">
                             <Text
                                 textAlign="center"
@@ -169,42 +169,43 @@ export default function VisitedScreen() {
                             </Button>
                         </Box>
                     </>
-                    ) : (
-                        
-                        <FlatList
-                            data={places}
-                            showsVerticalScrollIndicator={false}
-                            keyExtractor={(item) =>
-                                item.placeId.toString()
-                            }
-                            renderItem={({ item }) => (
+                ) : (
 
-                                <PlaceCard
-                                    place={item}
-                                    onPress={() =>
-                                        router.push({
-                                            pathname: "/detailed_place",
-                                            params: {
-                                                id: item.placeId.toString(),
-                                                from: "favorites",
-                                            },
-                                        })
-                                    }
-                                />
+                    <FlatList
+                        data={places}
+                        showsVerticalScrollIndicator={false}
+                        keyExtractor={(item) =>
+                            item.placeId.toString()
+                        }
+                        renderItem={({ item }) => (
 
-                            )}
-                            ItemSeparatorComponent={() =>
-                                !isTablet ? (
-                                    <Box h={2} bg="$coolGray200" my="$3" mx="$5" />
-                                ) : (
-                                    <Box h="$4" />
-                                )
-                            }
-                        />
+                            <PlaceCard
+                                place={item}
+                                onPress={() =>
+                                    router.push({
+                                        pathname: "/detailed_place",
+                                        params: {
+                                            id: item.placeId.toString(),
+                                            from: "favorites",
+                                            ids: JSON.stringify(favoriteIds)
+                                        },
+                                    })
+                                }
+                            />
 
-                    )}
-                
-                </VStack>
+                        )}
+                        ItemSeparatorComponent={() =>
+                            !isTablet ? (
+                                <Box h={2} bg="$coolGray200" my="$3" mx="$5" />
+                            ) : (
+                                <Box h="$4" />
+                            )
+                        }
+                    />
+
+                )}
+
+            </VStack>
         </Box>
     );
 }

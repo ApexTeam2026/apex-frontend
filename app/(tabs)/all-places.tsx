@@ -7,6 +7,7 @@ import {
     Text,
     Spinner
 } from "@gluestack-ui/themed";
+
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Pressable, FlatList, useWindowDimensions } from "react-native";
 import { useFavorites } from "@/src/providers/FavoritesProvider";
@@ -18,7 +19,7 @@ import PlaceCard from "@/src/components/place-card";
 import AppHeader from "@/src/components/app-header";
 import FilterIcon from "@/src/assets/images/filter-icon.svg";
 import NetworkError from "@/src/components/network-error";
-
+import { LoadingOverlay } from "@/src/components/ui/loading-overlay";
 export default function AllPlacesScreen() {
     const router = useRouter();
     const { width } = useWindowDimensions();
@@ -166,14 +167,7 @@ export default function AllPlacesScreen() {
 
     const normalize = (str?: string) => (str ?? "").trim().toLowerCase();
 
-    if (isLoading) {
-        return (
-            <Box flex={1} justifyContent="center" alignItems="center" bg="$white">
-                <Spinner size="large" color="#C8F751" />
-                <Text mt="$4">Загрузка мест...</Text>
-            </Box>
-        );
-    }
+   
 
     if (networkError && placesData.length === 0) {
         return <NetworkError onRetry={fetchPlaces} />;
@@ -181,6 +175,9 @@ export default function AllPlacesScreen() {
 
     return (
         <Box flex={1} bg="$white">
+            {/* 1. ПОКАЗЫВАЕМ ОВЕРЛЕЙ ПОВЕРХ КОНТЕНТА */}
+            {isLoading && <LoadingOverlay message="Ищем лучшие места..." />}
+
             <Box maxWidth={1200} w="$full" alignSelf="center" flex={1} px={isTablet ? "$10" : "$3"}>
                 <AppHeader />
 

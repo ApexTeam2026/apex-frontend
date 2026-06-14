@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Box, Text, Button, ButtonText, Center, VStack } from "@gluestack-ui/themed";
-import {FlatList, useWindowDimensions} from "react-native";
+import { FlatList, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 
 import PlaceCard from "@/src/components/place-card";
 import { Place } from "@/src/types/place";
 
-import { PlacesService} from "@/src/api/services/places-service";
+import { PlacesService } from "@/src/api/services/places-service";
 import { useFavorites } from "@/src/providers/FavoritesProvider";
 import { useAuth } from "@/src/hooks/useAuth";
 import NetworkError from "@/src/components/network-error";
+import { LoadingOverlay } from "@/src/components/ui/loading-overlay";
 
 export default function VisitedScreen() {
     const { user } = useAuth();
@@ -24,7 +25,7 @@ export default function VisitedScreen() {
     const isTablet =
         width > 768;
 
-    
+
     const fetchVisitedPlaces =
         async () => {
 
@@ -90,29 +91,16 @@ export default function VisitedScreen() {
 
     useEffect(() => {
 
-    fetchVisitedPlaces();
+        fetchVisitedPlaces();
 
     }, [user, visitedIds]);
 
     console.log("VISITED IDS IN SCREEN:", visitedIds);
-    if (loading) {
-
-        return (
-
-            <Center flex={1}>
-
-                <Text>
-                    Загрузка...
-                </Text>
-
-            </Center>
-        );
-    }
 
     if (networkError) {
         return (
             <NetworkError
-            onRetry={fetchVisitedPlaces}
+                onRetry={fetchVisitedPlaces}
             />
         );
     }
@@ -122,6 +110,7 @@ export default function VisitedScreen() {
             flex={1}
             bg="$backgroundLight0"
         >
+            {loading && <LoadingOverlay />}
 
             <VStack
                 flex={1}

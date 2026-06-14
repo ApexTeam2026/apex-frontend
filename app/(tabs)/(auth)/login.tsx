@@ -21,6 +21,7 @@ import { useNetworkBanner } from "@/src/providers/NetworkBannerProvider";
 
 import { AuthService } from "@/src/api/services/auth-services";
 import { TokenStore } from "@/src/api/tokenStore";
+import { LoadingOverlay } from "@/src/components/ui/loading-overlay";
 
 export default function LoginScreen() {
     const { width } = useWindowDimensions();
@@ -41,11 +42,6 @@ export default function LoginScreen() {
 
         console.log("LOGIN CLICKED");
 
-        console.log("FORM VALUES:", {
-            email,
-            password,
-        });
-
         if (email.trim() === "" || password.trim() === "" || !email || !password) {
             console.log("VALIDATION FAILED");
             setIsError(true);
@@ -57,35 +53,11 @@ export default function LoginScreen() {
             setIsLoading(true);
             setIsError(false);
 
-            const payload = {
-                email,
-                password,
-            };
-
-            console.log("LOGIN REQUEST PAYLOAD:");
-            console.log(JSON.stringify(payload, null, 2));
-
-            console.log("BEFORE API");
-            // throw {
-            //     isNetworkError: true
-            // };
             const auth = await AuthService.login(email, password);
-
-            console.log("LOGIN RESPONSE:");
-            console.log(JSON.stringify(auth, null, 2));
 
             TokenStore.set(auth.accessToken);
 
-            console.log("TOKEN SAVED:");
-            console.log(TokenStore.get());
-
-            console.log("FETCH USER...");
-            console.log("AFTER API");
-
             const user = await AuthService.getMe();
-
-            console.log("GET ME RESPONSE:");
-            console.log(JSON.stringify(user, null, 2));
 
             login({
                 user: {
@@ -106,15 +78,13 @@ export default function LoginScreen() {
         } catch (error: any) {
 
             console.log("LOGIN ERROR:");
-            console.log("response", error.response);
-            console.log("message", error.message);
-            console.log("code", error.code);
-            console.log("network", error.isNetworkError);
 
             if (error.isNetworkError) {
                 showNetworkBanner("Нет подключения к интернету");
                 return;
             }
+
+            setIsError(true);
 
         } finally {
             setIsLoading(false);
@@ -123,6 +93,9 @@ export default function LoginScreen() {
 
     return (
         <Box flex={1} bg="$backgroundLight0">
+            {/* АНИМАЦИЯ ЗАГРУЗКИ ПРИ ВХОДЕ */}
+            {isLoading && <LoadingOverlay message="Проверка данных..." />}
+
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <Center flex={1} px="$6" py="$10">
 
@@ -234,15 +207,11 @@ export default function LoginScreen() {
                                         onPress={handleLogin}
                                         isDisabled={isLoading}
                                     >
-                                        {isLoading ? (
-                                            <Spinner color="#C8F751" />
-                                        ) : (
-                                            <Ionicons
-                                                name="chevron-forward"
-                                                size={isTablet ? 36 : 30}
-                                                color="#D1D1D1"
-                                            />
-                                        )}
+                                        <Ionicons
+                                            name="chevron-forward"
+                                            size={isTablet ? 36 : 30}
+                                            color="#D1D1D1"
+                                        />
                                     </Button>
                                 </Box>
 

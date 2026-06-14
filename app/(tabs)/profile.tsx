@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView,Box, Text, Button, ButtonText, VStack, HStack, Center } from "@gluestack-ui/themed";
+import { ScrollView, Box, Text, Button, ButtonText, VStack, HStack, Center } from "@gluestack-ui/themed";
 import AppHeader from "@/src/components/app-header";
 import AvatarIcon from "@/src/assets/images/aavatar_icon.svg";
 import { useAuth } from "@/src/hooks/useAuth";
@@ -7,6 +7,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useWindowDimensions } from "react-native";
 import { AuthService } from "@/api/services/auth-services";
+import { LoadingOverlay } from "@/src/components/ui/loading-overlay";
 
 export default function ProfileScreen() {
     const { width } = useWindowDimensions();
@@ -15,6 +16,7 @@ export default function ProfileScreen() {
     const router = useRouter();
 
     const [showLogoutConfirm, setShowLogoutConfirm] = useState<boolean>(false);
+    const [isActionLoading, setIsActionLoading] = useState<boolean>(false);
 
     const handleLogin = () => {
         router.push("/(tabs)/(auth)/login");
@@ -25,9 +27,14 @@ export default function ProfileScreen() {
     };
 
     const handleLogout = () => {
-        logout();
-        setShowLogoutConfirm(false);
-        router.replace("/(tabs)/profile");
+        setIsActionLoading(true);
+
+        setTimeout(() => {
+            logout();
+            setIsActionLoading(false);
+            setShowLogoutConfirm(false);
+            router.replace("/(tabs)/profile");
+        }, 800);
     };
 
     const formatDate = (dateString?: string) => {
@@ -38,11 +45,19 @@ export default function ProfileScreen() {
         return date.toLocaleDateString("ru-RU");
     };
 
-    if (user === undefined) return null;
+    if (user === undefined) {
+        return (
+            <Box flex={1} bg="$backgroundLight0">
+                <LoadingOverlay />
+            </Box>
+        );
+    }
 
     if (user) {
         return (
             <Box flex={1} bg="$backgroundLight0">
+                {isActionLoading && <LoadingOverlay message="Выходим из аккаунта..." />}
+
                 <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
                     <Box flex={1} px="$6" position="relative">
                         {/* Кнопка выхода в правом верхнем углу */}
@@ -246,6 +261,7 @@ export default function ProfileScreen() {
     // ГОСТЬ 
     return (
         <Box flex={1} bg="$backgroundLight0">
+            {isActionLoading && <LoadingOverlay />}
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <Box
                     px="$9"
@@ -282,7 +298,7 @@ export default function ProfileScreen() {
                                         mb="$4"
                                         color="#000000"
                                         textAlign="center"
-                                        //fontWeight="$bold"
+                                    //fontWeight="$bold"
                                     >
                                         Здравствуйте!
                                     </Text>
@@ -331,6 +347,6 @@ export default function ProfileScreen() {
                     <Box pb="$10" />
                 </Box>
             </ScrollView>
-        </Box>     
+        </Box>
     );
 }
