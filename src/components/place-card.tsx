@@ -30,7 +30,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   onPress,
 }) => {
 
-  console.log("PLACE CARD RENDER", place.placeId);
+  //console.log("PLACE CARD RENDER", place.placeId);
   const [showAuthModal, setShowAuthModal] =
     useState(false);
 

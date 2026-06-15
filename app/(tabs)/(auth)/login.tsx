@@ -37,6 +37,7 @@ export default function LoginScreen() {
     const [isLoading, setIsLoading] = useState(false);
 
     const { showNetworkBanner } = useNetworkBanner();
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async () => {
 
@@ -59,7 +60,10 @@ export default function LoginScreen() {
 
             const user = await AuthService.getMe();
 
-            login({
+            console.log("GET ME RESPONSE:");
+            console.log(JSON.stringify(user, null, 2));
+
+            await login({
                 user: {
                     id: user.userID,
                     name: user.name,
@@ -144,7 +148,12 @@ export default function LoginScreen() {
                                             почта
                                         </Text>
 
-                                        <Input variant="underlined" borderWidth={0} isDisabled={isLoading}>
+                                        <Input 
+                                            variant="underlined" 
+                                            borderWidth={0}  
+                                            borderBottomColor="#CECECE"
+                                            isDisabled={isLoading}
+                                        >
                                             <InputField
                                                 value={email}
                                                 onChangeText={(v) => {
@@ -153,6 +162,8 @@ export default function LoginScreen() {
                                                 }}
                                                 placeholder="yep@gmail.com"
                                                 color="#000"
+                                                cursorColor="#ADADAD"
+                                                selectionColor="#C8F751"
                                                 fontSize={isTablet ? 18 : 16}
                                             />
                                         </Input>
@@ -172,19 +183,40 @@ export default function LoginScreen() {
                                             пароль
                                         </Text>
 
-                                        <Input variant="underlined" borderWidth={0} isDisabled={isLoading}>
-                                            <InputField
-                                                type="password"
-                                                value={password}
-                                                onChangeText={(v) => {
-                                                    setPassword(v);
-                                                    setIsError(false);
-                                                }}
-                                                placeholder="......"
-                                                color="#000"
-                                                fontSize={isTablet ? 18 : 16}
-                                            />
-                                        </Input>
+                                        <HStack alignItems="center">
+                                            <Input
+                                                flex={1}
+                                                variant="underlined"
+                                                borderWidth={0}
+                                                isDisabled={isLoading}
+                                                borderBottomColor="#CECECE"
+                                            >
+                                                <InputField
+                                                    type={showPassword ? "text" : "password"}
+                                                    value={password}
+                                                    onChangeText={(v) => {
+                                                        setPassword(v);
+                                                        setIsError(false);
+                                                    }}
+                                                    placeholder="••••••••"
+                                                    color="#000"
+                                                    fontSize={isTablet ? 18 : 16}
+                                                    cursorColor="#ADADAD"
+                                                    selectionColor="#C8F751"
+                                                />
+                                            </Input>
+
+                                            <Pressable
+                                                onPress={() => setShowPassword(!showPassword)}
+                                                p={isTablet ? "$3" : "$2"}
+                                            >
+                                                <Ionicons
+                                                    name={showPassword ? "eye-off-outline" : "eye-outline"}
+                                                    size={isTablet ? 28 : 22}
+                                                    color="#ADADAD"
+                                                />
+                                            </Pressable>
+                                        </HStack>
                                     </Box>
                                 </FormControl>
 

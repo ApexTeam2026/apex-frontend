@@ -26,11 +26,11 @@ export default function ProfileScreen() {
         router.push("/(tabs)/(auth)/register");
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         setIsActionLoading(true);
 
-        setTimeout(() => {
-            logout();
+        setTimeout(async () => {
+            await logout();
             setIsActionLoading(false);
             setShowLogoutConfirm(false);
             router.replace("/(tabs)/profile");

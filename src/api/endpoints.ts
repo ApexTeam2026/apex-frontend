@@ -1,7 +1,7 @@
 export const endpoints = {
   auth: {
-    login: "api/auth/login",
-    register: "api/users/register",
+    login: "/api/auth/login",
+    register: "/api/users/register",
   },
 
   users: {
@@ -9,10 +9,10 @@ export const endpoints = {
   },
 
   places: {
-    list: "api/places",
-    quiz: ("api/places/quiz"),
+    list: "/api/places",
+    quiz: ("/api/places/quiz"),
     byId: (id: string | number) => `/api/places/${id}`,
-    create: "api/places",
+    create: "/api/places",
   },
 
   categories: {

@@ -48,6 +48,7 @@ export default function RegisterScreen() {
 
     const [errorText, setErrorText] = useState("");
     const { showNetworkBanner } = useNetworkBanner();
+    const [showPassword, setShowPassword] = useState(false);
 
     const formatDateInput = (value: string) => {
         const numbers = value.replace(/\D/g, "");
@@ -89,7 +90,10 @@ export default function RegisterScreen() {
             TokenStore.set(auth.accessToken);
             const user = await AuthService.getMe();
 
-            login({
+            console.log("GET ME RESPONSE:");
+            console.log(JSON.stringify(user, null, 2));
+
+            await login({
                 user: {
                     id: user.userID,
                     name: user.name,
@@ -166,9 +170,15 @@ export default function RegisterScreen() {
                             {/* FIELDS */}
                             {[
                                 { label: "имя", val: name, set: setName },
-                                { label: "дата рождения", val: birthDate, set: (text: string) => setBirthDate(formatDateInput(text)), keyboardType: "numeric" as const, maxLength: 10, placeholder: "ДД.ММ.ГГГГ" },
+                                {
+                                    label: "дата рождения",
+                                    val: birthDate,
+                                    set: (text: string) => setBirthDate(formatDateInput(text)),
+                                    keyboardType: "numeric" as const,
+                                    maxLength: 10,
+                                    placeholder: "ДД.ММ.ГГГГ",
+                                },
                                 { label: "почта", val: email, set: setEmail },
-                                { label: "пароль", val: password, set: setPassword, pass: true },
                             ].map((f) => (
                                 <Box
                                     key={f.label}
@@ -180,9 +190,16 @@ export default function RegisterScreen() {
                                     py={isTablet ? "$2" : "$1"}
                                 >
                                     <Text fontSize={isTablet ? 14 : 12} color="#ADADAD">{f.label}</Text>
-                                    <Input variant="underlined" borderWidth={0} h={isTablet ? 45 : 35} isDisabled={isLoading}>
+                                    <Input 
+                                        variant="underlined" 
+                                        borderWidth={0} 
+                                        h={isTablet ? 45 : 35} 
+                                        isDisabled={isLoading}
+                                        borderBottomColor="#CECECE"
+                                        
+                                    >
                                         <InputField
-                                            type={f.pass ? "password" : "text"}
+                                            type={"text"}
                                             value={f.val}
                                             onChangeText={f.set}
                                             color="#000"
@@ -190,14 +207,64 @@ export default function RegisterScreen() {
                                             keyboardType={f.keyboardType}
                                             maxLength={f.maxLength}
                                             placeholder={f.placeholder}
+                                            cursorColor="#ADADAD"
+                                            selectionColor="#C8F751"
                                         />
                                     </Input>
                                 </Box>
                             ))}
 
+                            <Box
+                                w="$full"
+                                borderWidth={2}
+                                borderColor="#CECECE"
+                                borderRadius="$xl"
+                                px="$4"
+                                py={isTablet ? "$2" : "$1"}
+                            >
+                                <Text fontSize={isTablet ? 14 : 12} color="#ADADAD">
+                                    пароль
+                                </Text>
+
+                                <HStack alignItems="center">
+                                    <Input
+                                        flex={1}
+                                        variant="underlined" 
+                                        borderWidth={0}
+                                        h={isTablet ? 45 : 35}
+                                        isDisabled={isLoading}
+                                        borderBottomColor="#CECECE"
+                                    >
+                                        <InputField
+                                            type={showPassword ? "text" : "password"}
+                                            value={password}
+                                            onChangeText={setPassword}
+                                            color="#000"
+                                            fontSize={isTablet ? 18 : 16}
+                                            placeholder="••••••••"
+                                        />
+                                    </Input>
+
+                                    <Pressable
+                                        onPress={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            padding: isTablet ? 12 : 8,
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                        }}
+                                    >
+                                        <Ionicons
+                                            name={showPassword ? "eye-off-outline" : "eye-outline"}
+                                            size={isTablet ? 28 : 22}
+                                            color="#ADADAD"
+                                        />
+                                    </Pressable>
+                                </HStack>
+                            </Box>
+
                             {!!errorText && (
                                 <HStack w="$full" space="xs" alignItems="flex-start" mt="$2">
-                                    <Ionicons name="close" size={20} color="#C25353" style={{ marginTop: 2 }} />
+                                    <Ionicons name="close" size={isTablet ? 24 : 20} color="#C25353" style={{ marginTop: 2 }} />
                                     <Text color="#000" size="sm" flexShrink={1}>{errorText}</Text>
                                 </HStack>
                             )}
@@ -205,8 +272,16 @@ export default function RegisterScreen() {
                             {/* CHECKBOX */}
                             <HStack mt="$4" px="$1" alignItems="flex-start" space="sm" opacity={isLoading ? 0.5 : 1}>
                                 <Checkbox value="accept" isChecked={isChecked} onChange={setIsChecked} isDisabled={isLoading} size={isTablet ? "lg" : "md"}>
-                                    <CheckboxIndicator mr="$2" borderColor="#CECECE" borderRadius="$full">
-                                        <CheckboxIcon as={CheckIcon} color="#C8F751" />
+                                    <CheckboxIndicator
+                                        mr="$2"
+                                        borderRadius="$full"
+                                        borderColor={isChecked ? "#C8F751" : "#CECECE"}
+                                        bg={isChecked ? "#C8F751" : "transparent"}
+                                    >
+                                        <CheckboxIcon
+                                            as={CheckIcon}
+                                            color="#000"
+                                        />
                                     </CheckboxIndicator>
                                 </Checkbox>
                                 <Text size={isTablet ? "md" : "xs"} color="#ADADAD" lineHeight={isTablet ? "$md" : "$xs"} flexShrink={1}>

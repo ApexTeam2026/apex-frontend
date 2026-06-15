@@ -180,6 +180,7 @@ const buildQuizPayload = (answers: Record<string, string>) => {
               onPress={handleNext}
               isDisabled={!selected || loading}
               borderRadius="$xl"
+              borderColor={!selected || loading ? "#CECECE" : "#C8F751"}
               variant="outline"
               width="100%"
               height={46}

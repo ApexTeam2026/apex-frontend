@@ -55,7 +55,6 @@ export default function AllPlacesScreen() {
         ? Number(priceTo)
         : undefined;
 
-    // ---------------- API ----------------
     console.log("PARAMS", {
         categories,
         time,
@@ -135,7 +134,10 @@ export default function AllPlacesScreen() {
                 e?.response?.data || e?.message
             );
 
-            setNetworkError(true);
+            if (e.isNetworkError) {
+                setNetworkError(true);
+            }
+
         } finally {
             setIsLoading(false);
         }
@@ -189,6 +191,7 @@ export default function AllPlacesScreen() {
                             value={search}
                             onChangeText={setSearch}
                             fontSize={isTablet ? 18 : 16}
+                            maxLength={100}
                         />
                     </Input>
 

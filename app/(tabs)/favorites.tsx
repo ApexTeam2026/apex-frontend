@@ -40,39 +40,29 @@ export default function VisitedScreen() {
 
             setLoading(true);
             setNetworkError(false);
-            // получаем favorites
             const favorites =
                 await UserPlaceService.getFavorites(
                     user.id
                 );
 
-            console.log(
-                "FAVORITES RESPONSE:"
-            );
+            // console.log(
+            //     "FAVORITES RESPONSE:"
+            // );
 
             console.log(
                 JSON.stringify(favorites, null, 2)
             );
 
-            // только избранные
-            const favoriteOnly =
-                favorites.filter(
-                    (item: any) => item.isFavorite
-                );
-
-            // загружаем place details
-            const placesData =
-                await Promise.all(
-
-                    favoriteOnly.map(
-                        async (item: any) => {
-
-                            return await PlacesService.getById(
-                                item.placeId.toString()
-                            );
-                        }
-                    )
-                );
+            //console.log("CONTEXT IDS", favoriteIds);
+            const placesData = await Promise.all(
+            favoriteIds.map(id =>
+                PlacesService.getById(id.toString())
+            )
+            );
+            console.log(
+            "PLACES TO DISPLAY",
+            placesData.map(p => p.placeId)
+            );
 
             setPlaces(placesData);
 
@@ -94,10 +84,11 @@ export default function VisitedScreen() {
     };
 
     useEffect(() => {
+        // console.log("VISITED EFFECT FIRED", favoriteIds);
         fetchFavoritePlaces();
     }, [user, favoriteIds]);
 
-    console.log("FAVORITE IDS IN SCREEN:", favoriteIds);
+    // console.log("FAVORITE IDS IN SCREEN:", favoriteIds);
 
 
     if (networkError) {
