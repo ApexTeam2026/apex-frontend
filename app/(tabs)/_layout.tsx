@@ -39,29 +39,17 @@ export default function TabLayout() {
           ),
         }}
       />
-
-      <Tabs.Screen
-        name="(survey)/questions"
-        options={{
-          href: null,
-        }}
-      />
-      
-      <Tabs.Screen
-        name="(survey)/results"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="(auth)"
-        options={{ href: null }}
-      />
       <Tabs.Screen
         name="filters"
         options={{
           href: null, // Это скроет страницу из нижнего бара, но позволит на неё переходить
+        }}
+      />
+
+      <Tabs.Screen
+        name="questions"
+        options={{
+          href: null,
         }}
       />
 

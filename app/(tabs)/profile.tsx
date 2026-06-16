@@ -19,11 +19,11 @@ export default function ProfileScreen() {
     const [isActionLoading, setIsActionLoading] = useState<boolean>(false);
 
     const handleLogin = () => {
-        router.push("/(tabs)/(auth)/login");
+        router.push("/(auth)/login");
     };
 
     const handleRegister = () => {
-        router.push("/(tabs)/(auth)/register");
+        router.push("/(auth)/register");
     };
 
     const handleLogout = async () => {

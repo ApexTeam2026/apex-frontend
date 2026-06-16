@@ -15,7 +15,7 @@ import {
 } from "@gluestack-ui/themed";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "../../../src/hooks/useAuth";
+import { useAuth } from "../../src/hooks/useAuth";
 import { Alert, useWindowDimensions } from "react-native";
 import { useNetworkBanner } from "@/src/providers/NetworkBannerProvider";
 
@@ -77,7 +77,7 @@ export default function LoginScreen() {
 
             console.log("REDIRECT TO PROFILE");
 
-            router.replace("/profile");
+            router.replace("/(tabs)/profile");
 
         } catch (error: any) {
 
@@ -116,7 +116,7 @@ export default function LoginScreen() {
 
                             {/* BACK */}
                             <Box w="$full" alignItems="flex-start">
-                                <Pressable onPress={() => { if (!isLoading) router.replace("/profile"); }}>
+                                <Pressable onPress={() => { if (!isLoading) router.back(); }}>
                                     <Ionicons
                                         name="chevron-back"
                                         size={isTablet ? 32 : 28}

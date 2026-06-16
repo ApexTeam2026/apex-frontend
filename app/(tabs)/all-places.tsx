@@ -125,7 +125,6 @@ export default function AllPlacesScreen() {
             );
 
             const data = await PlacesService.getAll(filters);
-            //console.log("DATA", data);
 
             setPlacesData(data || []);
         } catch (e: any) {
@@ -168,8 +167,6 @@ export default function AllPlacesScreen() {
     }, [placesData, search]);
 
     const normalize = (str?: string) => (str ?? "").trim().toLowerCase();
-
-   
 
     if (networkError && placesData.length === 0) {
         return <NetworkError onRetry={fetchPlaces} />;

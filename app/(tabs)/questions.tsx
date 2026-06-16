@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { BackHandler } from "react-native";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import {
   Box,
   Text,
@@ -14,10 +17,13 @@ import { useRouter } from "expo-router";
 import { questions } from "@/src/data/questions";
 import { QuizService } from "@/src/api/services/quiz-service";
 import { useSurveyStore } from "@/src/store/surveyStore";
+import NetworkError from "@/src/components/network-error";
+
 
 export default function SurveyScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
 
   const {
     current,
@@ -66,6 +72,7 @@ const buildQuizPayload = (answers: Record<string, string>) => {
 
     // последний вопрос → отправка
   try {
+  setNetworkError(false);
   setLoading(true);
 
   const payload = buildQuizPayload(answers);
@@ -91,8 +98,12 @@ const buildQuizPayload = (answers: Record<string, string>) => {
   },
 });
 
-} catch (error) {
+} catch (error: any) {
       console.log("QUIZ ERROR:", error);
+
+      if (error.isNetworkError) {
+          setNetworkError(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -104,10 +115,35 @@ const buildQuizPayload = (answers: Record<string, string>) => {
     }
   };
 
+  useFocusEffect(
+  useCallback(() => {
+    const onBackPress = () => {
+      if (current > 0) {
+        setCurrent(current - 1);
+      } else {
+        router.replace("/home");
+      }
+
+      return true;
+    };
+
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      onBackPress
+    );
+
+    return () => subscription.remove();
+  }, [current])
+);
+
   useEffect(() => {
     reset();
     setStarted(true);
   }, []);
+
+  if (networkError) {
+      return <NetworkError onRetry={handleNext} />;
+  }
 
   return (
     <Box flex={1} bg="$backgroundLight0" px="$5" py="$6" justifyContent="space-between">

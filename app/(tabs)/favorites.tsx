@@ -3,6 +3,9 @@ import { Box, Text, Button, ButtonText, Center, VStack, ScrollView } from "@glue
 import { useRouter } from "expo-router";
 import { useWindowDimensions, FlatList } from "react-native";
 import PlaceCard from "@/src/components/place-card";
+import { BackHandler } from "react-native";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 import { Place } from "@/src/types/place";
 
@@ -82,6 +85,22 @@ export default function VisitedScreen() {
             setLoading(false);
         }
     };
+
+    useFocusEffect(
+        useCallback(() => {
+            const onBackPress = () => {
+            router.replace("/profile");
+            return true;
+            };
+
+            const subscription = BackHandler.addEventListener(
+            "hardwareBackPress",
+            onBackPress
+            );
+
+            return () => subscription.remove();
+        }, [])
+    );
 
     useEffect(() => {
         // console.log("VISITED EFFECT FIRED", favoriteIds);

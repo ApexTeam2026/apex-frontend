@@ -22,7 +22,7 @@ export default function HomeScreen() {
       return;
     }
 
-    router.replace("/(tabs)/(survey)/questions");
+    router.push("/questions");
   };
 
   const getButtonText = () => {

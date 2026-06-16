@@ -1,5 +1,12 @@
 import React from "react";
 
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideOutDown,
+} from "react-native-reanimated";
+
 import {
   Modal,
   ModalBackdrop,
@@ -27,7 +34,13 @@ export function AuthRequiredModal({
   onLoginPress,
 }: Props) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Animated.View
+      entering={SlideInDown.duration(250)}
+    >
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+    >
       <ModalBackdrop />
 
       <ModalContent
@@ -100,5 +113,6 @@ export function AuthRequiredModal({
         </ModalFooter>
       </ModalContent>
     </Modal>
+    </Animated.View>
   );
 }

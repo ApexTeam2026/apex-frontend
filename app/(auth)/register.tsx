@@ -20,7 +20,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useWindowDimensions } from "react-native";
 
-import { useAuth } from "../../../src/hooks/useAuth";
+import { useAuth } from "../../src/hooks/useAuth";
 import { useNetworkBanner } from "@/src/providers/NetworkBannerProvider";
 import { LegalModal } from "@/src/components/ui/legal-modal";
 import { PRIVACY_POLICY, TERMS_OF_USE } from "@/src/constants/legal";
@@ -68,8 +68,31 @@ export default function RegisterScreen() {
     const handleRegister = async () => {
         const apiDate = convertToApiDate(birthDate);
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex =
+            /^(?=.*[A-ZА-Я])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+        const birthDateRegex =
+            /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d\d$/;
+
         if (!isChecked || name.trim() === "" || email.trim() === "" || password.trim() === "") {
             setErrorText("Заполните все поля");
+            return;
+        }
+
+        if (!emailRegex.test(email)) {
+            setErrorText("Введите корректный адрес электронной почты");
+            return;
+        }
+
+        if (!birthDateRegex.test(birthDate)) {
+            setErrorText("Введите корректную дату рождения в формате ДД.ММ.ГГГГ");
+            return;
+        }
+
+        if (!passwordRegex.test(password)) {
+            setErrorText(
+                "Пароль должен содержать минимум 8 символов, одну заглавную букву и один специальный символ"
+            );
             return;
         }
 
@@ -105,12 +128,18 @@ export default function RegisterScreen() {
                 authKey: auth.authKey,
             });
 
-            router.replace("/profile");
+            router.replace("/(tabs)/profile");
 
         } catch (error: any) {
             console.log("REGISTER ERROR");
-            const backendMessage = error?.response?.data?.message || error?.response?.data?.error || error?.message || "Ошибка регистрации";
+            const backendMessage = 
+                error?.response?.data?.message || 
+                error?.response?.data?.error || 
+                error?.message || 
+                "Ошибка регистрации";
+            
             setErrorText(String(backendMessage));
+
 
             if (error.isNetworkError) {
                 showNetworkBanner("Нет подключения к интернету");
@@ -146,7 +175,7 @@ export default function RegisterScreen() {
                             {/* BACK */}
                             <Box w="$full" alignItems="flex-start">
                                 <Pressable
-                                    onPress={() => { if (!isLoading) router.replace("/profile"); }}
+                                    onPress={() => { if (!isLoading) router.back(); }}
                                     p="$1"
                                 >
                                     <Ionicons

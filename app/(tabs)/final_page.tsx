@@ -3,7 +3,7 @@ import {
     Text,
 } from "@gluestack-ui/themed";
 
-import { FlatList } from "react-native";
+import { FlatList, useWindowDimensions } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 
@@ -16,12 +16,14 @@ import { LoadingOverlay } from "@/src/components/ui/loading-overlay";
 export default function RecommendationsScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
+    const { width } = useWindowDimensions();
+
+    const isTablet = width > 768;
 
     const [places, setPlaces] = useState<Place[]>([]);
     const [loading, setLoading] = useState(true);
     console.log("RAW PARAMS IDS:", params.ids);
 
-    // ✔️ НОРМАЛЬНЫЙ PARSING IDS (Твой оригинальный код)
     const selectedIds = useMemo(() => {
         if (!params.ids || typeof params.ids !== "string") return [];
 
@@ -101,6 +103,20 @@ export default function RecommendationsScreen() {
                             }
                         />
                     )}
+                    ListEmptyComponent={() => (
+                        <Box mt="$10" alignItems="center">
+                            <Text 
+                                fontSize={18} 
+                                color="$coolGray500" 
+                                flexWrap="wrap"
+                            >
+                                Мы не нашли подходящих мест, попробуйте пройти опрос заново 😢
+                            </Text>
+                        </Box>
+                    )}
+                    ItemSeparatorComponent={() =>
+                        !isTablet ? <Box h={2} bg="$coolGray200" my="$3" mx="$5" /> : <Box h="$4" />
+                    }
                 />
             )}
         </Box>

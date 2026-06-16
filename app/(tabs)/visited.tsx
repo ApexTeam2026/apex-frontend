@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Box, Text, Button, ButtonText, Center, VStack } from "@gluestack-ui/themed";
 import { FlatList, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
+import { BackHandler } from "react-native";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 import PlaceCard from "@/src/components/place-card";
 import { Place } from "@/src/types/place";
@@ -88,6 +91,22 @@ export default function VisitedScreen() {
                 setLoading(false);
             }
         };
+
+    useFocusEffect(
+        useCallback(() => {
+            const onBackPress = () => {
+            router.replace("/profile");
+            return true;
+            };
+
+            const subscription = BackHandler.addEventListener(
+            "hardwareBackPress",
+            onBackPress
+            );
+
+            return () => subscription.remove();
+        }, [])
+    );
 
     useEffect(() => {
 
