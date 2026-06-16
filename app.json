@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "/Пермь",
+    "slug": "perm-discovery-map",
+    "version": "1.0.1",
+    "orientation": "default",
+    "icon": "./src/assets/images/icon.png",
+    "scheme": "permdiscoverymap",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.permdiscovery.map",
+      "usesCleartextTraffic": true,
+      "icon": "./src/assets/images/icon1024.png",
+      "edgeToEdgeEnabled": false,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./src/assets/images/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/images/icon1024.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "API_URL": "https://slash-perm.ddns.net",
+      "router": {},
+      "eas": {
+        "projectId": "eb4caea9-21ab-4db8-8b7d-b8b67fbb7fbb"
+      }
+    },
+    "owner": "apexteampr"
+  }
+}
